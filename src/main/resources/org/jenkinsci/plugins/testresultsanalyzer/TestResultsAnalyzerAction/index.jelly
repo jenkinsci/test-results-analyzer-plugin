@@ -1,0 +1,42 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
+<l:layout title="Test Result Graph">
+<st:include it="${it.project}" page="sidepanel.jelly" />
+<st:bind var="remoteAction" value="${it}"/> 
+<l:main-panel>
+<link href="${resURL}/plugin/testResultGraph/css/table-style.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="${resURL}/plugin/testResultGraph/jquery/js/jquery-1.11.1.min.js"></script>
+
+<script type="text/javascript" src="${resURL}/plugin/testResultGraph/js/testresult.js"></script>
+<j:set var="temp" value="${it.jsonLoadData}"/>
+<j:set var="builds" value="${it.builds}"/>
+<div>
+Select
+<select id="noofbuilds">
+  <option value="all">All</option>
+  <option value="10">10</option>
+  <option value="20">20</option>
+  <option value="30">30</option>
+</select>
+Last builds and show
+
+<select id="teststatus">
+  <option value="all">All</option>
+  <option value="FAILED">FAILED</option>  
+</select>
+ tests
+<button id="getbuildreport">Get Build Report</button>
+</div>
+<div id="tree">
+
+</div>
+<div id="builddetail">
+
+</div>
+<script>
+$("#getbuildreport").click(function () {
+	populate();
+});
+</script>
+  </l:main-panel>
+  </l:layout>
+</j:jelly>

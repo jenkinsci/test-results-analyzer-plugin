@@ -1,0 +1,141 @@
+	#tree  {
+		
+		border-collapse: collapse;
+    }
+	.table {		
+		background: #e8edff;
+		font-size: 14px;
+		overflow: auto;
+	}
+    .title {
+        display: table-caption;
+        text-align: center;
+        font-weight: bold;
+        font-size: larger;
+    }
+    
+    .failed {
+    	color: red;    
+    }
+    
+    .passed {
+    	color: green;
+    }
+	
+    .heading {
+        font-weight: bold;
+		border-bottom: 2px solid #6678b1;
+		background: #BBCBFF;
+    }
+	img {
+		margin-left: 10px;
+	}
+	
+	.heading .row {
+		
+	}
+    
+	.row {
+		color: #669;
+		padding: 9px 8px 0;
+		border-bottom: 1px solid #fff;
+    	display: flex;
+	}
+	
+	.even {
+		background: white;	
+	}
+	.even:hover {
+		background: #BFC9EC;
+		
+	}
+	
+	
+	.odd {
+	
+	}
+	.odd:hover {
+		background: #BFC9EC;	
+	}
+	
+    .cell {
+        display: inline-block;
+		border-width: thin;
+    }
+    
+    .cell.column {
+        text-align: center;        
+		overflow: hidden;
+    }
+    
+    .cell.column {
+        text-align: center;        
+		overflow: visible;
+    }
+    
+	.tabcell {
+        display: inline-block;
+	}
+	.group {
+	
+	}
+	.cell.builddetail {
+		cursor: pointer;
+	}	
+	
+	.heading .cell {
+		text-align: center;
+		font-size: 14px;
+		font-weight: bold;
+		color: #039;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+	
+	.heading .cell:nth-child(1) {
+		min-width: 290px;
+		width: 290px;
+	}
+	
+	.heading .cell:nth-child(n+2) {
+		min-width: 80px;
+		margin-left: 5px;		
+	}
+	
+	.group.base .cell:nth-child(1) {
+		min-width: 290px;
+		width: 290px;
+	}
+	
+	.group.base .cell:nth-child(1):hover {
+		overflow: visible;
+	}
+	
+	.group.base .cell:nth-child(n+2) {
+		min-width: 80px;
+		margin-left: 5px;
+	}
+	
+	.icon {
+		background-image: url(../images/glyphicons-halflings.png);
+		width: 14px;
+		height: 14px;
+		display: inline-block;
+	}
+	
+	.icon-plus-sign {
+		background-position: 0 -96px;
+	}
+
+	.icon-minus-sign {
+		background-position: -24px -96px;
+	}
+	
+	.icon-rightarrow {
+		src: toggle_arrow_open.gif
+	
+	}
+	
+	.icon-downarrow {
+		content: url(thumbnail_toggle_arrow_down.png)
+	}
