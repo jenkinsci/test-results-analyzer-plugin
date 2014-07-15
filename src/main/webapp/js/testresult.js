@@ -45,9 +45,11 @@ function constructNodes(node,parentName, level) {
 			} else if (status == "PASSED") {
 				statusClass = "passed";
 			} 
+			//Build results is generated but not used. 
+			// TODO: Implement a pop-up to show the buildresults
 			buildResult = JSON.stringify(buildDetails);			
 		}
-        datacol += "<div class='cell builddetail "+value.cls+" "+ statusClass +"' buildDetails='" + buildResult + "'>" + status + "</div>";
+        datacol += "<div class='cell builddetail "+value.cls+" "+ statusClass +"' >"+ status + "</div>";
     })
 	treeMarkup +="<div class = 'group "+rowClass+"'";
     if(level>0){
@@ -87,6 +89,14 @@ function addEvents(){
 		var childNodeClass = (parent+"."+nodeName).replace(/\./g,"-");
 		$("."+childNodeClass).toggle();
 	});	
+	
+	/*$(".cell.builddetail").mouseover(function(){
+		var buildDetails = $(this).find(".popup.builddetail");
+		$(buildDetails).show();
+	});
+	$(".cell.builddetail").mouseout(function(){
+		$('#builddetail').html("");
+	});*/
 }
 
 function createTree(source){	
@@ -140,6 +150,20 @@ function populate(){
 			
   },this));
 	
+	
+}
+
+function collapseAll(){
+	$('#tree').html(treeMarkup);
+	this.addEvents();	
+}
+
+function expandAll(){
+	$('#tree').html(treeMarkup);
+	this.addEvents();
+	$(".table .row .cell > a").each(function(){
+		$(this).click();
+	});
 	
 }
 
