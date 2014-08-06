@@ -66,7 +66,7 @@ function constructNodes(node,parentName, level) {
 	if (node.children && node.children.length > 0){
 		treeMarkup += "<a href='#' parentname = '"+parentName+"' name='"+node.text+"'><div class='icon icon-plus-sign' /></a>"
 	}
-	treeMarkup +=" "+ node.text + "</div>" + datacol + "  </div>\n";
+	treeMarkup +=" <div class='data'>"+ node.text + "</div></div>" + datacol + "  </div>\n";
     if (node.children && node.children.length > 0) {
         level++;
         $.each(node.children, function (index, value) {

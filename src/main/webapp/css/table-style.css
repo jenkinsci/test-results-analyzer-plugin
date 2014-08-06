@@ -89,6 +89,9 @@
 	.cell.builddetail {
 		cursor: pointer;
 	}
+	.cell .data {
+		display: inline-block;		
+	}
 	
 		
 	#builddetail {

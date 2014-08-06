@@ -4,15 +4,14 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>1.532.3</version><!-- which version of Jenkins is this plugin 
-			built against? Users must have at least this Jenkins version to use this 
-			plugin. -->
+		<version>1.532.3</version>
 	</parent>
 
 	<artifactId>TestResultsAnalyzer</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 	<name>Test Results Analyzer Plugin</name>
+	<url>http://wiki.jenkins-ci.org/display/JENKINS/Test+Results+Analyzer+Plugin</url>
 	<developers>
 		<developer>
 			<id>menonvarun</id>
@@ -27,10 +26,11 @@
 			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
 		</license>
 	</licenses>
-	<dependencies>
-		
-	</dependencies>
-
+	<scm>
+		<connection>scm:git:ssh://github.com/jenkinsci/testInProgress-plugin.git</connection>
+		<developerConnection>scm:git:git@github.com/jenkinsci/testInProgress-plugin.git</developerConnection>
+		<url>https://github.com/jenkinsci/testInProgress-plugin</url>
+	</scm>
 	<!-- get every artifact through repo.jenkins-ci.org, which proxies all the 
 		artifacts that we need -->
 	<repositories>
@@ -39,6 +39,12 @@
 			<url>http://repo.jenkins-ci.org/public/</url>
 		</repository>
 	</repositories>
+	<distributionManagement>
+		<repository>
+			<id>maven.jenkins-ci.org</id>
+			<url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
+		</repository>
+	</distributionManagement>
 
 	<pluginRepositories>
 		<pluginRepository>
