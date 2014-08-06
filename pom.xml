@@ -27,9 +27,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:ssh://github.com/jenkinsci/testInProgress-plugin.git</connection>
-		<developerConnection>scm:git:git@github.com/jenkinsci/testInProgress-plugin.git</developerConnection>
-		<url>https://github.com/jenkinsci/testInProgress-plugin</url>
+		<connection>scm:git:ssh://git@github.com:jenkinsci/test-results-analyzer-plugin.git</connection>
+		<developerConnection>scm:git:git@github.com:jenkinsci/test-results-analyzer-plugin.git</developerConnection>
+		<url>https://github.com/jenkinsci/test-results-analyzer-plugin.git</url>
 	</scm>
 	<!-- get every artifact through repo.jenkins-ci.org, which proxies all the 
 		artifacts that we need -->
