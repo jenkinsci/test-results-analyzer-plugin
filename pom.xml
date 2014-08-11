@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>TestResultsAnalyzer</artifactId>
-	<version>0.2-SNAPSHOT</version>
+	<version>0.1.1</version>
 	<packaging>hpi</packaging>
 	<name>Test Results Analyzer - Deprecated</name>
 	<url>http://wiki.jenkins-ci.org/display/JENKINS/Test+Results+Analyzer+Plugin+Deprecated</url>
