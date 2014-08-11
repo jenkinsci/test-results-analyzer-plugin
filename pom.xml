@@ -6,11 +6,11 @@
 		<version>1.532.3</version>
 	</parent>
 
-	<artifactId>test-results-analyzer</artifactId>
+	<artifactId>TestResultsAnalyzer</artifactId>
 	<version>0.2-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 	<name>Test Results Analyzer Plugin</name>
-	<url>http://wiki.jenkins-ci.org/display/JENKINS/Test+Results+Analyzer+Plugin</url>
+	<url>http://wiki.jenkins-ci.org/display/JENKINS/Test+Results+Analyzer+Plugin+Deprecated</url>
 	<developers>
 		<developer>
 			<id>menonvarun</id>
