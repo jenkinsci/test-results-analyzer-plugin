@@ -3,10 +3,10 @@
 <st:include it="${it.project}" page="sidepanel.jelly" />
 <st:bind var="remoteAction" value="${it}"/> 
 <l:main-panel>
-<link href="${resURL}/plugin/TestResultsAnalyzer/css/table-style.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="${resURL}/plugin/TestResultsAnalyzer/jquery/js/jquery-1.11.1.min.js"></script>
+<link href="${resURL}/plugin/test-results-analyzer/css/table-style.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/jquery/js/jquery-1.11.1.min.js"></script>
 
-<script type="text/javascript" src="${resURL}/plugin/TestResultsAnalyzer/js/testresult.js"></script>
+<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/testresult.js"></script>
 <j:set var="temp" value="${it.jsonLoadData}"/>
 <j:set var="builds" value="${it.builds}"/>
 <div>
