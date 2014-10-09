@@ -13,6 +13,7 @@ import org.kohsuke.stapler.bind.JavaScriptMethod;
 
 import jenkins.model.Jenkins;
 import hudson.model.Action;
+import hudson.model.Item;
 import hudson.model.AbstractProject;
 import hudson.model.Actionable;
 import hudson.model.Run;
@@ -76,7 +77,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action{
      * @return true - user has permission, false - no permission.
      */
     private boolean hasPermission() {
-        return Jenkins.getInstance().hasPermission(Permission.CONFIGURE);
+        return project.hasPermission(Item.READ);
     }
     
     @SuppressWarnings("rawtypes")

@@ -23,7 +23,7 @@ function constructNodes(node,parentName, level) {
     var self = this;
     var datacol = "";
 	var tabSpace ="";
-	var rowClass = parentName.replace(/\./g,"-");
+	var rowClass = parentName.replace(/\./g,"-").replace(/\s/g,"-");
 	for(var i=0; i< (8*level); i++){
 		tabSpace+="&nbsp;";
 	}
@@ -86,7 +86,7 @@ function addEvents(){
 		}
 		var parent = $(this).attr("parentname");
 		var nodeName = $(this).attr("name");
-		var childNodeClass = (parent+"."+nodeName).replace(/\./g,"-");
+		var childNodeClass = (parent+"."+nodeName).replace(/\./g,"-").replace(/\s/g,"-");
 		$("."+childNodeClass).toggle();
 	});	
 	
