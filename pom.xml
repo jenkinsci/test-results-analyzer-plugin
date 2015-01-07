@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>1.532.3</version>
+		<version>1.594</version>
 	</parent>
 
 	<artifactId>test-results-analyzer</artifactId>
@@ -30,6 +30,13 @@
 		<developerConnection>scm:git:git@github.com:jenkinsci/test-results-analyzer-plugin.git</developerConnection>
 		<url>https://github.com/jenkinsci/test-results-analyzer-plugin.git</url>
 	</scm>
+    <dependencies>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>junit</artifactId>
+            <version>1.2-beta-4</version>
+        </dependency>
+    </dependencies>
 	<!-- get every artifact through repo.jenkins-ci.org, which proxies all the 
 		artifacts that we need -->
 	<repositories>

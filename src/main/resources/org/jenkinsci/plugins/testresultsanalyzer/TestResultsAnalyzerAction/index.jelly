@@ -6,7 +6,13 @@
 <link href="${resURL}/plugin/test-results-analyzer/css/table-style.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/jquery/js/jquery-1.11.1.min.js"></script>
 
+<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/handlebars-v2.0.0.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/testresult.js"></script>
+<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/test-result-analyzer-template.js"></script>
+<script>
+
+var $j = jQuery.noConflict();
+</script>
 <j:set var="temp" value="${it.jsonLoadData}"/>
 <j:set var="builds" value="${it.builds}"/>
 <div>
@@ -33,22 +39,24 @@ Last builds and show
 </div>
 </div>
 <div id="tree">
+   <div class="table">
 
+   </div>
 </div>
 <div id="builddetail">
 
 </div>
 
 <script>
-	$("#getbuildreport").click(function () {
-		populate();
+	$j("#getbuildreport").click(function () {
+		populateTemplate();
 	});
 	
-	$("#expandall").click(function () {
+	$j("#expandall").click(function () {
 		expandAll();
 	});
 	
-	$("#collapseall").click(function () {
+	$j("#collapseall").click(function () {
 		collapseAll();
 	});
 </script>

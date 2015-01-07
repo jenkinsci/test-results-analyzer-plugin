@@ -7,6 +7,7 @@ import java.util.List;
 
 import net.sf.json.JSONArray;
 
+import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
@@ -152,15 +153,13 @@ public class TestResultsAnalyzerAction extends Actionable implements Action{
 				}
 			}
 		}
-
 	}
+    @JavaScriptMethod
+    public JSONObject getTreeResult(String noOfBuildsNeeded) {
+        int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
+        List<Integer> buildList = getBuildList(noOfBuilds);
 
-	@JavaScriptMethod
-	public JSONArray getTreeResult(String noOfBuildsNeeded) {
-		int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
-		List<Integer> buildList = getBuildList(noOfBuilds);
-				
-		JsTreeUtil jsTreeUtils = new JsTreeUtil();
-		return jsTreeUtils.getJsTree(buildList, resultInfo);
-	}	
+        JsTreeUtil jsTreeUtils = new JsTreeUtil();
+        return jsTreeUtils.getJsTree(buildList, resultInfo);
+    }
 }

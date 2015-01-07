@@ -2,11 +2,21 @@
 		
 		border-collapse: collapse;
     }
-	.table {		
-		background: #e8edff;
-		font-size: 14px;
+	.table {
 		overflow: auto;
-	}
+        background: #e8edff;
+        display: table;
+        white-space: normal;
+        line-height: normal;
+        font-weight: normal;
+        font-size: medium;
+        font-variant: normal;
+        font-style: normal;
+        background-color: #E8F5FF;
+        #background-image: linear-gradient(#84E1F3, #E8F5FF);
+        #width: 80%;
+
+    }
     .title {
         display: table-caption;
         text-align: center;
@@ -21,116 +31,39 @@
     .passed {
     	color: green;
     }
-	
-    .heading {
-        font-weight: bold;
-		border-bottom: 2px solid #6678b1;
-		background: #BBCBFF;
-    }
+
 	img {
 		margin-left: 10px;
 	}
-	
-	.heading .row {
-		
-	}
-    
-	.row {
-		color: #669;
-		padding: 9px 8px 0;
-		border-bottom: 1px solid #fff;
-    	display: flex;
-	}
+
+
+    .table-cell.row-heading {
+        text-align: left;
+    }
 	
 	.even {
-		background: white;	
+		background: white;
 	}
 	.even:hover {
 		background: #BFC9EC;
-		
+
 	}
-	
-	
+
+
 	.odd {
-	
+
 	}
 	.odd:hover {
-		background: #BFC9EC;	
+		background: #BFC9EC;
 	}
-	
+
 	.extrabuttons {
 		right: 0px;
 		position: absolute;
 		display: initial;
 
 	}
-	
-    .cell {
-        display: inline-block;
-		border-width: thin;
-    }
-    
-    .cell.column {
-        text-align: center;        
-		overflow: hidden;
-    }
-    
-    .cell.column {
-        text-align: center;        
-		overflow: visible;
-    }
-    
-	.tabcell {
-        display: inline-block;
-	}
-	.group {
-	
-	}
-	.cell.builddetail {
-		cursor: pointer;
-	}
-	.cell .data {
-		display: inline-block;		
-	}
-	
-		
-	#builddetail {
-		position: absolute;
-	}
-	
-	.heading .cell {
-		text-align: center;
-		font-size: 14px;
-		font-weight: bold;
-		color: #039;
-		padding-top: 10px;
-		padding-bottom: 10px;
-	}
-	
-	.heading .cell:nth-child(1) {
-		min-width: 290px;
-		width: 290px;
-	}
-	
-	.heading .cell:nth-child(n+2) {
-		min-width: 80px;
-		margin-left: 5px;		
-	}
-	
-	.group.base .cell:nth-child(1) {
-		min-width: 290px;
-		width: 290px;
-	}
-	
-	.group.base .cell:nth-child(1):hover {
-		overflow: visible;
-	}
-	
-	.group.base .cell:nth-child(n+2) {
-		min-width: 80px;
-		margin-left: 5px;
-	}
-	
+
 	.icon {
 		background-image: url(../images/glyphicons-halflings.png);
 		width: 14px;
@@ -146,11 +79,49 @@
 		background-position: -24px -96px;
 	}
 	
-	.icon-rightarrow {
-		src: toggle_arrow_open.gif
-	
+	.table {
+
+	}
+	.table-cell .name{
+		display: inline-block;
+	}
+
+	.table-row {
+		display: table-row;
+	}
+
+	.table-cell{
+		display: table-cell;
+		padding: 10px;
+		text-align: center;
+		border: 1px solid rgb(150, 171, 239);
+	}
+    
+	.heading {
+        font-weight: bold;
+        border-bottom: 2px solid #6678b1;
+        background: #BBCBFF;
+		text-align: center;
+		box-sizing: border-box;
+		font-family: Patua One, cursive;
+		font-size: 15px;
+		display: table-row;
+		color: rgb(255, 255, 255);
+		#text-shadow: rgba(0, 0, 0, 0.498039) 1px 1px 0px;
+		border-top-width: 1px;
+		border-top-style: solid;
+		border-top-color: rgb(133, 141, 153);
+		border-top-left-radius: 5px;
+		#background-image: linear-gradient(rgb(100, 111, 127), rgb(74, 85, 100));
 	}
 	
-	.icon-downarrow {
-		content: url(thumbnail_toggle_arrow_down.png)
+	.heading .table-cell {
+		text-align: center;
+		font-size: 14px;
+		font-weight: bold;
+		color: #039;
+		padding-top: 10px;
+		padding-bottom: 10px;
 	}
+
+	
