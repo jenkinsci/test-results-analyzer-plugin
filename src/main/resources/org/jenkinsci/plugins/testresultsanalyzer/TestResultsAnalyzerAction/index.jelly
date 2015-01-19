@@ -7,7 +7,11 @@
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/jquery/js/jquery-1.11.1.min.js"></script>
 
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/handlebars-v2.0.0.js"></script>
+<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highcharts.js"></script>
+
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/testresult.js"></script>
+<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/chart-generator.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/test-result-analyzer-template.js"></script>
 <script>
 
@@ -31,12 +35,38 @@ Last builds and show
   <option value="PASSED">PASSED</option>  
   <option value="SKIPPED">SKIPPED</option>  
 </select>
- tests
+ tests.
+
 <button id="getbuildreport">Get Build Report</button>
-<div class="extrabuttons"> 
+<div class="extrabuttons">
 	<button id="expandall">Expand All</button>
 	<button id="collapseall">Collapse All</button>
 </div>
+</div>
+<div class="chartbuttons">
+Select chart type:
+
+ <select id="reporttype">
+   <option value="all">All</option>
+   <option value="line">Line</option>
+   <option value="bar">Bar</option>
+   <option value="pie">Pie</option>
+ </select>
+<button class = "charts" id="generatechart">Generate Charts</button>
+<button class = "charts" id="hidecharts">Hide Charts</button>
+</div>
+
+<div id="charts">
+   <div id="linechart">
+
+   </div>
+   <div id="piechart">
+
+   </div>
+   <div id="barchart">
+
+   </div>
+
 </div>
 <div id="tree">
    <div class="table">
@@ -59,6 +89,13 @@ Last builds and show
 	$j("#collapseall").click(function () {
 		collapseAll();
 	});
+	$j("#generatechart").click(function () {
+	        var chartType = $j('#reporttype').val();
+    		generateChart(chartType);
+    });
+    $j("#hidecharts").click(function () {
+    		resetCharts();
+    });
 </script>
   </l:main-panel>
   </l:layout>

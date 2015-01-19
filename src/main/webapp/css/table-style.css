@@ -69,6 +69,7 @@
 		width: 14px;
 		height: 14px;
 		display: inline-block;
+        margin-left: 2px;
 	}
 	
 	.icon-plus-sign {
@@ -123,5 +124,20 @@
 		padding-top: 10px;
 		padding-bottom: 10px;
 	}
+
+    button {
+        margin: 3px;
+    }
+    .chartbuttons .charts {
+
+    }
+    .chartbuttons {
+        float: left;
+    }
+
+    .row-heading input[type="checkbox"] {
+
+    }
+
 
 	

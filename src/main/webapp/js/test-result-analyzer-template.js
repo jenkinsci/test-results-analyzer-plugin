@@ -1,43 +1,49 @@
-var tableContent = '<div class="table-row {{parentname}}" parentname="{{parentname}}" name = "{{addName text}}" {{#if isChild}} style="display:none"{{/if}}>' +
+var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" parentclass= "{{parentclass}}" parentname="{{parentname}}" name = "{{addName text}}" {{#if isChild}} style="display:none"{{/if}}>' +
     '\n' + '         ' +
     '\n' + '         ' +
-    '\n' + '         <div class="row-heading table-cell">' +
+    '\n' + '         <div class="table-cell"><input type="checkbox" parentclass= "{{parentclass}}" parentname="{{parentname}}" name = "checkbox-{{addName text}}" result-name = "{{addName text}}"/></div> <div class="row-heading table-cell">' +
+    '' +
     '{{#if children}}' +
         '<div class="icon icon-plus-sign" ' +
-            '{{#if hierarchyLevel}}' +
-                'style="margin-left:{{addspaces hierarchyLevel}}em;>"' +
-            '{{/if}}>' +
+        '{{#if hierarchyLevel}}' +
+            'style="margin-left:{{addspaces hierarchyLevel}}em;>"' +
+        '{{/if}}' +
+            '>' +
         '</div><div class="name">&nbsp;{{text}}</div>' +
     '{{else}} <div class="name" ' +
         '{{#if hierarchyLevel}}' +
-            'style="margin-left:{{addspaces hierarchyLevel}}em;">&nbsp;{{text}}</div>' +
+            'style="margin-left:{{addspaces hierarchyLevel}}em;>"' +
         '{{/if}}' +
+        '>&nbsp;{{text}}</div>' +
     '{{/if}}</div>' +
     '{{#each this.buildResults}}' +
-    '\n' + '         <div class="table-cell {{applystatus status}}" data-result=\'{{JSON2string this}}\'>{{status}}</div>' +
+    '\n' + '         <div class="table-cell build-result {{applystatus status}}" data-result=\'{{JSON2string this}}\'>{{status}}</div>' +
     '{{/each}}' +
     '\n' + '</div>' +
     '{{#each children}}\n' +
-    '\n' + '{{storeParent this "parentname" ../parentname ../text}}' +
+    '\n' + '{{storeParent this "parentclass" ../parentclass ../text}}' +
+    '\n' + '{{store this "parentname" ../text}}' +
     '\n' + '{{addHierarchy this ../hierarchyLevel}}' +
     '\n' + '{{store this "isChild" true}}' +
     '\n' + '{{> tableBodyTemplate this}}' +
     '{{/each}}';
 
 var tableBody = '<div class="heading">' +
-    '\n' + '         <div class="table-cell">Build Number &rArr;<br>Package-Class-Testmethod names &dArr;</div>' +
+    '\n' + '        <div class="table-cell">Graph report selection</div> <div class="table-cell">Build Number &rArr;<br>Package-Class-Testmethod names &dArr;</div>' +
     '{{#each builds}}' +
     '\n' + '         <div class="table-cell">{{this}}</div>' +
     '{{/each}}' +
     '\n' + '      </div>' +
     '{{#each results}}' +
     '{{store this "parentname" "base"}}' +
+    '{{store this "parentclass" "base"}}' +
     '{{> tableBodyTemplate}}' +
     '\n' + '{{/each}}';
 
 function removeSpecialChars(name){
     var modName = "";
-    modName = name.split('.').join('_');
+    //modName = name.split('.').join('_');
+    modName = name.replace(/[^a-z\d/-]+/gi, "_");
     return modName;
 }
 
@@ -99,42 +105,3 @@ Handlebars.registerHelper('addHierarchy', function (context, parentHierarchy, op
 });
 
 var analyzerTemplate = Handlebars.compile(tableBody);
-
-function addEvents() {
-
-    var toggleHandler = function (node) {
-        var parent = $j(node).parent().parent(".table-row").attr("parentname");
-        var nodeName = $j(node).parent().parent(".table-row").attr("name");
-        var childNodeClass = (parent + "." + nodeName).replace(/\./g, "-").replace(/\s/g, "-");
-        if ($j(node).hasClass('icon-plus-sign')) {
-            $j(node).removeClass('icon-plus-sign');
-            $j(node).addClass('icon-minus-sign');
-            $j("." + childNodeClass).show();
-        } else {
-            $j(node).removeClass('icon-minus-sign');
-            $j(node).addClass('icon-plus-sign');
-            $j("." + childNodeClass).hide();
-            hideChilds($j("." + childNodeClass));
-        }
-    };
-
-    var hideChilds = function (childs) {
-        childs.each(function () {
-            var parent = $j(this).attr("parentname");
-            var nodeName = $j(this).attr("name");
-            var childNodeClass = (parent + "." + nodeName).replace(/\./g, "-").replace(/\s/g, "-");
-            if ($j(this).find('.icon').hasClass('icon-minus-sign')) {
-                $j(this).find('.icon').removeClass('icon-minus-sign');
-                $j(this).find('.icon').addClass('icon-plus-sign');
-            }
-            var childElements = $j("." + childNodeClass);
-            childElements.hide();
-            hideChilds(childElements);
-        });
-
-    };
-
-    $j(".table .table-row .icon").click(function () {
-        toggleHandler(this);
-    });
-}
