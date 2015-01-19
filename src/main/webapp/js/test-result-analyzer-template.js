@@ -1,21 +1,17 @@
 var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" parentclass= "{{parentclass}}" parentname="{{parentname}}" name = "{{addName text}}" {{#if isChild}} style="display:none"{{/if}}>' +
     '\n' + '         ' +
     '\n' + '         ' +
-    '\n' + '         <div class="table-cell"><input type="checkbox" parentclass= "{{parentclass}}" parentname="{{parentname}}" name = "checkbox-{{addName text}}" result-name = "{{addName text}}"/></div> <div class="row-heading table-cell">' +
-    '' +
+    '\n' + '         <div class="table-cell"><input type="checkbox" parentclass= "{{parentclass}}" parentname="{{parentname}}" name = "checkbox-{{addName text}}" result-name = "{{addName text}}"/></div> ' +
+    '<div class="children  table-cell" >  ' +
     '{{#if children}}' +
-        '<div class="icon icon-plus-sign" ' +
+        '<div class="icon icon-plus-sign" ></div> ' +
+    '{{/if}}</div>' +
+    ' <div class="name row-heading table-cell" ' +
         '{{#if hierarchyLevel}}' +
-            'style="margin-left:{{addspaces hierarchyLevel}}em;>"' +
-        '{{/if}}' +
-            '>' +
-        '</div><div class="name">&nbsp;{{text}}</div>' +
-    '{{else}} <div class="name" ' +
-        '{{#if hierarchyLevel}}' +
-            'style="margin-left:{{addspaces hierarchyLevel}}em;>"' +
+            'style="padding-left:{{addspaces hierarchyLevel}}em;"' +
         '{{/if}}' +
         '>&nbsp;{{text}}</div>' +
-    '{{/if}}</div>' +
+    '' +
     '{{#each this.buildResults}}' +
     '\n' + '         <div class="table-cell build-result {{applystatus status}}" data-result=\'{{JSON2string this}}\'>{{status}}</div>' +
     '{{/each}}' +
@@ -29,7 +25,7 @@ var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" pare
     '{{/each}}';
 
 var tableBody = '<div class="heading">' +
-    '\n' + '        <div class="table-cell">Graph report selection</div> <div class="table-cell">Build Number &rArr;<br>Package-Class-Testmethod names &dArr;</div>' +
+    '\n' + '        <div class="table-cell">Graph report selection</div><div class="table-cell">See children</div> <div class="table-cell">Build Number &rArr;<br>Package-Class-Testmethod names &dArr;</div>' +
     '{{#each builds}}' +
     '\n' + '         <div class="table-cell">{{this}}</div>' +
     '{{/each}}' +
@@ -96,6 +92,16 @@ Handlebars.registerHelper('addspaces', function (hierarchyLevel) {
 
     spaces = spaces * hierarchyLevel;
     return new Handlebars.SafeString(spaces);
+});
+
+Handlebars.registerHelper('addIndent', function (hierarchyLevel) {
+    var parent = "|"
+    var ident = "-";
+    for(var i =0;i<hierarchyLevel;i++){
+        ident = ident + ident;
+    }
+
+    return new Handlebars.SafeString(parent+ident);
 });
 
 Handlebars.registerHelper('addHierarchy', function (context, parentHierarchy, options) {

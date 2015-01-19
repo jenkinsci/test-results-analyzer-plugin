@@ -55,19 +55,27 @@ Select chart type:
 <button class = "charts" id="generatechart">Generate Charts</button>
 <button class = "charts" id="hidecharts">Hide Charts</button>
 </div>
+<br/>
+<br/>
 
 <div id="charts">
    <div id="linechart">
 
    </div>
+   <br/>
+
    <div id="piechart">
 
    </div>
+<br/>
+
    <div id="barchart">
 
    </div>
 
 </div>
+
+<br/>
 <div id="tree">
    <div class="table">
 
