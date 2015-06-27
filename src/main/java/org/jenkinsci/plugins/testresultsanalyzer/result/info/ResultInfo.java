@@ -1,14 +1,14 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 
 import hudson.tasks.junit.PackageResult;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import net.sf.json.JSONObject;
 
 public class ResultInfo {
 	
-	private Map<String,PackageInfo> packageResults = new HashMap<String, PackageInfo>();
+	private Map<String,PackageInfo> packageResults = new TreeMap<String, PackageInfo>();
 	
 	public void addPackage(Integer buildNumber, PackageResult packageResult){
 		String packageName = packageResult.getName();
