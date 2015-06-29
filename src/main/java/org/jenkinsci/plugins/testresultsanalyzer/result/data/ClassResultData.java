@@ -8,7 +8,7 @@ public class ClassResultData extends ResultData {
 	public ClassResultData(ClassResult classResult) {
 
 		setName(classResult.getName());
-		setPassed(classResult.isPassed());
+		setPassed(classResult.getFailCount()==0);
 		setSkipped(classResult.getSkipCount() == classResult.getTotalCount());
 		setTotalTests(classResult.getTotalCount());
 		setTotalFailed(classResult.getFailCount());

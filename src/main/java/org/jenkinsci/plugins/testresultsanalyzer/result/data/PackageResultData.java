@@ -8,7 +8,7 @@ public class PackageResultData extends ResultData{
 	
 	public PackageResultData(PackageResult packageResult){
 		setName(packageResult.getName());
-		setPassed(packageResult.isPassed());
+		setPassed(packageResult.getFailCount()==0);
 		setSkipped(packageResult.getSkipCount() == packageResult.getTotalCount());
 		setTotalTests(packageResult.getTotalCount());
 		setTotalFailed(packageResult.getFailCount());
