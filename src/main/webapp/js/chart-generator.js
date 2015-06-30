@@ -1,6 +1,14 @@
 
 
 var chartResult;
+
+var statusColors = {
+    "passed" :"#92D050",
+    "failed" :"#F37A7A",
+    "skipped" :"#FDED72",
+    "total" :"#67A4F5",
+    "na" :""
+};
 function generateChart(chartType) {
     var finalResult = {};
 
@@ -207,7 +215,7 @@ function getLineChartConfig(chartCategories, chartData){
             verticalAlign: 'middle',
             borderWidth: 0
         },
-        colors : ['#24A516', '#FD0505', '#AEAEAE','#67A4F5']
+        colors : [statusColors["passed"], statusColors["failed"], statusColors["skipped"],statusColors["total"]]
         ,
         plotOptions: {
             series: {
@@ -274,7 +282,7 @@ function getBarChartConfig(chartCategories, chartData){
                 color: '#808080'
             }]
         },
-        colors : ['#24A516', '#FD0505', '#AEAEAE'],
+        colors : [statusColors["passed"], statusColors["failed"], statusColors["skipped"]],
         credits: {
             enabled: false
         },
@@ -336,7 +344,7 @@ function getPieChartConfig(inputData, resultTitle){
                 }
             }
         },
-        colors : ['#24A516', '#FD0505', '#AEAEAE','#67A4F5'],
+        colors : [statusColors["passed"], statusColors["failed"], statusColors["skipped"],statusColors["total"]],
         series: [{
             type: 'pie',
             name: 'Build Detail',
