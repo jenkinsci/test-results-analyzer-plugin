@@ -224,11 +224,12 @@ function getLineChartConfig(chartCategories, chartData){
                     events: {
                         click: function (e) {
                             var x1 = this.x;
+                            var category = this.category;
                             var passed = this.series.chart.series[0].data[x1].y;
                             var failed = this.series.chart.series[1].data[x1].y;
                             var skipped = this.series.chart.series[2].data[x1].y;
                             var total = this.series.chart.series[3].data[x1].y;
-                            var resultTitle = 'Build details for build: '+x1;
+                            var resultTitle = 'Build details for build: '+category;
                             generatePieChart(calculatePercentage(passed,failed,skipped,total),resultTitle);
 
                         }
