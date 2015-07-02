@@ -3,8 +3,8 @@ package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 import hudson.tasks.junit.PackageResult;
 import hudson.tasks.junit.ClassResult;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.PackageResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
@@ -12,7 +12,7 @@ import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 import net.sf.json.JSONObject;
 
 public class PackageInfo extends Info {	
-	protected Map<String, ClassInfo> classes = new HashMap<String, ClassInfo>();
+	protected Map<String, ClassInfo> classes = new TreeMap<String, ClassInfo>();
 	
 	public void putPackageResult(Integer buildNumber, PackageResult packageResult){
 		PackageResultData packageResultData = new PackageResultData(packageResult);
