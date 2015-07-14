@@ -1,6 +1,7 @@
 var colTemplate = "{'cellClass':'col1','value':'build20','header':'20','title':'20'}";
 var treeMarkup = "";
 var reevaluateChartData = true;
+var displayValuesFlag = true;
 function reset(){
     reevaluateChartData = true;
     $j(".table").html("")
@@ -8,12 +9,13 @@ function reset(){
     resetCharts();
 }
 
-function populateTemplate(){
+function populateTemplate(displayValues){
     reset();
+    displayValuesFlag = displayValues;
     var noOfBuilds = $j('#noofbuilds').val();
     remoteAction.getTreeResult(noOfBuilds,$j.proxy(function(t) {
         var itemsResponse = t.responseObject();
-        treeMarkup = analyzerTemplate(itemsResponse);
+        treeMarkup = analyzerTemplate(itemsResponse, displayValues);
         $j(".table").html(treeMarkup);
         addEvents();
     },this));
