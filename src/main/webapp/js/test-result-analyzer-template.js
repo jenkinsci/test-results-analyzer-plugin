@@ -75,8 +75,8 @@ Handlebars.registerHelper('addName', function (name) {
 });
 
 Handlebars.registerHelper('applyvalue', function (status, totalTimeTaken) {
-    if (displayValuesFlag == true){
-        return totalTimeTaken;
+    if (displayValues == true){
+        return isNaN(totalTimeTaken) ? '' : totalTimeTaken.toFixed(3) ;
     }else{
         return status;
     }

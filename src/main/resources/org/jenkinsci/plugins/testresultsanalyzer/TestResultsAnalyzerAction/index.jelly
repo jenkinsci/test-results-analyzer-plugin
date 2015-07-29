@@ -89,7 +89,6 @@ Select chart type:
 
 <script>
 	$j("#getbuildreport").click(function () {
-        var displayValues = $j("#show-durations").is(":checked");
 		populateTemplate(displayValues);
 	});
 	
