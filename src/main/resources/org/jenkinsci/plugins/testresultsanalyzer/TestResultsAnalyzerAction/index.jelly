@@ -31,11 +31,12 @@ Last builds and show
 
 <select id="teststatus">
   <option value="all">All</option>
-  <option value="FAILED">FAILED</option>  
-  <option value="PASSED">PASSED</option>  
-  <option value="SKIPPED">SKIPPED</option>  
+  <option value="FAILED">FAILED</option>
+  <option value="PASSED">PASSED</option>
+  <option value="SKIPPED">SKIPPED</option>
 </select>
  tests.
+Display duration: <input type="checkbox" id="show-durations" name="show-durations" value="durations"/>
 
 <button id="getbuildreport">Get Build Report</button>
 <div class="extrabuttons">
@@ -52,6 +53,7 @@ Select chart type:
    <option value="bar">Bar</option>
    <option value="pie">Pie</option>
  </select>
+
 <button class = "charts" id="generatechart">Generate Charts</button>
 <button class = "charts" id="hidecharts">Hide Charts</button>
 </div>
@@ -87,7 +89,7 @@ Select chart type:
 
 <script>
 	$j("#getbuildreport").click(function () {
-		populateTemplate();
+		populateTemplate(displayValues);
 	});
 	
 	$j("#expandall").click(function () {

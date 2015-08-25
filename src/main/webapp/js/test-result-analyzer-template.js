@@ -13,7 +13,7 @@ var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" pare
         '>&nbsp;{{text}}</div>' +
     '' +
     '{{#each this.buildResults}}' +
-    '\n' + '         <div class="table-cell build-result {{applystatus status}}" data-result=\'{{JSON2string this}}\'>{{status}}</div>' +
+    '\n' + '         <div class="table-cell build-result {{applystatus status}}" data-result=\'{{JSON2string this}}\'>{{applyvalue status totalTimeTaken}}</div>' +
     '{{/each}}' +
     '\n' + '</div>' +
     '{{#each children}}\n' +
@@ -73,6 +73,15 @@ Handlebars.registerHelper('storeParent', function (context, key, value1, value2,
 Handlebars.registerHelper('addName', function (name) {
     return removeSpecialChars(name);
 });
+
+Handlebars.registerHelper('applyvalue', function (status, totalTimeTaken) {
+    if (displayValues == true){
+        return isNaN(totalTimeTaken) ? '' : totalTimeTaken.toFixed(3) ;
+    }else{
+        return status;
+    }
+});
+
 
 Handlebars.registerHelper('applystatus', function (status) {
     var statusClass = "no_status";
