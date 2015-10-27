@@ -13,7 +13,7 @@ function reset(){
 function populateTemplate(){
     reset();
     var noOfBuilds = $j('#noofbuilds').val();
-    displayValues  = $j("#show-durations").is(":checked");
+    displayValues  = $j("#show-build-durations").is(":checked");
 
     remoteAction.getTreeResult(noOfBuilds,$j.proxy(function(t) {
         var itemsResponse = t.responseObject();
@@ -124,4 +124,8 @@ function checkParent(node) {
     if ((parentCheckBox.size() > 0) && ($j(parentCheckBox).attr("parentclass") != 'base')) {
         checkParent(parentCheckBox);
     }
+}
+
+function resetAdvancedOptions(){
+    $j("#show-build-durations").prop('checked', false);
 }

@@ -1,9 +1,6 @@
 package org.jenkinsci.plugins.testresultsanalyzer;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import net.sf.json.JSONArray;
 
@@ -113,6 +110,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action{
 		for (int i = (noOfBuilds - 1); i >= 0; i--) {
 			buildList.add(builds.get(i));
 		}
+		Collections.reverse(buildList);
 		return buildList;
 	}
 	
