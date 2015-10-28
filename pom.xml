@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>test-results-analyzer</artifactId>
-	<version>0.2.2</version>
+	<version>0.2.3-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 	<name>Test Results Analyzer Plugin</name>
 	<url>http://wiki.jenkins-ci.org/display/JENKINS/Test+Results+Analyzer+Plugin</url>
@@ -29,7 +29,7 @@
 		<connection>scm:git:ssh://git@github.com:jenkinsci/test-results-analyzer-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:jenkinsci/test-results-analyzer-plugin.git</developerConnection>
 		<url>https://github.com/jenkinsci/test-results-analyzer-plugin.git</url>
-	  <tag>test-results-analyzer-0.2.2</tag>
+	  <tag>HEAD</tag>
   </scm>
     <dependencies>
         <dependency>
