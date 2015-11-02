@@ -36,14 +36,19 @@ Last builds and show
   <option value="SKIPPED">SKIPPED</option>
 </select>
  tests.
-Display duration: <input type="checkbox" id="show-durations" name="show-durations" value="durations"/>
+ <br/>Advanced options: <input type="checkbox" id="show-advanced-options" name="show-advanced-options"/>
+ <button id="getbuildreport">Get Build Report</button>
+ <div id="advancedOptions" style="display:none">
+    Display duration (in secs): <input type="checkbox" id="show-build-durations" name="show-build-durations" value="durations"/>
+ </div>
 
-<button id="getbuildreport">Get Build Report</button>
+</div>
+
 <div class="extrabuttons">
 	<button id="expandall">Expand All</button>
 	<button id="collapseall">Collapse All</button>
 </div>
-</div>
+
 <div class="chartbuttons">
 Select chart type:
 
@@ -89,7 +94,7 @@ Select chart type:
 
 <script>
 	$j("#getbuildreport").click(function () {
-		populateTemplate(displayValues);
+		populateTemplate();
 	});
 	
 	$j("#expandall").click(function () {
@@ -105,6 +110,17 @@ Select chart type:
     });
     $j("#hidecharts").click(function () {
     		resetCharts();
+    });
+
+    $j("#show-advanced-options").click(function() {
+        var $this = $j(this);
+
+        if ($this.is(':checked')) {
+            $j("#advancedOptions").show();
+        } else {
+            resetAdvancedOptions();
+            $j("#advancedOptions").hide();
+        }
     });
 </script>
   </l:main-panel>
