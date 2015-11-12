@@ -10,10 +10,7 @@ import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.TestResult;
 import hudson.util.RunList;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -110,6 +107,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 		for (int i = (noOfBuilds - 1); i >= 0; i--) {
 			buildList.add(builds.get(i));
 		}
+		Collections.reverse(buildList);
 		return buildList;
 	}
 
