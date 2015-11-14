@@ -1,37 +1,39 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 
-import hudson.tasks.junit.PackageResult;
+import hudson.tasks.test.TabulatedResult;
+
 import java.util.Map;
 import java.util.TreeMap;
 
 import net.sf.json.JSONObject;
 
 public class ResultInfo {
-	
-	private Map<String,PackageInfo> packageResults = new TreeMap<String, PackageInfo>();
-	
-	public void addPackage(Integer buildNumber, PackageResult packageResult){
+
+	private Map<String, PackageInfo> packageResults = new TreeMap<String, PackageInfo>();
+
+	public void addPackage(Integer buildNumber, TabulatedResult packageResult) {
 		String packageName = packageResult.getName();
 		PackageInfo packageInfo;
-		if(packageResults.containsKey(packageName)){
+		if (packageResults.containsKey(packageName)) {
 			packageInfo = packageResults.get(packageName);
-		} else {
+		}
+		else {
 			packageInfo = new PackageInfo();
 			packageInfo.setName(packageName);
 		}
 		packageInfo.putPackageResult(buildNumber, packageResult);
-		packageResults.put(packageName, packageInfo);		
+		packageResults.put(packageName, packageInfo);
 	}
-	
-	public JSONObject getJsonObject(){
+
+	public JSONObject getJsonObject() {
 		JSONObject json = new JSONObject();
-		for(String packageName: packageResults.keySet()){
+		for (String packageName : packageResults.keySet()) {
 			json.put(packageName, packageResults.get(packageName).getJsonObject());
 		}
 		return json;
 	}
-	
-	public Map<String,PackageInfo> getPackageResults(){
+
+	public Map<String, PackageInfo> getPackageResults() {
 		return this.packageResults;
 	}
 }
