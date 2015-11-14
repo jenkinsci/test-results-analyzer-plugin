@@ -23,6 +23,10 @@ public class ClassInfo extends Info{
 		this.buildResults.put(buildNumber, classResultData);		
 	}
 	
+	public Map<String, TestCaseInfo> getTests() {
+		return tests;
+	}
+	
 	private void addTests(Integer buildNumber, ClassResult classResult) {
 		for (CaseResult testCaseResult : classResult.getChildren()) {
 			String testCaseName = testCaseResult.getName();
