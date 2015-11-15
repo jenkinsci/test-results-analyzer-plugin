@@ -1,14 +1,13 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.data;
 
-import hudson.tasks.junit.ClassResult;
-
+import hudson.tasks.test.TabulatedResult;
 
 public class ClassResultData extends ResultData {
 
-	public ClassResultData(ClassResult classResult) {
+	public ClassResultData(TabulatedResult classResult) {
 
 		setName(classResult.getName());
-		setPassed(classResult.getFailCount()==0);
+		setPassed(classResult.getFailCount() == 0);
 		setSkipped(classResult.getSkipCount() == classResult.getTotalCount());
 		setTotalTests(classResult.getTotalCount());
 		setTotalFailed(classResult.getFailCount());
