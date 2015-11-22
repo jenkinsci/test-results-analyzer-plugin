@@ -22,8 +22,14 @@ public class ClassInfo extends Info {
 		this.buildResults.put(buildNumber, classResultData);
 	}
 
+	public Map<String, TestCaseInfo> getTests() {
+		return tests;
+	}
+	
+
 	private void addTests(Integer buildNumber, TabulatedResult classResult) {
 		for (TestResult testCaseResult : classResult.getChildren()) {
+
 			String testCaseName = testCaseResult.getName();
 			TestCaseInfo testCaseInfo;
 			if (tests.containsKey(testCaseName)) {

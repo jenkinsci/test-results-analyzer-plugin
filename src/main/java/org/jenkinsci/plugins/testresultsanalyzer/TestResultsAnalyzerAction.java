@@ -10,12 +10,19 @@ import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.TestResult;
 import hudson.util.RunList;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.*;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
+import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
+import org.jenkinsci.plugins.testresultsanalyzer.result.info.ClassInfo;
+import org.jenkinsci.plugins.testresultsanalyzer.result.info.PackageInfo;
+import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
+import org.jenkinsci.plugins.testresultsanalyzer.result.info.TestCaseInfo;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
 public class TestResultsAnalyzerAction extends Actionable implements Action {
@@ -150,12 +157,48 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 		}
 	}
 
-	@JavaScriptMethod
-	public JSONObject getTreeResult(String noOfBuildsNeeded) {
-		int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
-		List<Integer> buildList = getBuildList(noOfBuilds);
+    @JavaScriptMethod
+    public JSONObject getTreeResult(String noOfBuildsNeeded) {
+        int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
+        List<Integer> buildList = getBuildList(noOfBuilds);
 
-		JsTreeUtil jsTreeUtils = new JsTreeUtil();
-		return jsTreeUtils.getJsTree(buildList, resultInfo);
-	}
+        JsTreeUtil jsTreeUtils = new JsTreeUtil();
+        return jsTreeUtils.getJsTree(buildList, resultInfo);
+    }
+	
+	@JavaScriptMethod
+    public String getExportCSV(String timeBased) {
+		boolean isTimeBased = Boolean.parseBoolean(timeBased);
+        Map<String, PackageInfo> packageResults = resultInfo.getPackageResults();
+        String buildsString = "";
+        for (int i = 0; i < builds.size(); i++) {
+            buildsString += ",\"" + Integer.toString(builds.get(i)) + "\"";
+        }		
+        String header = "\"Package\",\"Class\",\"Test\"";
+        header += buildsString;
+        String export = header + System.lineSeparator();
+		DecimalFormat df = new DecimalFormat("#.###");
+		df.setRoundingMode(RoundingMode.CEILING);
+        for (PackageInfo pInfo : packageResults.values()) {
+            String packageName = pInfo.getName();
+            //loop the classes
+            for (ClassInfo cInfo : pInfo.getClasses().values()) {
+                String className = cInfo.getName();
+                //loop the tests
+                for (TestCaseInfo tInfo : cInfo.getTests().values()) {
+                    String testName = tInfo.getName();
+                    export += "\""+ packageName + "\",\"" + className + "\",\"" + testName+"\"";
+                    for (ResultData buildResult : tInfo.getBuildPackageResults().values()) {
+						if(!isTimeBased) {
+							export += ",\"" + buildResult.getStatus() + "\"";
+						} else {
+							export += ",\"" + df.format(buildResult.getTotalTimeTaken()) + "\"";
+						}
+                    }
+                    export += System.lineSeparator();
+                }
+            }
+        }
+        return export;
+    }
 }

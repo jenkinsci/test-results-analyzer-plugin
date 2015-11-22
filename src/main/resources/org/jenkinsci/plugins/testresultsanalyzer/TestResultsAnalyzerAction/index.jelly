@@ -81,7 +81,7 @@ Select chart type:
    </div>
 
 </div>
-
+<button id="downloadCSV" style="display:none">Download Test (CSV)</button>
 <br/>
 <div id="tree">
    <div class="table">
@@ -93,7 +93,13 @@ Select chart type:
 </div>
 
 <script>
+	$j("#downloadCSV").click(function () {
+        remoteAction.getExportCSV(displayValues, function(t) {
+            download("Test Results.csv", t.responseObject());
+        })
+    });
 	$j("#getbuildreport").click(function () {
+		 $j("#downloadCSV").css("display", "block");
 		populateTemplate();
 	});
 	
@@ -122,6 +128,15 @@ Select chart type:
             $j("#advancedOptions").hide();
         }
     });
+	function download(filename, text) {
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+		element.setAttribute('download', filename);
+		element.style.display = 'none';
+		document.body.appendChild(element);
+		element.click();	
+		document.body.removeChild(element);
+	}
 </script>
   </l:main-panel>
   </l:layout>

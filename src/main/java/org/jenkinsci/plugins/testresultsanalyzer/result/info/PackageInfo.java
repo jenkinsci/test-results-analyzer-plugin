@@ -30,6 +30,10 @@ public class PackageInfo extends Info {
 		return null;
 	}
 
+	public Map<String, ClassInfo> getClasses(){
+		return classes;
+	}
+
 	public void addClasses(Integer buildNumber, TabulatedResult packageResult) {
 		for (TestResult classResult : packageResult.getChildren()) {
 			String className = classResult.getName();
