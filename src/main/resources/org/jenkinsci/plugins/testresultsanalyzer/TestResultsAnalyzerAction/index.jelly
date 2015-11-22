@@ -94,7 +94,7 @@ Select chart type:
 
 <script>
 	$j("#downloadCSV").click(function () {
-        remoteAction.getExportCSV(function(t) {
+        remoteAction.getExportCSV(displayValues, function(t) {
             download("Test Results.csv", t.responseObject());
         })
     });
