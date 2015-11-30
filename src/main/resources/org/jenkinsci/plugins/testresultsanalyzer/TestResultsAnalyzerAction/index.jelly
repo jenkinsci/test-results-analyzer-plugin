@@ -65,16 +65,16 @@ var $j = jQuery.noConflict();
 				</td>
 			</tr>
 			<tr>
-			    <td>Low threshold for run time analysis:</td>
-			    <td>
-			        <input id="runTimeLowThreshold" type="number" value="${it.runTimeLowThreshold}" min="0" step="any" />
-			    </td>
+				<td>Low threshold for run time analysis:</td>
+				<td>
+					<input id="runTimeLowThreshold" type="number" value="${it.runTimeLowThreshold}" min="0" step="any" />
+				</td>
 			</tr>
 			<tr>
-			    <td>High threshold for run time analysis:</td>
-			    <td>
-			        <input id="runTimeHighThreshold" type="number" value="${it.runTimeHighThreshold}" min="${it.runTimeLowThreshold}" step="any" />
-			    </td>
+				<td>High threshold for run time analysis:</td>
+				<td>
+					<input id="runTimeHighThreshold" type="number" value="${it.runTimeHighThreshold}" min="${it.runTimeLowThreshold}" step="any" />
+				</td>
 			</tr>
 		</table>
 		<div>
@@ -136,7 +136,7 @@ var $j = jQuery.noConflict();
 <script>
 	jQuery("document").ready(function () {
 		remoteAction.getTotalNoOfBuilds(function (t) {
-			if (t.responseObject()!= 0){							//if there are builds display plugin
+			if(t.responseObject()!= 0) {							//if there are builds display plugin
 				jQuery("#mainContainer").css("display", "block");
 			}
 			else													//else show a message that there are no builds.
@@ -174,13 +174,13 @@ var $j = jQuery.noConflict();
 		jQuery("#piegraph")[0].checked = ${it.showPieGraph}; //					defaultShowPieGraph;
 		jQuery("#noofbuilds").attr('disabled', ${it.showAllBuilds});
 
-		if (${it.chartDataType}) {
+		if(${it.chartDataType}) {
 			jQuery("#chartDataType").val("runtime");
 			jQuery("#bargraph").attr('disabled', true);
 		} else {
 			jQuery("#chartDataType").val("passfail");
-            jQuery("#runTimeLowThreshold").attr('disabled', true);
-            jQuery("#runTimeHighThreshold").attr('disabled', true);
+			jQuery("#runTimeLowThreshold").attr('disabled', true);
+			jQuery("#runTimeHighThreshold").attr('disabled', true);
 		}
 
 		populateTemplate(displayValues);

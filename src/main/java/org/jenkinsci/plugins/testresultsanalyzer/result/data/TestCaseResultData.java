@@ -11,5 +11,4 @@ public class TestCaseResultData extends ResultData {
 			setFailureMessage(testResult.getErrorStackTrace());
 		}
 	}
-	
 }

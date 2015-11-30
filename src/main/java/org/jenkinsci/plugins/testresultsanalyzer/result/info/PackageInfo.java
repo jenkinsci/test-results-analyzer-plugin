@@ -36,10 +36,10 @@ public class PackageInfo extends Info {
 	}
 
 	public void addClasses(Integer buildNumber, PackageResult packageResult, String url) {
-		for (ClassResult classResult : packageResult.getChildren()) {
+		for(ClassResult classResult : packageResult.getChildren()) {
 			String className = classResult.getName();
 			ClassInfo classInfo;
-			if (classes.containsKey(className)) {
+			if(classes.containsKey(className)) {
 				classInfo = classes.get(className);
 			} else {
 				classInfo = new ClassInfo();

@@ -11,7 +11,7 @@ var statusColors = {
 
 function generateChart(chartType) {
 	if($j("#tree input[type='checkbox']").size() == 0) {
-		$j("#linechart").html("No build data retrieved.  You may need to select a Module.");
+		$j("#linechart").html("No build data retrieved.	 You may need to select a Module.");
 		return;
 	}
 
@@ -71,31 +71,31 @@ function generateRuntimeLineChart() {
 }
 
 function generateRuntimePieChart(inputData) {
-    var pieChartResult = getChartData(getTestRows(), "runtime");
-    var buildNumber = inputData == undefined ? Object.keys(pieChartResult).pop() : inputData;
-    var resultTitle = "Tests runtime details for " + buildNumber;
+	var pieChartResult = getChartData(getTestRows(), "runtime");
+	var buildNumber = inputData == undefined ? Object.keys(pieChartResult).pop() : inputData;
+	var resultTitle = "Tests runtime details for " + buildNumber;
 
-    var total = 0;
-    var slow = 0;
-    var medi = 0;
-    var fast = 0;
+	var total = 0;
+	var slow = 0;
+	var medi = 0;
+	var fast = 0;
 
-    var runtimeArray = pieChartResult[buildNumber]["RuntimeArray"]
-    var lowThreshold = parseFloat($j("#runTimeLowThreshold").val());
-    var highThreshold = parseFloat($j("#runTimeHighThreshold").val());
+	var runtimeArray = pieChartResult[buildNumber]["RuntimeArray"]
+	var lowThreshold = parseFloat($j("#runTimeLowThreshold").val());
+	var highThreshold = parseFloat($j("#runTimeHighThreshold").val());
 
-    total = runtimeArray.length;
-    for (var key in runtimeArray) {
-        var time = runtimeArray[key];
-        if (time < lowThreshold) {
-            fast ++;
-        } else if (time >= highThreshold) {
-            slow ++;
-        } else {
-            medi ++;
-        }
-    }
-    inputData = calculateRuntimePercentage(slow, medi, fast, total);
+	total = runtimeArray.length;
+	for (var key in runtimeArray) {
+		var time = runtimeArray[key];
+		if (time < lowThreshold) {
+			fast ++;
+		} else if (time >= highThreshold) {
+			slow ++;
+		} else {
+			medi ++;
+		}
+	}
+	inputData = calculateRuntimePercentage(slow, medi, fast, total);
 	$j("#piechart").highcharts(getPieChartConfig(inputData, resultTitle))
 }
 
@@ -110,7 +110,7 @@ function getRuntimeLineChartConfig(chartCategories, chartData) {
 	var colorsVar = [statusColors["runtime"]];
 	var clickFunc = {
 		click: function (e) {
-            generateRuntimePieChart(this.category);
+			generateRuntimePieChart(this.category);
 		}
 	};
 	var titleVar = {
@@ -285,10 +285,10 @@ function getChartData(selectedRows, type) {
 				}
 			} else {
 				var tempBuildResult = {
-					"Failed" :   jsonResult["totalFailed"] ? jsonResult["totalFailed"] : 0,
-					"Skipped" :   jsonResult["totalSkipped"] ? jsonResult["totalSkipped"] : 0,
-					"Passed" :   jsonResult["totalPassed"] ? jsonResult["totalPassed"] : 0,
-					"Total" :   jsonResult["totalTests"] ? jsonResult["totalTests"] : 0
+					"Failed" :	 jsonResult["totalFailed"] ? jsonResult["totalFailed"] : 0,
+					"Skipped" :	  jsonResult["totalSkipped"] ? jsonResult["totalSkipped"] : 0,
+					"Passed" :	 jsonResult["totalPassed"] ? jsonResult["totalPassed"] : 0,
+					"Total" :	jsonResult["totalTests"] ? jsonResult["totalTests"] : 0
 				};
 				if(chartResult[buildNumber]) {
 					var tempChartBuildResult = chartResult[buildNumber];
@@ -323,16 +323,16 @@ function getSelectedRows() {
 }
 
 function getTestRows() {
-    var $testRows = $j($j("#tree .table-row").filter(function(index, elem) {
-        return !($j($j(elem).children().get(2)).children().length > 0);
-    }));
-    var isSomethingChecked = $j("#tree").find(":checked").length > 0;
-    if (isSomethingChecked) {
-        $testRows = $testRows.filter(function(index, elem) {
-            return $j(elem).find(":checked").length > 0;
-        });
-    }
-    return $testRows;
+	var $testRows = $j($j("#tree .table-row").filter(function(index, elem) {
+		return !($j($j(elem).children().get(2)).children().length > 0);
+	}));
+	var isSomethingChecked = $j("#tree").find(":checked").length > 0;
+	if (isSomethingChecked) {
+		$testRows = $testRows.filter(function(index, elem) {
+			return $j(elem).find(":checked").length > 0;
+		});
+	}
+	return $testRows;
 }
 
 function getLineChartConfig(chartCategories, chartData) {
@@ -489,9 +489,9 @@ function calculatePercentage(passed, failed, skipped, total) {
 	var passedPercentage = (passed * 100) / total;
 
 	return [
-		['Passed',   passedPercentage],
+		['Passed',	 passedPercentage],
 		['Failed',	   failedPercentage],
-		['Skipped',   skippedPercentage]
+		['Skipped',	  skippedPercentage]
 	];
 }
 

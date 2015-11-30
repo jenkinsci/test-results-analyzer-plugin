@@ -1,9 +1,7 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 
 import hudson.tasks.junit.CaseResult;
-
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.TestCaseResultData;
-
 import net.sf.json.JSONObject;
 
 public class TestCaseInfo extends Info {
@@ -19,5 +17,4 @@ public class TestCaseInfo extends Info {
 
 		return new JSONObject();
 	}
-
 }

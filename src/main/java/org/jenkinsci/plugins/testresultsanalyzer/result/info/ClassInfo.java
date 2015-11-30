@@ -8,11 +8,11 @@ import org.jenkinsci.plugins.testresultsanalyzer.result.data.ClassResultData;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class ClassInfo extends Info{
-	
+public class ClassInfo extends Info {
+
 	private Map<String, TestCaseInfo> tests = new TreeMap<String, TestCaseInfo>();
 
-	public void putBuildClassResult(Integer buildNumber, ClassResult classResult, String url){
+	public void putBuildClassResult(Integer buildNumber, ClassResult classResult, String url) {
 		ClassResultData classResultData = new ClassResultData(classResult, url);
 		
 		evaluateStatusses(classResult);
@@ -24,8 +24,7 @@ public class ClassInfo extends Info{
 		return tests;
 	}
 
-	public void setTests(Map<String,TestCaseInfo> tests)
-	{
+	public void setTests(Map<String,TestCaseInfo> tests) {
 		this.tests = tests;
 	}
 
@@ -44,7 +43,7 @@ public class ClassInfo extends Info{
 			tests.put(testCaseName, testCaseInfo);
 		}
 	}
-	
+
 	protected JSONObject getChildrensJson() {
 		JSONObject json = new JSONObject();
 		for(String testName : tests.keySet()) {

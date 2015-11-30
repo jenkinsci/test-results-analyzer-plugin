@@ -22,12 +22,11 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 
 	@Override
 	public Collection<? extends Action> createFor(@SuppressWarnings("rawtypes") AbstractProject target) {
-		
 		final List<TestResultsAnalyzerAction> projectActions = target.getActions(TestResultsAnalyzerAction.class);
 
 		final ArrayList<Action> actions = new ArrayList<Action>();
 
-		if (projectActions.isEmpty()) {
+		if(projectActions.isEmpty()) {
 			final TestResultsAnalyzerAction newAction = new TestResultsAnalyzerAction(target);
 			actions.add(newAction);
 			return actions;
@@ -70,8 +69,7 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 
 		@Override
 		public boolean configure(StaplerRequest req, JSONObject formData) {
-			try
-			{
+			try {
 				noOfBuilds = formData.getString("noOfBuilds");
 				showAllBuilds = formData.getBoolean("showAllBuilds");
 				showBuildTime = formData.getBoolean("showBuildTime");
@@ -81,9 +79,7 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 				runTimeLowThreshold = formData.getString("runTimeLowThreshold");
 				runTimeHighThreshold = formData.getString("runTimeHighThreshold");
 				chartDataType = formData.getBoolean("chartDataType");
-			}
-			catch(Exception e)
-			{
+			} catch(Exception e) {
 				e.printStackTrace();
 			}
 			save();
@@ -110,12 +106,20 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 			return showPieGraph;
 		}
 
-		public boolean getShowBuildTime() { return showBuildTime; }
+		public boolean getShowBuildTime() {
+			return showBuildTime;
+		}
 
-		public String getRunTimeLowThreshold() { return runTimeLowThreshold; }
+		public String getRunTimeLowThreshold() {
+			return runTimeLowThreshold;
+		}
 
-		public String getRunTimeHighThreshold() { return runTimeHighThreshold; }
+		public String getRunTimeHighThreshold() {
+			return runTimeHighThreshold;
+		}
 
-		public boolean getChartDataType() { return chartDataType; }
+		public boolean getChartDataType() {
+			return chartDataType;
+		}
 	}
 }
