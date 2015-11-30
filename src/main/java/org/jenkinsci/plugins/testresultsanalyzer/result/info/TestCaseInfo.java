@@ -1,14 +1,15 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 
-import hudson.tasks.test.TestResult;
-import net.sf.json.JSONObject;
+import hudson.tasks.junit.CaseResult;
 
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.TestCaseResultData;
 
+import net.sf.json.JSONObject;
+
 public class TestCaseInfo extends Info {
 
-	public void putTestCaseResult(Integer buildNumber, TestResult testCaseResult) {
-		TestCaseResultData testCaseResultData = new TestCaseResultData(testCaseResult);
+	public void putTestCaseResult(Integer buildNumber, CaseResult testCaseResult, String url) {
+		TestCaseResultData testCaseResultData = new TestCaseResultData(testCaseResult, url);
 		evaluateStatusses(testCaseResult);
 		this.buildResults.put(buildNumber, testCaseResultData);
 	}

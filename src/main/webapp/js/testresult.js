@@ -3,6 +3,86 @@ var treeMarkup = "";
 var reevaluateChartData = true;
 var displayValues = false;
 
+function filterTests(){
+    var table = $j(".table")[0];
+    var rows = $j(table).find(".table-row");
+    $j.each(rows, function(index, row){
+        var searchStr = $j("#filter").val().toLowerCase();
+
+        // If user has removed the filter text, revert to showing the most-high level packages
+        if (searchStr == ""){
+            if ($j(row).attr("parentname") == "base"){
+                $j(row).css("display", "table-row");
+            }
+            else {
+                $j(row).css("display", "none");
+            }
+        }
+        // Filter tests by searchStr
+        else {  
+
+            var testCell = $j(row).find(".row-heading")[0];
+            var rowText = $j(testCell).text().toLowerCase();
+            if (rowText.indexOf(searchStr) == -1 ){
+                $j(row).css("display", "none");
+            }
+            else {
+                $j(row).css("display", "table-row");
+            }
+        }   
+    });
+
+    // If user has removed the filter text, 
+    // but expanded some options during/before the search, 
+    //they should remain expanded after the search
+
+    var rows_to_expand = $j(table).find(".icon-minus-sign").parent().parent();  // expanded rows
+    var searchStr = $j("#filter").val().toLowerCase();
+    if (searchStr == "") {
+        $j.each($j(rows_to_expand), function(index,row){
+            // for every expanded test, all ancestor packages need to be expanded as well
+            var parentclass = $j(row).attr("parentclass");
+            var parent = $j("." + parentclass);
+            var ancestor_arr = [];
+            while (parentclass!="base" && $j(parent).find(".icon-plus-sign").length>0){
+                ancestor_arr.push(parent);
+                var parentclass = $j(parent).attr("parentclass");
+                parent = $j("." + parentclass);
+            }
+            // Expand ancestors in top-down manner
+            $j.each($j(ancestor_arr).get().reverse(),function(index, row){
+                $j(row).find(".icon-plus-sign")[0].click();
+            });
+
+            // Make sure that it has been clicked
+            if ($j(row).find(".icon-minus-sign").length!=0){
+                $j(row).find(".icon-minus-sign")[0].click();
+            }
+
+            $j(row).find(".icon-plus-sign")[0].click();
+            
+            // Make sure that it has been clicked
+            if ($j(row).find(".icon-plus-sign")[0]){
+                $j(row).find(".icon-plus-sign")[0].click();
+            }
+            
+        });
+    }
+
+    $j('.table .table-row').filter(function(idx, elem) {
+        return $j(elem).css('display') != 'none';
+    }).each(function(idx, elem) {
+        var status = JSON.parse($j($j(elem).find('.build-result').get(0)).attr('data-result')).status;
+        if (
+            (status == "FAILED" && !$j('#failFilter').is(":checked")) ||
+            (status == "PASSED" && !$j('#passFilter').is(":checked")) ||
+            (status == "SKIPPED" && !$j('#skipFilter').is(":checked"))
+        ) {
+            $j(elem).hide();
+        }
+    });
+}
+
 function reset(){
     reevaluateChartData = true;
     $j(".table").html("")
@@ -10,16 +90,42 @@ function reset(){
     resetCharts();
 }
 
-function populateTemplate(){
-    reset();
-    var noOfBuilds = $j('#noofbuilds').val();
-    displayValues  = $j("#show-build-durations").is(":checked");
+function newFailingTests(){
+    var table_rows = $j(".table-row");
+    var i;
+    for (i=0;i<table_rows.length;i++){
+        row = table_rows[i];
+            row_cells = $j(row).find(".build-result");
+            last_test = row_cells[0];
+            if (!JSON.parse($j(last_test).attr("data-result"))["isPassed"] && row_cells.length>1){
+                second_to_last = row_cells[1];
+                if (JSON.parse($j(second_to_last).attr("data-result"))["isPassed"]){
+                    var cell = $j(row).find(".icon-exclamation-sign")[0];
+                    $j(cell).css("display","inline-block");
+                }   
+            }
+    }
+}
 
-    remoteAction.getTreeResult(noOfBuilds,$j.proxy(function(t) {
+
+function populateTemplate(){
+	reset();
+	var noOfBuilds = "-1";
+	if (!$j("#allnoofbuilds").is(":checked")) {
+		noOfBuilds = $j("#noofbuilds").val();
+	}
+	displayValues  = $j("#show-durations").is(":checked");
+	
+	var showCompileFail = "no";
+    if ( $j("#showcompilefail").is(":checked"))  showCompileFail = "show";
+
+    remoteAction.getTreeResult(noOfBuilds, showCompileFail, $j.proxy(function(t) {
         var itemsResponse = t.responseObject();
         treeMarkup = analyzerTemplate(itemsResponse);
         $j(".table").html(treeMarkup);
         addEvents();
+		newFailingTests();
+		generateCharts();
     },this));
 }
 
@@ -28,12 +134,13 @@ function collapseAll(){
     $j(".table").html("")
     $j(".table").html(treeMarkup);
     addEvents();
+    newFailingTests();
 }
 
 function expandAll(){
     reevaluateChartData = true;
 	collapseAll();
-	$j(".table .table-row .icon").each(function(){
+	$j(".table .table-row .icon-plus-sign").each(function(){
 		$j(this).click();
 	});
 	
@@ -82,19 +189,20 @@ function addEvents() {
 }
 
 function checkBoxEvents() {
-    $j("input[type='checkbox']").change(function () {
-            reevaluateChartData = true;
-            if (this.checked) {
-                checkChildren(this, true);
-                checkParent(this);
-                console.log("checked");
-            } else {
-                checkChildren(this, false);
-                checkParent(this);
-                console.log("unchecked");
-            }
-        }
-    );
+	var table = $j(".table")[0];
+	$j(table).find("input[type='checkbox']").change(function () {
+		reevaluateChartData = true;
+		if (this.checked) {
+			checkChildren(this, true);
+			checkParent(this);
+			//console.log("checked");
+		} else {
+			checkChildren(this, false);
+			checkParent(this);
+			//console.log("unchecked");
+		}
+		generateCharts();
+	});
 }
 
 function checkChildren(node, checked) {
@@ -124,8 +232,4 @@ function checkParent(node) {
     if ((parentCheckBox.size() > 0) && ($j(parentCheckBox).attr("parentclass") != 'base')) {
         checkParent(parentCheckBox);
     }
-}
-
-function resetAdvancedOptions(){
-    $j("#show-build-durations").prop('checked', false);
 }
