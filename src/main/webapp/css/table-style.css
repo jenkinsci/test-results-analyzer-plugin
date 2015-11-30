@@ -1,7 +1,7 @@
 	#tree  {
-		
 		border-collapse: collapse;
     }
+
 	.table {
 		overflow: auto;
         background: #e8edff;
@@ -15,15 +15,15 @@
         background-color: #E8F5FF;
         #background-image: linear-gradient(#84E1F3, #E8F5FF);
         #width: 80%;
-
     }
+
     .title {
         display: table-caption;
         text-align: center;
         font-weight: bold;
         font-size: larger;
     }
-    
+
 	.failed {
         background-color: #F37A7A;
     }
@@ -36,6 +36,10 @@
         background-color: #FDED72;
     }
 
+    #settingsmenu {
+    	margin-bottom: 15px;
+    }
+
     .no_status{
         background-color: #E8F5FF;
     }
@@ -44,32 +48,33 @@
 		margin-left: 10px;
 	}
 
-
     .table-cell.row-heading {
         text-align: left;
     }
-	
+
 	.even {
 		background: white;
 	}
+
 	.even:hover {
 		background: #BFC9EC;
-
 	}
-
 
 	.odd {
 
 	}
+
 	.odd:hover {
 		background: #BFC9EC;
 	}
-
+	#filterSearchBox {
+		float: left;
+	}
+	#downloadCSV {
+		float: left;
+	}
 	.extrabuttons {
-		right: 0px;
-		position: absolute;
-		display: initial;
-
+		float: right;
 	}
 
 	.icon {
@@ -79,7 +84,7 @@
 		display: inline-block;
         margin-left: 2px;
 	}
-	
+
 	.icon-plus-sign {
 		background-position: 0 -96px;
 	}
@@ -87,10 +92,15 @@
 	.icon-minus-sign {
 		background-position: -24px -96px;
 	}
-	
+
+	.icon-exclamation-sign {
+		background-position: -144px -120px;
+	}
+
 	.table {
 
 	}
+
 	.table-cell .name{
 		display: inline-block;
 	}
@@ -109,7 +119,7 @@
 	.build-result{
 		font-size: 14px;
 	}
-    
+
 	.heading {
         font-weight: bold;
         border-bottom: 2px solid #6678b1;
@@ -127,7 +137,7 @@
 		border-top-left-radius: 5px;
 		#background-image: linear-gradient(rgb(100, 111, 127), rgb(74, 85, 100));
 	}
-	
+
 	.heading .table-cell {
 		text-align: center;
 		font-size: 14px;
@@ -140,6 +150,7 @@
     button {
         margin: 3px;
     }
+
     .chartbuttons .charts {
 
     }
@@ -150,6 +161,3 @@
     .row-heading input[type="checkbox"] {
 
     }
-
-
-	

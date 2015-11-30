@@ -1,0 +1,37 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<f:section title="${%Test Results Analyzer}">
+		<f:entry title="${%Number of Builds}">
+			<f:textbox name="noOfBuilds" value="${descriptor.getNoOfBuilds()}"/>
+		</f:entry>
+		<f:entry title="${%Show All Builds}">
+			<f:checkbox name="showAllBuilds" checked="${descriptor.getShowAllBuilds()}" />
+		</f:entry>
+		<f:entry title="${%Display run time for each test}">
+			<f:checkbox name="showBuildTime" checked="${descriptor.getShowBuildTime()}" />
+		</f:entry>
+		<f:entry title="${%Show Line Graph}">
+			<f:checkbox name="showLineGraph" checked="${descriptor.getShowLineGraph()}" />
+		</f:entry>
+		<f:entry title="${%Show Bar Graph}">
+			<f:checkbox name="showBarGraph" checked="${descriptor.getShowBarGraph()}" />
+		</f:entry>
+		<f:entry title="${%Show Pie Graph}">
+			<f:checkbox name="showPieGraph" checked="${descriptor.getShowPieGraph()}" />
+		</f:entry>
+		<f:entry title="${%Show Test Runtimes in Charts instead of Passes and Failures}">
+			<f:checkbox name="chartDataType" checked="${descriptor.getChartDataType()}" />
+		</f:entry>
+		<f:entry title="${%Run Time Low Threshold}">
+			<f:textbox name="runTimeLowThreshold" value="${descriptor.getRunTimeLowThreshold()}" />
+		</f:entry>
+		<f:entry title="${%Run Time High Threshold}">
+			<f:textbox name="runTimeHighThreshold" value="${descriptor.getRunTimeHighThreshold()}" />
+		</f:entry>
+		<!-- <f:entry title="${%Chart Data Type}">
+			<select name="chartDataType">
+				<option value="passfail" select="false">Passes/Failures</option>
+				<option value="runtime" select="true">Test Runtimes</option>
+			</select>
+		</f:entry> -->
+	</f:section>
+</j:jelly>
