@@ -11,7 +11,7 @@ public class ResultInfo {
 
 	private Map<String, PackageInfo> packageResults = new TreeMap<String, PackageInfo>();
 
-	public void addPackage(Integer buildNumber, TabulatedResult packageResult) {
+	public void addPackage(Integer buildNumber, TabulatedResult packageResult, String url) {
 		String packageName = packageResult.getName();
 		PackageInfo packageInfo;
 		if (packageResults.containsKey(packageName)) {
@@ -21,7 +21,7 @@ public class ResultInfo {
 			packageInfo = new PackageInfo();
 			packageInfo.setName(packageName);
 		}
-		packageInfo.putPackageResult(buildNumber, packageResult);
+		packageInfo.putPackageResult(buildNumber, packageResult, url + "testReport/" + packageResult.getName());
 		packageResults.put(packageName, packageInfo);
 	}
 

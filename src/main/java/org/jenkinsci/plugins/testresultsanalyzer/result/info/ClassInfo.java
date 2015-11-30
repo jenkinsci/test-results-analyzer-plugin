@@ -14,11 +14,11 @@ public class ClassInfo extends Info {
 
 	private Map<String, TestCaseInfo> tests = new TreeMap<String, TestCaseInfo>();
 
-	public void putBuildClassResult(Integer buildNumber, TabulatedResult classResult) {
-		ClassResultData classResultData = new ClassResultData(classResult);
+	public void putBuildClassResult(Integer buildNumber, TabulatedResult classResult, String url) {
+		ClassResultData classResultData = new ClassResultData(classResult, url);
 
 		evaluateStatusses(classResult);
-		addTests(buildNumber, classResult);
+		addTests(buildNumber, classResult, url);
 		this.buildResults.put(buildNumber, classResultData);
 	}
 
@@ -27,7 +27,7 @@ public class ClassInfo extends Info {
 	}
 	
 
-	private void addTests(Integer buildNumber, TabulatedResult classResult) {
+	private void addTests(Integer buildNumber, TabulatedResult classResult, String url) {
 		for (TestResult testCaseResult : classResult.getChildren()) {
 
 			String testCaseName = testCaseResult.getName();
@@ -40,7 +40,7 @@ public class ClassInfo extends Info {
 				testCaseInfo.setName(testCaseName);
 			}
 
-			testCaseInfo.putTestCaseResult(buildNumber, testCaseResult);
+			testCaseInfo.putTestCaseResult(buildNumber, testCaseResult, url + "/" + testCaseResult.getName());
 			tests.put(testCaseName, testCaseInfo);
 		}
 	}

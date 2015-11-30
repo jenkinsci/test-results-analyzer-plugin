@@ -12,7 +12,6 @@ import hudson.model.TransientProjectActionFactory;
 @Extension
 public class TestResultsAnalyzerExtension extends TransientProjectActionFactory{
 
-
 	@Override
 	public Collection<? extends Action> createFor(@SuppressWarnings("rawtypes") AbstractProject target) {
 		
