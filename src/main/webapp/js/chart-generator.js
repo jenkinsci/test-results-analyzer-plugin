@@ -127,7 +127,8 @@ function getRuntimeLineChartConfig(chartCategories, chartData) {
 				width: 1,
 				color: '#808080'
 			}
-		]
+		],
+		floor: 0
 	};
 	var linechart = {
 		title: titleVar,
@@ -360,7 +361,8 @@ function getLineChartConfig(chartCategories, chartData) {
 					color: '#808080'
 				}
 			],
-			allowDecimals: false
+			allowDecimals: false,
+			floor: 0
 		},
 		credits: {
 			enabled: false
@@ -450,7 +452,8 @@ function getBarChartConfig(chartCategories, chartData) {
 					width: 1,
 					color: '#808080'
 				}
-			]
+			],
+			allowDecimals: false
 		},
 		colors : [
 			statusColors["passed"],
