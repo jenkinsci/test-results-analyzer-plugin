@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<build>
+  <actions>
+    <hudson.model.CauseAction>
+      <causes>
+        <hudson.model.Cause_-UserIdCause>
+          <userId>mjhoffm2</userId>
+        </hudson.model.Cause_-UserIdCause>
+      </causes>
+    </hudson.model.CauseAction>
+    <hudson.scm.SubversionTagAction plugin="subversion@2.5.3">
+      <tags class="hudson.util.CopyOnWriteMap$Tree">
+        <entry>
+          <hudson.scm.SubversionSCM_-SvnInfo>
+            <url>https://subversion.ews.illinois.edu/svn/fa15-cs427/mjhoffm2/mp1/trunk</url>
+            <revision>5704</revision>
+          </hudson.scm.SubversionSCM_-SvnInfo>
+          <list/>
+        </entry>
+      </tags>
+    </hudson.scm.SubversionTagAction>
+    <hudson.scm.SVNRevisionState plugin="subversion@2.5.3">
+      <revisions>
+        <entry>
+          <string>https://subversion.ews.illinois.edu/svn/fa15-cs427/mjhoffm2/mp1/trunk</string>
+          <long>5704</long>
+        </entry>
+      </revisions>
+    </hudson.scm.SVNRevisionState>
+  </actions>
+  <queueId>70</queueId>
+  <timestamp>1445207499511</timestamp>
+  <startTime>1445207499512</startTime>
+  <result>SUCCESS</result>
+  <duration>7845</duration>
+  <charset>UTF-8</charset>
+  <keepLog>false</keepLog>
+  <builtOn></builtOn>
+  <workspace>/home/mjhoffm2/.jenkins/jobs/testjob/workspace</workspace>
+  <hudsonVersion>1.633</hudsonVersion>
+  <scm class="hudson.scm.SubversionChangeLogParser" plugin="subversion@2.5.3">
+    <ignoreDirPropChanges>false</ignoreDirPropChanges>
+  </scm>
+  <culprits class="com.google.common.collect.EmptyImmutableSortedSet"/>
+</build>
