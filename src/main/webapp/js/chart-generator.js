@@ -127,8 +127,7 @@ function getRuntimeLineChartConfig(chartCategories, chartData) {
 				width: 1,
 				color: '#808080'
 			}
-		],
-		allowDecimals: false
+		]
 	};
 	var linechart = {
 		title: titleVar,
@@ -347,7 +346,8 @@ function getLineChartConfig(chartCategories, chartData) {
 			title: {
 				text: 'Build number'
 			},
-			categories: chartCategories
+			categories: chartCategories,
+			allowDecimals: false
 		},
 		yAxis: {
 			title: {
@@ -359,7 +359,8 @@ function getLineChartConfig(chartCategories, chartData) {
 					width: 1,
 					color: '#808080'
 				}
-			]
+			],
+			allowDecimals: false
 		},
 		credits: {
 			enabled: false
@@ -436,7 +437,8 @@ function getBarChartConfig(chartCategories, chartData) {
 			title: {
 				text: 'Build number'
 			},
-			categories: chartCategories
+			categories: chartCategories,
+			allowDecimals: false
 		},
 		yAxis: {
 			title: {
