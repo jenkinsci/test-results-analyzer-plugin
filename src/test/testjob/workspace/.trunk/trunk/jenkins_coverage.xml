@@ -1,0 +1,444 @@
+<?xml version="1.0"?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+
+<coverage line-rate="0.8770491803278688" branch-rate="0.9" lines-covered="107" lines-valid="122" branches-covered="18" branches-valid="20" complexity="2.1052631578947367" version="2.0.3" timestamp="1442889555597">
+	<sources>
+		<source>/home/mjhoffm2/.jenkins/jobs/mp3_maven/workspace/trunk/trunk/src/main/java</source>
+		<source>--source</source>
+		<source>/home/mjhoffm2/.jenkins/jobs/mp3_maven/workspace/trunk/trunk/target/generated-sources/annotations</source>
+	</sources>
+	<packages>
+		<package name="edu.illinois.cs427.mp3" line-rate="0.8770491803278688" branch-rate="0.9" complexity="2.1052631578947367">
+			<classes>
+				<class name="edu.illinois.cs427.mp3.Book" filename="edu/illinois/cs427/mp3/Book.java" line-rate="0.8928571428571429" branch-rate="1.0" complexity="1.6666666666666667">
+					<methods>
+						<method name="&lt;init&gt;" signature="(Ljava/lang/String;)V" line-rate="0.8571428571428571" branch-rate="1.0">
+							<lines>
+								<line number="32" hits="14" branch="false"/>
+								<line number="36" hits="14" branch="false"/>
+								<line number="37" hits="14" branch="false"/>
+								<line number="38" hits="14" branch="false"/>
+								<line number="40" hits="0" branch="false"/>
+								<line number="43" hits="14" branch="false"/>
+								<line number="44" hits="14" branch="false"/>
+							</lines>
+						</method>
+						<method name="&lt;init&gt;" signature="(Ljava/lang/String;Ljava/lang/String;)V" line-rate="1.0" branch-rate="1.0">
+							<lines>
+								<line number="21" hits="9" branch="false"/>
+								<line number="22" hits="9" branch="false"/>
+								<line number="23" hits="9" branch="false"/>
+								<line number="24" hits="9" branch="false"/>
+							</lines>
+						</method>
+						<method name="getAuthor" signature="()Ljava/lang/String;" line-rate="1.0" branch-rate="1.0">
+							<lines>
+								<line number="114" hits="3" branch="false"/>
+							</lines>
+						</method>
+						<method name="getContainingCollections" signature="()Ljava/util/List;" line-rate="1.0" branch-rate="1.0">
+							<lines>
+								<line number="85" hits="1" branch="false"/>
+								<line number="86" hits="1" branch="false"/>
+								<line number="88" hits="2" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="90" hits="1" branch="false"/>
+								<line number="91" hits="1" branch="false"/>
+								<line number="92" hits="1" branch="false"/>
+								<line number="94" hits="1" branch="false"/>
+							</lines>
+						</method>
+						<method name="getStringRepresentation" signature="()Ljava/lang/String;" line-rate="0.75" branch-rate="1.0">
+							<lines>
+								<line number="57" hits="9" branch="false"/>
+								<line number="58" hits="9" branch="false"/>
+								<line number="59" hits="9" branch="false"/>
+								<line number="60" hits="9" branch="false"/>
+								<line number="61" hits="9" branch="false"/>
+								<line number="62" hits="9" branch="false"/>
+								<line number="64" hits="0" branch="false"/>
+								<line number="68" hits="0" branch="false"/>
+							</lines>
+						</method>
+						<method name="getTitle" signature="()Ljava/lang/String;" line-rate="1.0" branch-rate="1.0">
+							<lines>
+								<line number="104" hits="3" branch="false"/>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="21" hits="9" branch="false"/>
+						<line number="22" hits="9" branch="false"/>
+						<line number="23" hits="9" branch="false"/>
+						<line number="24" hits="9" branch="false"/>
+						<line number="32" hits="14" branch="false"/>
+						<line number="36" hits="14" branch="false"/>
+						<line number="37" hits="14" branch="false"/>
+						<line number="38" hits="14" branch="false"/>
+						<line number="40" hits="0" branch="false"/>
+						<line number="43" hits="14" branch="false"/>
+						<line number="44" hits="14" branch="false"/>
+						<line number="57" hits="9" branch="false"/>
+						<line number="58" hits="9" branch="false"/>
+						<line number="59" hits="9" branch="false"/>
+						<line number="60" hits="9" branch="false"/>
+						<line number="61" hits="9" branch="false"/>
+						<line number="62" hits="9" branch="false"/>
+						<line number="64" hits="0" branch="false"/>
+						<line number="68" hits="0" branch="false"/>
+						<line number="85" hits="1" branch="false"/>
+						<line number="86" hits="1" branch="false"/>
+						<line number="88" hits="2" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="90" hits="1" branch="false"/>
+						<line number="91" hits="1" branch="false"/>
+						<line number="92" hits="1" branch="false"/>
+						<line number="94" hits="1" branch="false"/>
+						<line number="104" hits="3" branch="false"/>
+						<line number="114" hits="3" branch="false"/>
+					</lines>
+				</class>
+				<class name="edu.illinois.cs427.mp3.Collection" filename="edu/illinois/cs427/mp3/Collection.java" line-rate="0.8679245283018868" branch-rate="0.8333333333333334" complexity="2.7142857142857144">
+					<methods>
+						<method name="&lt;init&gt;" signature="(Ljava/lang/String;)V" line-rate="1.0" branch-rate="1.0">
+							<lines>
+								<line number="20" hits="21" branch="false"/>
+								<line number="22" hits="21" branch="false"/>
+								<line number="23" hits="21" branch="false"/>
+								<line number="24" hits="21" branch="false"/>
+							</lines>
+						</method>
+						<method name="addElement" signature="(Ledu/illinois/cs427/mp3/Element;)Z" line-rate="0.8" branch-rate="0.5">
+							<lines>
+								<line number="125" hits="30" branch="true" condition-coverage="50% (1/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="50%"/>
+									</conditions>
+								</line>
+								<line number="126" hits="0" branch="false"/>
+								<line number="128" hits="30" branch="false"/>
+								<line number="129" hits="30" branch="false"/>
+								<line number="130" hits="30" branch="false"/>
+							</lines>
+						</method>
+						<method name="deleteElement" signature="(Ledu/illinois/cs427/mp3/Element;)Z" line-rate="0.8" branch-rate="0.5">
+							<lines>
+								<line number="145" hits="1" branch="true" condition-coverage="50% (1/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="50%"/>
+									</conditions>
+								</line>
+								<line number="147" hits="1" branch="false"/>
+								<line number="148" hits="1" branch="false"/>
+								<line number="149" hits="1" branch="false"/>
+								<line number="151" hits="0" branch="false"/>
+							</lines>
+						</method>
+						<method name="getElements" signature="()Ljava/util/List;" line-rate="1.0" branch-rate="1.0">
+							<lines>
+								<line number="161" hits="7" branch="false"/>
+							</lines>
+						</method>
+						<method name="getName" signature="()Ljava/lang/String;" line-rate="1.0" branch-rate="1.0">
+							<lines>
+								<line number="109" hits="1" branch="false"/>
+							</lines>
+						</method>
+						<method name="getStringRepresentation" signature="()Ljava/lang/String;" line-rate="0.8666666666666667" branch-rate="1.0">
+							<lines>
+								<line number="76" hits="8" branch="false"/>
+								<line number="77" hits="8" branch="false"/>
+								<line number="78" hits="8" branch="false"/>
+								<line number="79" hits="8" branch="false"/>
+								<line number="81" hits="20" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="83" hits="12" branch="false"/>
+								<line number="85" hits="12" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="87" hits="8" branch="false"/>
+								<line number="91" hits="4" branch="false"/>
+								<line number="93" hits="12" branch="false"/>
+								<line number="95" hits="8" branch="false"/>
+								<line number="96" hits="8" branch="false"/>
+								<line number="97" hits="8" branch="false"/>
+								<line number="98" hits="0" branch="false"/>
+								<line number="99" hits="0" branch="false"/>
+							</lines>
+						</method>
+						<method name="restoreCollection" signature="(Ljava/lang/String;)Ledu/illinois/cs427/mp3/Collection;" line-rate="0.8636363636363636" branch-rate="1.0">
+							<lines>
+								<line number="33" hits="14" branch="false"/>
+								<line number="35" hits="14" branch="false"/>
+								<line number="36" hits="14" branch="false"/>
+								<line number="37" hits="14" branch="false"/>
+								<line number="38" hits="14" branch="false"/>
+								<line number="39" hits="14" branch="false"/>
+								<line number="40" hits="14" branch="false"/>
+								<line number="41" hits="35" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="43" hits="21" branch="false"/>
+								<line number="44" hits="21" branch="false"/>
+								<line number="45" hits="21" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="47" hits="14" branch="false"/>
+								<line number="48" hits="14" branch="false"/>
+								<line number="49" hits="14" branch="false"/>
+								<line number="50" hits="14" branch="false"/>
+								<line number="53" hits="7" branch="false"/>
+								<line number="55" hits="7" branch="false"/>
+								<line number="56" hits="7" branch="false"/>
+								<line number="59" hits="14" branch="false"/>
+								<line number="60" hits="0" branch="false"/>
+								<line number="61" hits="0" branch="false"/>
+								<line number="62" hits="0" branch="false"/>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="20" hits="21" branch="false"/>
+						<line number="22" hits="21" branch="false"/>
+						<line number="23" hits="21" branch="false"/>
+						<line number="24" hits="21" branch="false"/>
+						<line number="33" hits="14" branch="false"/>
+						<line number="35" hits="14" branch="false"/>
+						<line number="36" hits="14" branch="false"/>
+						<line number="37" hits="14" branch="false"/>
+						<line number="38" hits="14" branch="false"/>
+						<line number="39" hits="14" branch="false"/>
+						<line number="40" hits="14" branch="false"/>
+						<line number="41" hits="35" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="43" hits="21" branch="false"/>
+						<line number="44" hits="21" branch="false"/>
+						<line number="45" hits="21" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="47" hits="14" branch="false"/>
+						<line number="48" hits="14" branch="false"/>
+						<line number="49" hits="14" branch="false"/>
+						<line number="50" hits="14" branch="false"/>
+						<line number="53" hits="7" branch="false"/>
+						<line number="55" hits="7" branch="false"/>
+						<line number="56" hits="7" branch="false"/>
+						<line number="59" hits="14" branch="false"/>
+						<line number="60" hits="0" branch="false"/>
+						<line number="61" hits="0" branch="false"/>
+						<line number="62" hits="0" branch="false"/>
+						<line number="76" hits="8" branch="false"/>
+						<line number="77" hits="8" branch="false"/>
+						<line number="78" hits="8" branch="false"/>
+						<line number="79" hits="8" branch="false"/>
+						<line number="81" hits="20" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="83" hits="12" branch="false"/>
+						<line number="85" hits="12" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="87" hits="8" branch="false"/>
+						<line number="91" hits="4" branch="false"/>
+						<line number="93" hits="12" branch="false"/>
+						<line number="95" hits="8" branch="false"/>
+						<line number="96" hits="8" branch="false"/>
+						<line number="97" hits="8" branch="false"/>
+						<line number="98" hits="0" branch="false"/>
+						<line number="99" hits="0" branch="false"/>
+						<line number="109" hits="1" branch="false"/>
+						<line number="125" hits="30" branch="true" condition-coverage="50% (1/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="50%"/>
+							</conditions>
+						</line>
+						<line number="126" hits="0" branch="false"/>
+						<line number="128" hits="30" branch="false"/>
+						<line number="129" hits="30" branch="false"/>
+						<line number="130" hits="30" branch="false"/>
+						<line number="145" hits="1" branch="true" condition-coverage="50% (1/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="50%"/>
+							</conditions>
+						</line>
+						<line number="147" hits="1" branch="false"/>
+						<line number="148" hits="1" branch="false"/>
+						<line number="149" hits="1" branch="false"/>
+						<line number="151" hits="0" branch="false"/>
+						<line number="161" hits="7" branch="false"/>
+					</lines>
+				</class>
+				<class name="edu.illinois.cs427.mp3.Element" filename="edu/illinois/cs427/mp3/Element.java" line-rate="1.0" branch-rate="1.0" complexity="1.0">
+					<methods>
+						<method name="&lt;init&gt;" signature="()V" line-rate="1.0" branch-rate="1.0">
+							<lines>
+								<line number="8" hits="44" branch="false"/>
+							</lines>
+						</method>
+						<method name="getParentCollection" signature="()Ledu/illinois/cs427/mp3/Collection;" line-rate="1.0" branch-rate="1.0">
+							<lines>
+								<line number="17" hits="33" branch="false"/>
+							</lines>
+						</method>
+						<method name="setParentCollection" signature="(Ledu/illinois/cs427/mp3/Collection;)V" line-rate="1.0" branch-rate="1.0">
+							<lines>
+								<line number="26" hits="31" branch="false"/>
+								<line number="27" hits="31" branch="false"/>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="8" hits="44" branch="false"/>
+						<line number="17" hits="33" branch="false"/>
+						<line number="26" hits="31" branch="false"/>
+						<line number="27" hits="31" branch="false"/>
+					</lines>
+				</class>
+				<class name="edu.illinois.cs427.mp3.Library" filename="edu/illinois/cs427/mp3/Library.java" line-rate="0.8648648648648649" branch-rate="1.0" complexity="2.25">
+					<methods>
+						<method name="&lt;init&gt;" signature="()V" line-rate="0.0" branch-rate="1.0">
+							<lines>
+								<line number="19" hits="0" branch="false"/>
+								<line number="21" hits="0" branch="false"/>
+								<line number="22" hits="0" branch="false"/>
+							</lines>
+						</method>
+						<method name="&lt;init&gt;" signature="(Ljava/lang/String;)V" line-rate="0.9473684210526315" branch-rate="1.0">
+							<lines>
+								<line number="29" hits="3" branch="false"/>
+								<line number="31" hits="3" branch="false"/>
+								<line number="32" hits="3" branch="false"/>
+								<line number="36" hits="3" branch="false"/>
+								<line number="37" hits="3" branch="false"/>
+								<line number="39" hits="14" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="41" hits="11" branch="false"/>
+								<line number="43" hits="3" branch="false"/>
+								<line number="44" hits="3" branch="false"/>
+								<line number="45" hits="3" branch="false"/>
+								<line number="47" hits="3" branch="false"/>
+								<line number="48" hits="3" branch="false"/>
+								<line number="49" hits="9" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="51" hits="6" branch="false"/>
+								<line number="52" hits="6" branch="false"/>
+								<line number="53" hits="6" branch="false"/>
+								<line number="56" hits="0" branch="false"/>
+								<line number="59" hits="3" branch="false"/>
+								<line number="60" hits="3" branch="false"/>
+							</lines>
+						</method>
+						<method name="getCollections" signature="()Ljava/util/List;" line-rate="1.0" branch-rate="1.0">
+							<lines>
+								<line number="101" hits="2" branch="false"/>
+							</lines>
+						</method>
+						<method name="saveLibraryToFile" signature="(Ljava/lang/String;)V" line-rate="0.9285714285714286" branch-rate="1.0">
+							<lines>
+								<line number="71" hits="1" branch="false"/>
+								<line number="72" hits="1" branch="false"/>
+								<line number="74" hits="3" branch="true" condition-coverage="100% (2/2)">
+									<conditions>
+										<condition number="0" type="jump" coverage="100%"/>
+									</conditions>
+								</line>
+								<line number="76" hits="2" branch="false"/>
+								<line number="77" hits="2" branch="false"/>
+								<line number="79" hits="1" branch="false"/>
+								<line number="80" hits="1" branch="false"/>
+								<line number="83" hits="1" branch="false"/>
+								<line number="84" hits="1" branch="false"/>
+								<line number="85" hits="1" branch="false"/>
+								<line number="86" hits="1" branch="false"/>
+								<line number="88" hits="0" branch="false"/>
+								<line number="91" hits="1" branch="false"/>
+								<line number="92" hits="1" branch="false"/>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="19" hits="0" branch="false"/>
+						<line number="21" hits="0" branch="false"/>
+						<line number="22" hits="0" branch="false"/>
+						<line number="29" hits="3" branch="false"/>
+						<line number="31" hits="3" branch="false"/>
+						<line number="32" hits="3" branch="false"/>
+						<line number="36" hits="3" branch="false"/>
+						<line number="37" hits="3" branch="false"/>
+						<line number="39" hits="14" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="41" hits="11" branch="false"/>
+						<line number="43" hits="3" branch="false"/>
+						<line number="44" hits="3" branch="false"/>
+						<line number="45" hits="3" branch="false"/>
+						<line number="47" hits="3" branch="false"/>
+						<line number="48" hits="3" branch="false"/>
+						<line number="49" hits="9" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="51" hits="6" branch="false"/>
+						<line number="52" hits="6" branch="false"/>
+						<line number="53" hits="6" branch="false"/>
+						<line number="56" hits="0" branch="false"/>
+						<line number="59" hits="3" branch="false"/>
+						<line number="60" hits="3" branch="false"/>
+						<line number="71" hits="1" branch="false"/>
+						<line number="72" hits="1" branch="false"/>
+						<line number="74" hits="3" branch="true" condition-coverage="100% (2/2)">
+							<conditions>
+								<condition number="0" type="jump" coverage="100%"/>
+							</conditions>
+						</line>
+						<line number="76" hits="2" branch="false"/>
+						<line number="77" hits="2" branch="false"/>
+						<line number="79" hits="1" branch="false"/>
+						<line number="80" hits="1" branch="false"/>
+						<line number="83" hits="1" branch="false"/>
+						<line number="84" hits="1" branch="false"/>
+						<line number="85" hits="1" branch="false"/>
+						<line number="86" hits="1" branch="false"/>
+						<line number="88" hits="0" branch="false"/>
+						<line number="91" hits="1" branch="false"/>
+						<line number="92" hits="1" branch="false"/>
+						<line number="101" hits="2" branch="false"/>
+					</lines>
+				</class>
+			</classes>
+		</package>
+	</packages>
+</coverage>

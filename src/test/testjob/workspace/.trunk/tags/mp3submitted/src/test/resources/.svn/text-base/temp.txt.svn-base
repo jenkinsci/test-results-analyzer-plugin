@@ -1,0 +1,5 @@
+{
+"library":
+[
+{"collection":{"name":"collect","elements":[{"book":{"author":"author","title":"title"}},{"collection":{"name":"inside_collect","elements":[{"book":{"author":"dummy","title":"dumm"}}]}}]}},
+{"collection":{"name":"collect","elements":[{"book":{"author":"author","title":"title"}},{"collection":{"name":"inside_collect","elements":[{"book":{"author":"dummy","title":"dumm"}}]}}]}}]}
