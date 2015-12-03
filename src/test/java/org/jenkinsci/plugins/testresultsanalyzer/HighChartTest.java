@@ -20,13 +20,13 @@ import java.lang.Float;
 import java.util.List;
 import java.lang.Thread;
 
-public class ChartTest {
+public class HighChartTest {
+	@Rule
+	public JenkinsRule jenkinsRule = new JenkinsRule();
+
 	private static WebDriver driver;
 	private static JavascriptExecutor js;
 	private static WebDriverWait wait;
-
-	@Rule
-	public JenkinsRule j = new JenkinsRule();
 
 	@BeforeClass
 	public static void startDriver() throws Exception {
@@ -46,13 +46,11 @@ public class ChartTest {
 
 	@Before
 	public void refreshDriver() throws Exception {
-		Thread.sleep(120000);
-		FreeStyleProject p = (FreeStyleProject) j.getInstance().getItem("testjob");
+		//Thread.sleep(120000);
 
-		//nice naming consistency by the folks working on jenkins
-		//this also handles localhost:xxxx/jenkins/job/ vs site.com/job (no /jenkins)
-		String url = j.getURL() + p.getUrl();
-		String query = url + "test_results_analyzer";
+		MavenModuleSet project = (MavenModuleSet) jenkinsRule.getInstance().getItem("test");
+		String url = jenkinsRule.getURL() + project.getUrl();
+		String query = url + "edu.illinois.cs427$mp3/test_results_analyzer";
 
 		driver.get(query);
 		openSettingsMenu();
@@ -80,20 +78,24 @@ public class ChartTest {
 			piegraph.click();
 		}
 		Select select = new Select(driver.findElement(By.id("chartDataType")));
-		select.deselectAll();
+		//select.deselectAll();
 		select.selectByVisibleText("Passes/Failures");
 		driver.findElement(By.id("getbuildreport")).click();
-		wait.until(ExpectedConditions.textToBePresentInElementLocated(By.cssSelector("#tree.table"), "Chart"));
+		//Thread.sleep(30000);
+		wait.until(ExpectedConditions.textToBePresentInElementLocated(By.cssSelector("#tree > .table"), "Chart"));
+		//wait.until(
+		//	new Predicate<WebDriver>() {
+		//		public boolean apply(WebDriver driver) {
+		//			return ((JavascriptExecutor)driver).executeScript(
+		//				"if(window.jQuery) {" +
+		//				"	return 'true';" +
+		//				"}" +
+		//				"return 'false';"
+		//			).equals("true");
+		//		}
+		//	}
+		//);
 	}
-
-	//mock a json data result from the server
-	private static String javaScriptCommand = "var Obj = {\"builds\":[\"2\",\"1\"],\"results\":[{\"buildResults\":[{\"buildNumber\":\"2\",\"children\":[],\"isPassed\":false,\"isSkipped\":false,\"name\":\"edu.illinois.cs427.mp3\",\"status\":\"FAILED\",\"totalFailed\":1,\"totalPassed\":0,\"totalSkipped\":0,\"totalTests\":1,\"totalTimeTaken\":0.023},{\"buildNumber\":\"1\",\"children\":[],\"isPassed\":true,\"isSkipped\":false,\"name\":\"edu.illinois.cs427.mp3\",\"status\":\"PASSED\",\"totalFailed\":0,\"totalPassed\":1,\"totalSkipped\":0,\"totalTests\":1,\"totalTimeTaken\":0.032}],\"buildStatuses\":[\"FAILED\",\"PASSED\"],\"children\":[],\"parentclass\":\"base\",\"parentname\":\"base\",\"text\": \"edu.illinois.cs427.mp3\",\"type\":\"package\"}]};" +
-		"treeMarkup = analyzerTemplate(Obj);" +
-		"$j(\".table\").html(treeMarkup);" +
-		"addEvents();" +
-		"newFailingTests();" +
-		"reevaluateChartData = true;" + 
-		"generateCharts();";
 
 	/**
 	 *  @brief helper method for below methods
@@ -113,11 +115,12 @@ public class ChartTest {
 	@Test
 	@LocalData
 	public void graphNumberingTest() throws Exception {
+//		assertTrue(true);
 		List<WebElement> elements = driver.findElements(By.cssSelector(".highcharts-yaxis-labels > text"));
 
 		for(WebElement e : elements) {
 			float value = Float.parseFloat(e.getText());
-			assertEquals(value, Math.ceil(value));
+			assertEquals(value, Math.ceil(value), 0.0);
 		}
 	}
 
