@@ -46,57 +46,53 @@ public class HighChartTest {
 
 	@Before
 	public void refreshDriver() throws Exception {
-		//Thread.sleep(120000);
-
-		//MavenModuleSet project = (MavenModuleSet) jenkinsRule.getInstance().getItem("test");
-		FreeStyleProject project = (FreeStyleProject) jenkinsRule.getInstance().getItem("testjob");
+		setWindowWidth(1000);
+		MavenModuleSet project = (MavenModuleSet) jenkinsRule.getInstance().getItem("test");
 		String url = jenkinsRule.getURL() + project.getUrl();
-		//String query = url + "edu.illinois.cs427$mp3/test_results_analyzer";
-		String query = url + "test_results_analyzer";
+		String query = url + "edu.illinois.cs427$mp3/test_results_analyzer";
 
 		driver.get(query);
 		openSettingsMenu();
 
 		//ensure the 'all' box is checked
-		//needs some refactoring
 		WebElement noOfBuildsCheck = driver.findElement(By.id("allnoofbuilds"));
 
 		if(!noOfBuildsCheck.isSelected()) {
 			noOfBuildsCheck.click();
 		}
+		setChartsShown(true, true, true);
+	}
+
+	public void setChartsShown(boolean line, boolean bar, boolean pie) {
 		WebElement linegraph = driver.findElement(By.id("linegraph"));
 
-		if(!linegraph.isSelected()) {
+		if(linegraph.isSelected() != line && linegraph.isEnabled()) {
 			linegraph.click();
 		}
 		WebElement bargraph = driver.findElement(By.id("bargraph"));
 
-		if(!bargraph.isSelected()) {
+		if(bargraph.isSelected() != bar && bargraph.isEnabled()) {
 			bargraph.click();
 		}
 		WebElement piegraph = driver.findElement(By.id("piegraph"));
 
-		if(!piegraph.isSelected()) {
+		if(piegraph.isSelected() != pie && piegraph.isEnabled()) {
 			piegraph.click();
 		}
+	}
+
+	public void setPassFailCharts() {
 		Select select = new Select(driver.findElement(By.id("chartDataType")));
-		//select.deselectAll();
 		select.selectByVisibleText("Passes/Failures");
 		driver.findElement(By.id("getbuildreport")).click();
-		//Thread.sleep(30000);
 		wait.until(ExpectedConditions.textToBePresentInElementLocated(By.cssSelector("#tree > .table"), "Chart"));
-		//wait.until(
-		//	new Predicate<WebDriver>() {
-		//		public boolean apply(WebDriver driver) {
-		//			return ((JavascriptExecutor)driver).executeScript(
-		//				"if(window.jQuery) {" +
-		//				"	return 'true';" +
-		//				"}" +
-		//				"return 'false';"
-		//			).equals("true");
-		//		}
-		//	}
-		//);
+	}
+
+	public void setRuntimeCharts() {
+		Select select = new Select(driver.findElement(By.id("chartDataType")));
+		select.selectByVisibleText("Test Runtimes");
+		driver.findElement(By.id("getbuildreport")).click();
+		wait.until(ExpectedConditions.textToBePresentInElementLocated(By.cssSelector("#tree > .table"), "Chart"));
 	}
 
 	/**
@@ -116,9 +112,49 @@ public class HighChartTest {
 
 	@Test
 	@LocalData
-	public void graphNumberingTest() throws Exception {
-//		assertTrue(true);
-		List<WebElement> elements = driver.findElements(By.cssSelector(".highcharts-yaxis-labels > text"));
+	public void passFailGraphNumberingTest() throws Exception {
+		setPassFailCharts();
+		assertNoFloatsBy(By.cssSelector(".highcharts-yaxis-labels > text"));
+		assertNoFloatsBy(By.cssSelector(".highcharts-xaxis-labels > text"));
+		assertNoNegativesBy(By.cssSelector(".highcharts-yaxis-labels > text"));
+		assertNoNegativesBy(By.cssSelector(".highcharts-xaxis-labels > text"));
+	}
+
+	@Test
+	@LocalData
+	public void runtimGraphNumberingTest() throws Exception {
+		setRuntimeCharts();
+		assertNoFloatsBy(By.cssSelector(".highcharts-xaxis-labels > text"));
+		assertNoNegativesBy(By.cssSelector(".highcharts-xaxis-labels > text"));
+	}
+
+	@Test
+	@LocalData
+	public void graphResizeTest() throws Exception {
+		setPassFailCharts();
+		By by = By.cssSelector(".highcharts-xaxis-labels > text");
+		validateWindowWidth(1600, by);
+		validateWindowWidth(1200, by);
+		validateWindowWidth(800, by);
+		validateWindowWidth(600, by);
+		validateWindowWidth(500, by);
+		validateWindowWidth(400, by);
+	}
+
+	public void validateWindowWidth(int w, By by) {
+		setWindowWidth(w);
+		assertNoFloatsBy(by);
+		assertNoNegativesBy(by);
+	}
+
+	public void setWindowWidth(int w) {
+		Dimension dim = driver.manage().window().getSize();
+		int height = dim.getHeight();
+		driver.manage().window().setSize(new Dimension(w, height));
+	}
+
+	public void assertNoFloatsBy(By by) {
+		List<WebElement> elements = driver.findElements(by);
 
 		for(WebElement e : elements) {
 			float value = Float.parseFloat(e.getText());
@@ -126,122 +162,13 @@ public class HighChartTest {
 		}
 	}
 
-//	@Test
-//	public void optionsSectionExistsTest() throws Exception {
-//		Exception ex = null;
-//		WebElement settingsButton = null;
-//
-//		//basic assertion that we have a settings menu button
-//		try {
-//			settingsButton = driver.findElement(By.id("settingsmenubutton"));
-//		}
-//		catch(NoSuchElementException e) {
-//			ex = e;
-//		}
-//		assertEquals(null, ex);
-//		//assert that the options section is hidden
-//		WebElement menu = driver.findElement(By.id("settingsmenu"));
-//		assertFalse(menu.isDisplayed());
-//		openSettingsMenu();
-//		assertTrue(menu.isDisplayed());
-//		assertTrue(driver.findElement(By.id("noofbuilds")).isDisplayed());
-//		assertTrue(driver.findElement(By.id("showcompilefail")).isDisplayed());
-//		assertTrue(driver.findElement(By.id("show-durations")).isDisplayed());
-//		assertTrue(driver.findElement(By.id("chartDataType")).isDisplayed());
-//		assertTrue(driver.findElement(By.id("getbuildreport")).isDisplayed());
-//	}
-//
-//	@Test
-//	public void optionsSectionGraphTest() {
-//		openSettingsMenu();
-//		//enable the 'linegraph' checkbox and select the 'Test Runtimes' option
-//		//then mock a json data result from the server
-//		js.executeScript("$j(\"#linegraph\").prop(\"checked\",true);" + 
-//						"$j(\"#bargraph\").prop(\"checked\",false);" + 
-//						"$j(\"#piegraph\").prop(\"checked\",false);" + 
-//						"$j(\"#chartDataType\").val(\"runtime\");");
-//
-//		//assert that the bar and pie checkboxes are disabled, while linegraph is enabled
-//		assertTrue(driver.findElement(By.id("linegraph")).isEnabled());
-//
-//		//load mock data
-//		js.executeScript(OptionsTest.javaScriptCommand);
-//
-//		//verify that the table has been updated
-//		//this jQuery script looks for the string "edu.illinois.cs427.mp3" within the element with id "tree"
-//		assertNotEquals(0, js.executeScript("return jQuery('#tree:contains(\"edu.illinois.cs427.mp3\")').size();"));
-//
-//		//verify that the linechart element is not empty and contains the string "runtime"
-//		WebElement lineChart = driver.findElement(By.id("linechart"));
-//		WebElement barChart = driver.findElement(By.id("barchart"));
-//		WebElement pieChart = driver.findElement(By.id("piechart"));
-//		assertNotEquals(null, lineChart.getAttribute("data-highcharts-chart"));
-//		assertNotEquals("", lineChart.getAttribute("innerHTML"));
-//		assertNotEquals(0, js.executeScript("return jQuery('#linechart:contains(\"Runtime\")').size();"));
-//
-//		//verify that other graphs are not generated
-//		assertEquals("", barChart.getAttribute("innerHTML"));
-//		assertEquals("", pieChart.getAttribute("innerHTML"));
-//
-//		//now uncheck 'line' and verify the graph is no longer present
-//		js.executeScript("jQuery('#linegraph').prop('checked', false);");
-//		js.executeScript(OptionsTest.javaScriptCommand);
-//		assertEquals("", lineChart.getAttribute("innerHTML"));
-//
-//		//now check "bar" and "pie" and switch to "passfail"
-//		js.executeScript("jQuery('#bargraph').prop('checked', true);" + 
-//			"jQuery('#piegraph').prop('checked', true);" + 
-//			"jQuery('#chartDataType').val('passfail');");
-//		js.executeScript(OptionsTest.javaScriptCommand);
-//		assertEquals("", lineChart.getAttribute("innerHTML"));
-//		assertNotEquals("", barChart.getAttribute("innerHTML"));
-//		assertNotEquals("", pieChart.getAttribute("innerHTML"));
-//		assertNotEquals(null, barChart.getAttribute("data-highcharts-chart"));
-//		assertNotEquals(null, pieChart.getAttribute("data-highcharts-chart"));
-//		assertNotEquals(0, js.executeScript("return jQuery('#barchart:contains(\"Build Status\")').size();"));
-//		assertNotEquals(0, js.executeScript("return jQuery('#piechart:contains(\"Build details\")').size();"));
-//
-//		//assert that checking the 'all' button disables the input box
-//		WebElement noOfBuildsCheck = driver.findElement(By.id("allnoofbuilds"));
-//		WebElement noOfBuildsBox = driver.findElement(By.id("noofbuilds"));
-//
-//		if(noOfBuildsCheck.isSelected()) {
-//			noOfBuildsCheck.click();
-//		}
-//		assertTrue(noOfBuildsBox.isEnabled());
-//		noOfBuildsCheck.click();
-//		assertFalse(noOfBuildsBox.isEnabled());
-//		noOfBuildsCheck.click();
-//		assertTrue(noOfBuildsBox.isEnabled());
-//	}
-//
-//	/**
-//	 *  @brief Tests the filters just above the primary table
-//	 *  this includes the filter search box and pass/fail/skip boxes
-//	 */
-//	@Test
-//	public void optionsSectionFilterTest() {
-//		//load mock data
-//		js.executeScript(OptionsTest.javaScriptCommand);
-//
-//		//filter tests
-//		WebElement searchbar = driver.findElement(By.id("filter"));
-//		WebElement row = driver.findElement(By.className("base-edu_illinois_cs427_mp3"));
-//		WebElement failFilter = driver.findElement(By.id("failFilter"));
-//		assertTrue(row.isDisplayed());
-//		searchbar.sendKeys("edu");
-//		assertTrue(row.isDisplayed());
-//		searchbar.sendKeys("q");
-//		assertFalse(row.isDisplayed());
-//		searchbar.sendKeys(Keys.BACK_SPACE);
-//		assertTrue(row.isDisplayed());
-//
-//		if(failFilter.isSelected()) {
-//			failFilter.click();
-//		}
-//		assertFalse(row.isDisplayed());
-//		failFilter.click();
-//		assertTrue(row.isDisplayed());
-//	}
+	public void assertNoNegativesBy(By by) {
+		List<WebElement> elements = driver.findElements(by);
+
+		for(WebElement e : elements) {
+			float value = Float.parseFloat(e.getText());
+			assertTrue(value >= 0.0);
+		}
+	}
 }
 
