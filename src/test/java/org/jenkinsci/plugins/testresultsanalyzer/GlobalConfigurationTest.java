@@ -170,7 +170,7 @@ public class GlobalConfigurationTest {
 		WebElement passedColor2 = driver.findElement(By.name(name));
 
 		//page has reloaded, previous object no longer valid
-		assertEquals(text, driver.findElement(passedColor2.getText());
+		assertEquals(text, passedColor2.getText());
 	}
 
 	/**
