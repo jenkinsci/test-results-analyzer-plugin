@@ -335,6 +335,17 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getRuntimeStatusColor();
 	}
 
+	public String getPassedStatusText() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedStatusText();
+	}
+
+	public String getFailedStatusText() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getFailedStatusText();
+	}
+
+	public String getSkippedStatusText() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getSkippedStatusText();
+
 	public String getLightGreen() {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getLightGreen();
 	}
