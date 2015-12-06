@@ -196,9 +196,9 @@ var $j = jQuery.noConflict();
 			jQuery("#runTimeLowThreshold").attr('disabled', true);
 			jQuery("#runTimeHighThreshold").attr('disabled', true);
 		}
+		jQuery("
 
 		populateTemplate(displayValues);
-
 	});
 
 	jQuery("#expandall").click(function () {
@@ -242,6 +242,20 @@ var $j = jQuery.noConflict();
 		document.body.removeChild(element);
 	}
 </script>
+<style type="text/css">
+
+	.failed {
+        background-color: ${it.failedStatusColor};
+    }
+
+    .passed {
+        background-color: ${it.passedStatusColor};
+    }
+
+    .skipped{
+        background-color: ${it.skippedStatusColor};
+    }
+</style>
   </l:main-panel>
   </l:layout>
 </j:jelly>
