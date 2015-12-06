@@ -63,7 +63,7 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 		private final String darkRed = "#990000";
 		private final String lightYellow = "#FDED72";
 		private final String brown = "#996633";
-		private final String purple = "#9900CC";
+		private final String purple = "#CC55FF";
 		private final String lightBlue = "#67A4FF";
 		private final String darkBlue = "#0000FF";
 		private final String magenta = "#FF00FF";
@@ -94,7 +94,6 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 		@Override
 		public boolean configure(StaplerRequest req, JSONObject formData) {
 			try {
-				System.out.println("CONFIGURE");
 				noOfBuilds = formData.getString("noOfBuilds");
 				showAllBuilds = formData.getBoolean("showAllBuilds");
 				showBuildTime = formData.getBoolean("showBuildTime");
@@ -110,12 +109,10 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 				skippedStatusColor = formData.getString("skippedStatusColor");
 				totalStatusColor = formData.getString("totalStatusColor");
 				runtimeStatusColor = formData.getString("runtimeStatusColor");
-				System.out.println(passedStatusColor);
 
 				passedStatusText = formData.getString("passedStatusText");
 				failedStatusText = formData.getString("failedStatusText");
 				skippedStatusText = formData.getString("skippedStatusText");
-				System.out.println("TEXT " + passedStatusText);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}

@@ -102,6 +102,7 @@ public class HighChartTest {
 	 */
 	public void openSettingsMenu() {
 		WebElement menu = driver.findElement(By.id("settingsmenu"));
+		wait.until(ExpectedConditions.elementToBeClickable(By.id("settingsmenubutton")));
 
 		if(!menu.isDisplayed()) {
 			//clicking the settings menu button displays the options menu
@@ -147,35 +148,41 @@ public class HighChartTest {
 	public void tableColorTest() throws Exception {
 		setConfigurationColor("passedStatusColor", "Bright Green");
 		setPassFailCharts();
-		List<WebElement> elements = driver.findElements(By.cssSelector(".table-cell .build-result .passed"));
+		List<WebElement> elements = driver.findElements(By.cssSelector(".table-cell.build-result.passed"));
+		boolean found = false;
 
 		for(WebElement e : elements) {
-			assertEquals("#00FF00", e.getAttribute("background-color"));
+			found = true;
+			assertEquals("rgba(0, 255, 0, 1)", e.getCssValue("background-color"));
 		}
-		setConfigurationColor("passedStatusColor", "Light Green");
+		assertTrue(found);
+		setConfigurationColor("passedStatusColor", "Light Green (Recommended)");
 		setPassFailCharts();
-		List<WebElement> elements2 = driver.findElements(By.cssSelector(".table-cell .build-result .passed"));
+		List<WebElement> elements2 = driver.findElements(By.cssSelector(".table-cell.build-result.passed"));
 
 		for(WebElement e : elements2) {
-			assertEquals("#92D050", e.getAttribute("background-color"));
+			assertEquals("rgba(146, 208, 80, 1)", e.getCssValue("background-color"));
 		}
 	}
 
 	@Test
 	@LocalData
 	public void tableTextTest() throws Exception {
-		setConfigurationText("passedStatusColor", "HELLO");
+		setConfigurationText("passedStatusText", "HELLO");
 		setPassFailCharts();
 		showRuntimes(false);
-		List<WebElement> elements = driver.findElements(By.cssSelector(".table-cell .build-result .passed"));
+		List<WebElement> elements = driver.findElements(By.cssSelector(".table-cell.build-result.passed"));
+		boolean found = false;
 
 		for(WebElement e : elements) {
+			found = true;
 			assertEquals("HELLO", e.getText());
 		}
-		setConfigurationText("passedStatusColor", "PASSED");
+		assertTrue(found);
+		setConfigurationText("passedStatusText", "PASSED");
 		setPassFailCharts();
 		showRuntimes(false);
-		List<WebElement> elements2 = driver.findElements(By.cssSelector(".table-cell .build-result .passed"));
+		List<WebElement> elements2 = driver.findElements(By.cssSelector(".table-cell.build-result.passed"));
 
 		for(WebElement e : elements2) {
 			assertEquals("PASSED", e.getText());

@@ -23,19 +23,7 @@
         font-weight: bold;
         font-size: larger;
     }
-/*
-	.failed {
-        background-color: #F37A7A;
-    }
 
-    .passed {
-        background-color: #92D050;
-    }
-
-    .skipped{
-        background-color: #FDED72;
-    }
-*/
     #settingsmenu {
     	margin-bottom: 15px;
     }

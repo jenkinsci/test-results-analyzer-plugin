@@ -135,11 +135,6 @@ var $j = jQuery.noConflict();
 
 <script>
 	var statusColors = {
-		//"passed" :"#92D050",
-		//"failed" :"#F37A7A",
-		//"skipped" :"#FDED72",
-		//"total" :"#67A4F5",
-		//"runtime": "#FDED72",
 		"passed" : "${it.passedStatusColor}",
 		"failed" : "${it.failedStatusColor}",
 		"skipped" : "${it.skippedStatusColor}",
