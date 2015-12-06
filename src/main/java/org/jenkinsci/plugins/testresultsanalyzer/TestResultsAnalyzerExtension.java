@@ -74,6 +74,10 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 		private String totalStatusColor = lightBlue;
 		private String runtimeStatusColor = lightYellow;
 
+		private String passedStatusText = "PASSED";
+		private String failedStatusText = "FAILED";
+		private String skippedStatusText = "SKIPPED";
+
 		//true = Show Test Runtimes in Charts instead of Passes and Failures
 		private boolean chartDataType = false;
 
@@ -101,7 +105,15 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 				chartDataType = formData.getBoolean("chartDataType");
 				
 				passedStatusColor = formData.getString("passedStatusColor");
-				System.out.println(passedStatusColor);
+				failedStatusColor = formData.getString("failedStatusColor");
+				skippedStatusColor = formData.getString("skippedStatusColor");
+				totalStatusColor = formData.getString("totalStatusColor");
+				runtimeStatusColor = formData.getString("runtimeStatusColor");
+
+				passedStatusText = formData.getString("passedStatusText");
+				failedStatusText = formData.getString("failedStatusText");
+				skippedStatusText = formData.getString("skippedStatusText");
+				//System.out.println(passedStatusColor);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
@@ -109,6 +121,9 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 			return false;
 		}
 
+		/**
+		 *  @brief accessor methods used by global.jelly and TestResultsAnalyzerAction.java
+		 */
 		public String getNoOfBuilds() {
 			return noOfBuilds;
 		}
@@ -147,6 +162,34 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 
 		public String getPassedStatusColor() {
 			return passedStatusColor;
+		}
+
+		public String getFailedStatusColor() {
+			return failedStatusColor;
+		}
+
+		public String getSkippedStatusColor() {
+			return skippedStatusColor;
+		}
+
+		public String getTotalStatusColor() {
+			return totalStatusColor;
+		}
+
+		public String getRuntimeStatusColor() {
+			return runtimeStatusColor;
+		}
+
+		public String getPassedStatusText() {
+			return passedStatusText;
+		}
+
+		public String getFailedStatusText() {
+			return failedStatusText;
+		}
+
+		public String getSkippedStatusText() {
+			return skippedStatusText;
 		}
 
 		public String getLightGreen() {

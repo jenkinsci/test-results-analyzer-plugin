@@ -134,6 +134,20 @@ var $j = jQuery.noConflict();
 </div>
 
 <script>
+	var statusColors = {
+		//"passed" :"#92D050",
+		//"failed" :"#F37A7A",
+		//"skipped" :"#FDED72",
+		//"total" :"#67A4F5",
+		//"runtime": "#FDED72",
+		"passed" : "${it.passedStatusColor}",
+		"failed" : "${it.failedStatusColor}",
+		"skipped" : "${it.skippedStatusColor}",
+		"total" : "${it.totalStatusColor}",
+		"runtime" : "${it.runtimeStatusColor}",
+		"na" :""
+	};
+
 	jQuery("document").ready(function () {
 		remoteAction.getTotalNoOfBuilds(function (t) {
 			if(t.responseObject()!= 0) {							//if there are builds display plugin

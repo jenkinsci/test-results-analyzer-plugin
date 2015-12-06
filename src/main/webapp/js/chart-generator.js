@@ -1,14 +1,5 @@
 var chartResult;
 
-var statusColors = {
-	"passed" :"#92D050",
-	"failed" :"#F37A7A",
-	"skipped" :"#FDED72",
-	"total" :"#67A4F5",
-	"runtime": "#FDED72",
-	"na" :""
-};
-
 function generateChart(chartType) {
 	if($j("#tree input[type='checkbox']").size() == 0) {
 		$j("#linechart").html("No build data retrieved.	 You may need to select a Module.");
