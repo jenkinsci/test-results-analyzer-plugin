@@ -94,6 +94,7 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 		@Override
 		public boolean configure(StaplerRequest req, JSONObject formData) {
 			try {
+				System.out.println("CONFIGURE");
 				noOfBuilds = formData.getString("noOfBuilds");
 				showAllBuilds = formData.getBoolean("showAllBuilds");
 				showBuildTime = formData.getBoolean("showBuildTime");
@@ -109,11 +110,12 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 				skippedStatusColor = formData.getString("skippedStatusColor");
 				totalStatusColor = formData.getString("totalStatusColor");
 				runtimeStatusColor = formData.getString("runtimeStatusColor");
+				System.out.println(passedStatusColor);
 
 				passedStatusText = formData.getString("passedStatusText");
 				failedStatusText = formData.getString("failedStatusText");
 				skippedStatusText = formData.getString("skippedStatusText");
-				System.out.println(passedStatusText);
+				System.out.println("TEXT " + passedStatusText);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
