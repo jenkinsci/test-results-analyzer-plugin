@@ -29,18 +29,18 @@
 		</f:entry>
 		<f:entry title="${%Passed Color}">
 			<select name="passedStatusColor">
-				<option value="${descriptor.getLightGreen()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getLightGreen()) ? true : false }" >Light Green "${descriptor.getLightGreen().equals(descriptor.getLightGreen()) ? true : false }" </option>
-				<option value="${descriptor.getBrightGreen()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getBrightGreen()) ? true : false }" >Bright Green</option>
-				<option value="${descriptor.getDarkGreen()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getDarkGreen()) ? true : false }" >Dark Green</option>
-				<option value="${descriptor.getLightRed()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getLightRed()) ? true : false }" >Light Red</option>
-				<option value="${descriptor.getBrightRed()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getBrightRed()) ? true : false }" >Bright Red</option>
-				<option value="${descriptor.getDarkRed()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getDarkRed()) ? true : false }" >Dark Red</option>
-				<option value="${descriptor.getLightYellow()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getLightYellow()) ? true : false }" >Light Yellow</option>
-				<option value="${descriptor.getBrown()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getBrown()) ? true : false }" >Brown</option>
-				<option value="${descriptor.getPurple()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getPurple()) ? true : false }" >Purple</option>
-				<option value="${descriptor.getLightBlue()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getLightBlue()) ? true : false }" >Light Blue</option>
-				<option value="${descriptor.getDarkBlue()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getDarkBlue()) ? true : false }" >Dark Blue</option>
-				<option value="${descriptor.getMagenta()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getMagenta()) ? true : false }" >Magenta "${desciptor.getPassedStatusColor()}" </option>
+				<option value="${descriptor.getLightGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightGreen()) ? true : false }" >Light Green "${descriptor.getLightGreen().equals(descriptor.getLightGreen()) ? true : false }" </option>
+				<option value="${descriptor.getBrightGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getBrightGreen()) ? true : false }" >Bright Green</option>
+				<option value="${descriptor.getDarkGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getDarkGreen()) ? true : false }" >Dark Green</option>
+				<option value="${descriptor.getLightRed()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightRed()) ? true : false }" >Light Red</option>
+				<option value="${descriptor.getBrightRed()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getBrightRed()) ? true : false }" >Bright Red</option>
+				<option value="${descriptor.getDarkRed()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getDarkRed()) ? true : false }" >Dark Red</option>
+				<option value="${descriptor.getLightYellow()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightYellow()) ? true : false }" >Light Yellow</option>
+				<option value="${descriptor.getBrown()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getBrown()) ? true : false }" >Brown</option>
+				<option value="${descriptor.getPurple()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getPurple()) ? true : false }" >Purple</option>
+				<option value="${descriptor.getLightBlue()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightBlue()) ? true : false }" >Light Blue</option>
+				<option value="${descriptor.getDarkBlue()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getDarkBlue()) ? true : false }" >Dark Blue</option>
+				<option value="${descriptor.getMagenta()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getMagenta()) ? true : false }" >Magenta "${descriptor.getPassedStatusColor()}" </option>
 		
 			</select>
 		</f:entry>
