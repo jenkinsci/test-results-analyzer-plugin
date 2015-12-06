@@ -242,8 +242,19 @@ var $j = jQuery.noConflict();
 		document.body.removeChild(element);
 	}
 </script>
-<style type="text/css">
+<style>
+	.failed {
+        background-color: #F37A7A;
+    }
 
+    .passed {
+        background-color: #92D050;
+    }
+
+    .skipped{
+        background-color: #FDED72;
+    }
+/*
 	.failed {
         background-color: ${it.failedStatusColor};
     }
@@ -255,6 +266,7 @@ var $j = jQuery.noConflict();
     .skipped{
         background-color: ${it.skippedStatusColor};
     }
+*/
 </style>
   </l:main-panel>
   </l:layout>
