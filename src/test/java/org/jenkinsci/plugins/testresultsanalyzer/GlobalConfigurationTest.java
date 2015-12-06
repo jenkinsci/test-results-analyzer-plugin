@@ -106,6 +106,23 @@ public class GlobalConfigurationTest {
 		assertNotEquals("true", driver.findElement(By.name("showAllBuilds")).getAttribute("checked"));
 	}
 
+	@Test
+	public void ColorSelectionTest() throws Exception {
+		WebElement passedColor = driver.findElement(By.name("passedStatusColor"));
+
+		Select select = new Select(passedColor);
+		select.selectByVisibleText("Light Red");
+
+		WebElement noOfBuilds = driver.findElement(By.name("noOfBuilds"));
+		noOfBuilds.sendKeys(Keys.ENTER); //causes the page to reload
+		waitForPageLoad();
+
+		WebElement passedColor2 = driver.findElement(By.name("passedStatusColor"));
+
+		//page has reloaded, previous object no longer valid
+		assertEquals("Light Red", driver.findElement(passedColor2.getText());
+	}
+
 	/**
 	 *  @brief Waits for the loading overlay to go away
 	 */
