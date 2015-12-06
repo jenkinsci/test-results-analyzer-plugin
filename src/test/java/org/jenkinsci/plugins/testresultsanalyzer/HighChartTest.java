@@ -122,7 +122,7 @@ public class HighChartTest {
 
 	@Test
 	@LocalData
-	public void runtimGraphNumberingTest() throws Exception {
+	public void runtimeGraphNumberingTest() throws Exception {
 		setRuntimeCharts();
 		assertNoFloatsBy(By.cssSelector(".highcharts-xaxis-labels > text"));
 		assertNoNegativesBy(By.cssSelector(".highcharts-xaxis-labels > text"));
@@ -139,6 +139,43 @@ public class HighChartTest {
 		validateWindowWidth(600, by);
 		validateWindowWidth(500, by);
 		validateWindowWidth(400, by);
+	}
+
+	@Test
+	@LocalData
+	public void tableColorTest() throws Exception {
+		setConfigurationColor("passedStatusColor", "Bright Green");
+		setPassFailCharts();
+		List<WebElement> elements = driver.findElements(By.cssSelector(".table-cell .build-result .passed"));
+
+		for(WebElement e : elements) {
+			assertEquals("#00FF00", e.getAttribute("background-color");
+		}
+		setConfigurationColor("passedStatusColor", "Light Green");
+		setPassFailCharts();
+		List<WebElement> elements2 = driver.findElements(By.cssSelector(".table-cell .build-result .passed"));
+
+		for(WebElement e : elements2) {
+			assertEquals("#92D050", e.getAttribute("background-color");
+		}
+		Thread.sleep(120000);
+	}
+
+	public void setConfigurationColor(String element, String color) throws Exception {
+		driver.get(jenkinsRule.getURL() + "configure");
+		wait.until(
+			ExpectedConditions.invisibilityOfElementLocated(
+				By.cssSelector(".behavior-loading")
+			)
+		);
+		WebElement passedColor = driver.findElement(By.name(element));
+
+		Select select = new Select(passedColor);
+		select.selectByVisibleText(color);
+
+		WebElement noOfBuilds = driver.findElement(By.name("noOfBuilds"));
+		noOfBuilds.sendKeys(Keys.ENTER);
+		refreshDriver();
 	}
 
 	public void validateWindowWidth(int w, By by) {
