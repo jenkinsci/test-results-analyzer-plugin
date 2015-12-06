@@ -145,7 +145,7 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 			return chartDataType;
 		}
 
-		public String getPasssedSatusColor() {
+		public String getPassedSatusColor() {
 			return passedStatusColor;
 		}
 
