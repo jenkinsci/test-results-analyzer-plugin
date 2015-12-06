@@ -79,6 +79,7 @@ public class HighChartTest {
 		if(piegraph.isSelected() != pie && piegraph.isEnabled()) {
 			piegraph.click();
 		}
+		driver.findElement(By.id("getbuildreport")).click();
 	}
 
 	public void setPassFailCharts() {
@@ -149,16 +150,61 @@ public class HighChartTest {
 		List<WebElement> elements = driver.findElements(By.cssSelector(".table-cell .build-result .passed"));
 
 		for(WebElement e : elements) {
-			assertEquals("#00FF00", e.getAttribute("background-color");
+			assertEquals("#00FF00", e.getAttribute("background-color"));
 		}
 		setConfigurationColor("passedStatusColor", "Light Green");
 		setPassFailCharts();
 		List<WebElement> elements2 = driver.findElements(By.cssSelector(".table-cell .build-result .passed"));
 
 		for(WebElement e : elements2) {
-			assertEquals("#92D050", e.getAttribute("background-color");
+			assertEquals("#92D050", e.getAttribute("background-color"));
 		}
-		Thread.sleep(120000);
+	}
+
+	@Test
+	@LocalData
+	public void tableTextTest() throws Exception {
+		setConfigurationText("passedStatusColor", "HELLO");
+		setPassFailCharts();
+		showRuntimes(false);
+		List<WebElement> elements = driver.findElements(By.cssSelector(".table-cell .build-result .passed"));
+
+		for(WebElement e : elements) {
+			assertEquals("HELLO", e.getText());
+		}
+		setConfigurationText("passedStatusColor", "PASSED");
+		setPassFailCharts();
+		showRuntimes(false);
+		List<WebElement> elements2 = driver.findElements(By.cssSelector(".table-cell .build-result .passed"));
+
+		for(WebElement e : elements2) {
+			assertEquals("PASSED", e.getText());
+		}
+	}
+
+	public void showRuntimes(boolean show) {
+		WebElement durations = driver.findElement(By.id("show-durations"));
+
+		if(durations.isSelected() != show) {
+			durations.click();
+		}
+		driver.findElement(By.id("getbuildreport")).click();
+	}
+
+	public void setConfigurationText(String element, String text) throws Exception {
+		driver.get(jenkinsRule.getURL() + "configure");
+		wait.until(
+			ExpectedConditions.invisibilityOfElementLocated(
+				By.cssSelector(".behavior-loading")
+			)
+		);
+		WebElement passedStatusText = driver.findElement(By.name(element));
+		passedStatusText.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+		passedStatusText.sendKeys(Keys.BACK_SPACE);
+		passedStatusText.sendKeys(text);
+		WebElement noOfBuilds = driver.findElement(By.name("noOfBuilds"));
+		noOfBuilds.sendKeys(Keys.ENTER);
+		refreshDriver();
 	}
 
 	public void setConfigurationColor(String element, String color) throws Exception {
