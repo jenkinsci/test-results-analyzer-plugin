@@ -99,7 +99,9 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 				runTimeLowThreshold = formData.getString("runTimeLowThreshold");
 				runTimeHighThreshold = formData.getString("runTimeHighThreshold");
 				chartDataType = formData.getBoolean("chartDataType");
+				
 				passedStatusColor = formData.getString("passedStatusColor");
+				System.out.println(passedStatusColor);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
