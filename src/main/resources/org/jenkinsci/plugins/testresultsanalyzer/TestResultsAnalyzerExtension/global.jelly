@@ -40,7 +40,7 @@
 				<option value="${descriptor.getPurple()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getPurple()) ? true : false }" >Purple</option>
 				<option value="${descriptor.getLightBlue()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getLightBlue()) ? true : false }" >Light Blue</option>
 				<option value="${descriptor.getDarkBlue()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getDarkBlue()) ? true : false }" >Dark Blue</option>
-				<option value="${descriptor.getMagenta()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getMagenta()) ? true : false }" >Magenta</option>
+				<option value="${descriptor.getMagenta()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getMagenta()) ? true : false }" >Magenta "${desciptor.getPassedStatusColor()}" </option>
 		
 			</select>
 		</f:entry>
