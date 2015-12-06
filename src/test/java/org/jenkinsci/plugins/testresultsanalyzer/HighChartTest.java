@@ -48,9 +48,11 @@ public class HighChartTest {
 	public void refreshDriver() throws Exception {
 		//Thread.sleep(120000);
 
-		MavenModuleSet project = (MavenModuleSet) jenkinsRule.getInstance().getItem("test");
+		//MavenModuleSet project = (MavenModuleSet) jenkinsRule.getInstance().getItem("test");
+		FreeStyleProject project = (FreeStyleProject) jenkinsRule.getInstance().getItem("testjob");
 		String url = jenkinsRule.getURL() + project.getUrl();
-		String query = url + "edu.illinois.cs427$mp3/test_results_analyzer";
+		//String query = url + "edu.illinois.cs427$mp3/test_results_analyzer";
+		String query = url + "test_results_analyzer";
 
 		driver.get(query);
 		openSettingsMenu();
