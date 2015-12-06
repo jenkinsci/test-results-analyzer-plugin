@@ -346,6 +346,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
 	public String getSkippedStatusText() {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getSkippedStatusText();
+	}
 
 	public String getLightGreen() {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getLightGreen();
