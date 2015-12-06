@@ -336,8 +336,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 	}
 
 	public String getPassedStatusText() {
-		return "HARD CODED";
-		//return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedStatusText();
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedStatusText();
 	}
 
 	public String getFailedStatusText() {
