@@ -148,6 +148,12 @@ var $j = jQuery.noConflict();
 		"na" :""
 	};
 
+	var statusText = {
+		PASSED : "${it.passedStatusText}",
+		FAILED : "${it.failedStatusText}",
+		SKIPPED : "${it.skippedStatusText}"
+	};
+
 	jQuery("document").ready(function () {
 		remoteAction.getTotalNoOfBuilds(function (t) {
 			if(t.responseObject()!= 0) {							//if there are builds display plugin

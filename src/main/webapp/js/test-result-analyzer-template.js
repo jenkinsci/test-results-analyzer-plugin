@@ -82,10 +82,14 @@ Handlebars.registerHelper('addName', function (name) {
 });
 
 Handlebars.registerHelper('applyvalue', function (status, totalTimeTaken) {
-	if (displayValues == true){
+	if(displayValues == true) {
 		return isNaN(totalTimeTaken) ? 'N/A' : totalTimeTaken.toFixed(3) ;
-	}else{
-		return status;
+	} else {
+		if(statusText.hasOwnProperty(status)) {
+			return statusText[status];
+		} else {
+			return status;
+		}
 	}
 });
 
