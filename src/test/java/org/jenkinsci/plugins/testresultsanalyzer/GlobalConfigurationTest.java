@@ -68,6 +68,21 @@ public class GlobalConfigurationTest {
 		assertTrue(driver.findElement(By.name("chartDataType")).isDisplayed());
 		assertTrue(driver.findElement(By.name("runTimeLowThreshold")).isDisplayed());
 		assertTrue(driver.findElement(By.name("runTimeHighThreshold")).isDisplayed());
+
+		assertTrue(driver.findElement(By.name("passedStatusColor")).isDisplayed());
+		assertTrue(driver.findElement(By.name("failedStatusColor")).isDisplayed());
+		assertTrue(driver.findElement(By.name("skippedStatusColor")).isDisplayed());
+		assertTrue(driver.findElement(By.name("totalStatusColor")).isDisplayed());
+		assertTrue(driver.findElement(By.name("runtimeStatusColor")).isDisplayed());
+		assertTrue(driver.findElement(By.name("naStatusColor")).isDisplayed());
+
+		assertTrue(driver.findElement(By.name("passedStatusText")).isDisplayed());
+		assertTrue(driver.findElement(By.name("failedStatusText")).isDisplayed());
+		assertTrue(driver.findElement(By.name("skippedStatusText")).isDisplayed());
+		assertTrue(driver.findElement(By.name("totalStatusText")).isDisplayed());
+		assertTrue(driver.findElement(By.name("runtimeStatusText")).isDisplayed());
+		assertTrue(driver.findElement(By.name("naStatusText")).isDisplayed());
+
 	}
 
 	@Test
@@ -89,6 +104,73 @@ public class GlobalConfigurationTest {
 		//page has reloaded, previous object no longer valid
 		assertEquals("19", driver.findElement(By.name("noOfBuilds")).getAttribute("value"));
 		assertNotEquals("true", driver.findElement(By.name("showAllBuilds")).getAttribute("checked"));
+	}
+	
+	@Test
+	public void TextSelectionTest() throws Exception {
+		TextSelectionHelper("passedStatusText", "Good");
+		TextSelectionHelper("passedStatusText", "PASSED");
+
+		TextSelectionHelper("failedStatusText", "Bad");
+		TextSelectionHelper("failedStatusText", "FAILED");
+
+		TextSelectionHelper("skippedStatusText", "IDK");
+		TextSelectionHelper("skippedStatusText", "SKIPPED");
+	}
+
+	public void TextSelectionHelper(String name, String text) {
+		WebElement passedStatusText = driver.findElement(By.name(name));
+		passedStatusText.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+		passedStatusText.sendKeys(Keys.BACK_SPACE);
+		passedStatusText.sendKeys(text);
+		passedStatusText.sendKeys(Keys.RETURN); //causes the page to reload
+		waitForPageLoad();
+
+		//page has reloaded, previous object no longer valid
+		assertEquals(text, driver.findElement(By.name(name)).getAttribute("value"));
+	}
+
+	@Test
+	public void ColorSelectionTest() throws Exception {
+		ColorSelectionHelper("passedStatusColor", "Light Red");
+		ColorSelectionHelper("passedStatusColor", "Light Yellow");
+		ColorSelectionHelper("passedStatusColor", "Light Blue");
+		ColorSelectionHelper("passedStatusColor", "Light Green");
+
+		ColorSelectionHelper("failedStatusColor", "Light Yellow");
+		ColorSelectionHelper("failedStatusColor", "Light Blue");
+		ColorSelectionHelper("failedStatusColor", "Light Green");
+		ColorSelectionHelper("failedStatusColor", "Light Red");
+
+		ColorSelectionHelper("skippedStatusColor", "Light Red");
+		ColorSelectionHelper("skippedStatusColor", "Light Blue");
+		ColorSelectionHelper("skippedStatusColor", "Light Green");
+		ColorSelectionHelper("skippedStatusColor", "Light Yellow");
+
+		ColorSelectionHelper("totalStatusColor", "Light Red");
+		ColorSelectionHelper("totalStatusColor", "Light Green");
+		ColorSelectionHelper("totalStatusColor", "Light Yellow");
+		ColorSelectionHelper("totalStatusColor", "Light Blue");
+
+		ColorSelectionHelper("runtimeStatusColor", "Light Red");
+		ColorSelectionHelper("runtimeStatusColor", "Light Blue");
+		ColorSelectionHelper("runtimeStatusColor", "Light Green");
+		ColorSelectionHelper("runtimeStatusColor", "Light Yellow");
+	}
+	private void ColorSelectionHelper(String name, String text){
+		WebElement passedColor = driver.findElement(By.name(name));
+
+		Select select = new Select(passedColor);
+		select.selectByVisibleText(text);
+
+		WebElement noOfBuilds = driver.findElement(By.name("noOfBuilds"));
+		noOfBuilds.sendKeys(Keys.ENTER); //causes the page to reload
+		waitForPageLoad();
+
+		WebElement passedColor2 = driver.findElement(By.name(name));
+
+		//page has reloaded, previous object no longer valid
+		assertEquals(text, passedColor2.getText());
 	}
 
 	/**

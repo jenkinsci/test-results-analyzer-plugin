@@ -27,11 +27,22 @@
 		<f:entry title="${%Run Time High Threshold}">
 			<f:textbox name="runTimeHighThreshold" value="${descriptor.getRunTimeHighThreshold()}" />
 		</f:entry>
-		<!-- <f:entry title="${%Chart Data Type}">
-			<select name="chartDataType">
-				<option value="passfail" select="false">Passes/Failures</option>
-				<option value="runtime" select="true">Test Runtimes</option>
+		<f:entry title="${%Passed Color}">
+			<select name="passedStatusColor">
+				<f:option value="${descriptor.getLightGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightGreen()) ? true : false }" >Light Green (Recommended)</f:option>
+				<f:option value="${descriptor.getBrightGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getBrightGreen()) ? true : false }" >Bright Green</f:option>
+				<f:option value="${descriptor.getDarkGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getDarkGreen()) ? true : false }" >Dark Green</f:option>
+				<f:option value="${descriptor.getLightRed()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightRed()) ? true : false }" >Light Red</f:option>
+				<f:option value="${descriptor.getBrightRed()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getBrightRed()) ? true : false }" >Bright Red</f:option>
+				<f:option value="${descriptor.getDarkRed()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getDarkRed()) ? true : false }" >Dark Red</f:option>
+				<f:option value="${descriptor.getLightYellow()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightYellow()) ? true : false }" >Light Yellow</f:option>
+				<f:option value="${descriptor.getBrown()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getBrown()) ? true : false }" >Brown</f:option>
+				<f:option value="${descriptor.getPurple()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getPurple()) ? true : false }" >Purple</f:option>
+				<f:option value="${descriptor.getLightBlue()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightBlue()) ? true : false }" >Light Blue</f:option>
+				<f:option value="${descriptor.getDarkBlue()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getDarkBlue()) ? true : false }" >Dark Blue</f:option>
+				<f:option value="${descriptor.getMagenta()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getMagenta()) ? true : false }" >Magenta</f:option>
+		
 			</select>
-		</f:entry> -->
+		</f:entry>
 	</f:section>
 </j:jelly>
