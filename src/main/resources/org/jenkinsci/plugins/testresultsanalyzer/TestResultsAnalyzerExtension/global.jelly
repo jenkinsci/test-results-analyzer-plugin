@@ -29,18 +29,18 @@
 		</f:entry>
 		<f:entry title="${%Passed Color}">
 			<select name="passedStatusColor">
-				<option value="${descriptor.getLightGreen}" selected="${desciptor.getPassedStatusColor.equals(descriptor.getLightGreen)}" >Light Green</option>
-				<option value="${descriptor.getBrightGreen}" selected="${desciptor.getPassedStatusColor.equals(descriptor.getBrightGreen)}" >Bright Green"${descriptor.getBrightGreen}"</option>
-				<option value="${descriptor.getDarkGreen}" selected="${desciptor.getPassedStatusColor.equals(descriptor.getDarkGreen)}" >Dark Green</option>
-				<option value="${descriptor.getLightRed}" selected="${desciptor.getPassedStatusColor.equals(descriptor.getLightRed)}" >Light Red</option>
-				<option value="${descriptor.getBrightRed}" selected="${desciptor.getPassedStatusColor.equals(descriptor.getBrightRed)}" >Bright Red</option>
-				<option value="${descriptor.getDarkRed}" selected="${desciptor.getPassedStatusColor.equals(descriptor.getDarkRed)}" >Dark Red</option>
-				<option value="${descriptor.getLightYellow}" selected="${desciptor.getPassedStatusColor.equals(descriptor.getLightYellow)}" >Light Yellow</option>
-				<option value="${descriptor.getBrown}" selected="${desciptor.getPassedStatusColor.equals(descriptor.getBrown)}" >Brown</option>
-				<option value="${descriptor.getPurple}" selected="${desciptor.getPassedStatusColor.equals(descriptor.getPurple)}" >Purple</option>
-				<option value="${descriptor.getLightBlue}" selected="${desciptor.getPassedStatusColor.equals(descriptor.getLightBlue)}" >Light Blue</option>
-				<option value="${descriptor.getDarkBlue}" selected="${desciptor.getPassedStatusColor.equals(descriptor.getDarkBlue)}" >Dark Blue</option>
-				<option value="${descriptor.getMagenta}" selected="${desciptor.getPassedStatusColor.equals(descriptor.getMagenta)}" >Magenta</option>
+				<option value="${descriptor.getLightGreen()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getLightGreen())}" >Light Green</option>
+				<option value="${descriptor.getBrightGreen()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getBrightGreen())}" >Bright Green"${descriptor.getBrightGreen()}"</option>
+				<option value="${descriptor.getDarkGreen()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getDarkGreen())}" >Dark Green</option>
+				<option value="${descriptor.getLightRed()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getLightRed())}" >Light Red</option>
+				<option value="${descriptor.getBrightRed()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getBrightRed())}" >Bright Red</option>
+				<option value="${descriptor.getDarkRed()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getDarkRed())}" >Dark Red</option>
+				<option value="${descriptor.getLightYellow()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getLightYellow())}" >Light Yellow</option>
+				<option value="${descriptor.getBrown()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getBrown())}" >Brown</option>
+				<option value="${descriptor.getPurple()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getPurple())}" >Purple</option>
+				<option value="${descriptor.getLightBlue()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getLightBlue())}" >Light Blue</option>
+				<option value="${descriptor.getDarkBlue()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getDarkBlue())}" >Dark Blue</option>
+				<option value="${descriptor.getMagenta()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getMagenta())}" >Magenta</option>
 			</select>
 		</f:entry>
 	</f:section>
