@@ -113,7 +113,7 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 				passedStatusText = formData.getString("passedStatusText");
 				failedStatusText = formData.getString("failedStatusText");
 				skippedStatusText = formData.getString("skippedStatusText");
-				//System.out.println(passedStatusColor);
+				System.out.println(passedStatusText);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
