@@ -315,8 +315,8 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getRunTimeHighThreshold();
 	}
 
-	public String getIsPasssedSatusColor() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getIsPasssedSatusColor();
+	public String getPassedStatusColor() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedStatusColor();
 	}
 
 	public String getLightGreen() {
