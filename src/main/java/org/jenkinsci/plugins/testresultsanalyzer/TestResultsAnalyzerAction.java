@@ -314,4 +314,56 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 	public String getRunTimeHighThreshold() {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getRunTimeHighThreshold();
 	}
+
+	public String getNoOfBuilds() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getNoOfBuilds();
+	}
+
+	public String getIsPasssedSatusColor() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getIsPasssedSatusColor();
+	}
+
+	public String getLightGreen() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getLightGreen();
+	}
+
+	public String getDarkGreen() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getDarkGreen();
+	}
+
+	public String getLightRed() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getLightRed();
+	}
+
+	public String getBrightRed() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getBrightRed();
+	}
+
+	public String getDarkRed() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getDarkRed();
+	}
+
+	public String getLightYellow() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getLightYellow();
+	}
+
+	public String getBrown() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getBrown();
+	}
+
+	public String getPurple() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getPurple();
+	}
+
+	public String getLightBlue() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getLightBlue();
+	}
+
+	public String getDarkBlue() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getDarkBlue();
+	}
+
+	public String getMagenta() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getMagenta();
+	}
 }

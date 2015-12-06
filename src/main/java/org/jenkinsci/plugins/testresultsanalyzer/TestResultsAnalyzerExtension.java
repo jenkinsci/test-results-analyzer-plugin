@@ -54,6 +54,26 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 		private String runTimeLowThreshold = "0.5";
 		private String runTimeHighThreshold = "1.0";
 
+
+		private final String lightGreen = "#92D050";
+		private final String brightGreen = "#00FF00";
+		private final String darkGreen = "#008800";
+		private final String lightRed = "#F37A7A";
+		private final String brightRed = "#FF0000";
+		private final String darkRed = "#990000";
+		private final String lightyellow = "#FDED72";
+		private final String brown = "#996633";
+		private final String purple = "#9900CC";
+		private final String lightBlue = "#67A4FF";
+		private final String darkBlue = "#0000FF";
+		private final String magenta = "#FF00FF";
+
+		private String passedStatusColor = lightGreen;
+		private String failedStatusColor = lightRed;
+		private String skippedStatusColor = lightYellow;
+		private String totalStatusColor = lightBlue;
+		private String runtimeStatusColor = lightYellow;
+
 		//true = Show Test Runtimes in Charts instead of Passes and Failures
 		private boolean chartDataType = false;
 
@@ -79,6 +99,7 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 				runTimeLowThreshold = formData.getString("runTimeLowThreshold");
 				runTimeHighThreshold = formData.getString("runTimeHighThreshold");
 				chartDataType = formData.getBoolean("chartDataType");
+				passedStatusColor = formData.getString("passedStatusColor");
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
@@ -120,6 +141,54 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 
 		public boolean getChartDataType() {
 			return chartDataType;
+		}
+
+		public String getIsPasssedSatusColor() {
+			return passedStatusColor;
+		}
+
+		public String getLightGreen() {
+			return lightGreen;
+		}
+
+		public String getDarkGreen() {
+			return darkGreen;
+		}
+
+		public String getLightRed() {
+			return lightRed;
+		}
+
+		public String getBrightRed() {
+			return brightRed;
+		}
+
+		public String getDarkRed() {
+			return darkRed;
+		}
+
+		public String getLightYellow() {
+			return lightYellow;
+		}
+
+		public String getBrown() {
+			return brown;
+		}
+
+		public String getPurple() {
+			return purple;
+		}
+
+		public String getLightBlue() {
+			return lightBlue;
+		}
+
+		public String getDarkBlue() {
+			return darkBlue;
+		}
+
+		public String getMagenta() {
+			return magenta;
 		}
 	}
 }

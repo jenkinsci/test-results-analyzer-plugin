@@ -27,11 +27,21 @@
 		<f:entry title="${%Run Time High Threshold}">
 			<f:textbox name="runTimeHighThreshold" value="${descriptor.getRunTimeHighThreshold()}" />
 		</f:entry>
-		<!-- <f:entry title="${%Chart Data Type}">
-			<select name="chartDataType">
-				<option value="passfail" select="false">Passes/Failures</option>
-				<option value="runtime" select="true">Test Runtimes</option>
+		<f:entry title="${%Passed Color}">
+			<select name="passedStatusColor">
+				<option value="${descriptor.getLightGreen}" selected="${desciptor.getPassedStatusColor == descriptor.getLightGreen}" >Light Green</option>
+				<option value="${descriptor.getBrightGreen}" selected="${desciptor.getPassedStatusColor == descriptor.getBrightGreen}" >Bright Green</option>
+				<option value="${descriptor.getDarkGreen}" selected="${desciptor.getPassedStatusColor == descriptor.getDarkGreen}" >Dark Green</option>
+				<option value="${descriptor.getLightRed}" selected="${desciptor.getPassedStatusColor == descriptor.getLightRed}" >Light Red</option>
+				<option value="${descriptor.getBrightRed}" selected="${desciptor.getPassedStatusColor == descriptor.getBrightRed}" >Bright Red</option>
+				<option value="${descriptor.getDarkRed}" selected="${desciptor.getPassedStatusColor == descriptor.getDarkRed}" >Dark Red</option>
+				<option value="${descriptor.getLightYellow}" selected="${desciptor.getPassedStatusColor == descriptor.getLightYellow}" >Light Yellow</option>
+				<option value="${descriptor.getBrown}" selected="${desciptor.getPassedStatusColor == descriptor.getBrown}" >Brown</option>
+				<option value="${descriptor.getPurple}" selected="${desciptor.getPassedStatusColor == descriptor.getPurple}" >Purple</option>
+				<option value="${descriptor.getLightBlue}" selected="${desciptor.getPassedStatusColor == descriptor.getLightBlue}" >Light Blue</option>
+				<option value="${descriptor.getDarkBlue}" selected="${desciptor.getPassedStatusColor == descriptor.getDarkBlue}" >Dark Blue</option>
+				<option value="${descriptor.getMagenta}" selected="${desciptor.getPassedStatusColor == descriptor.getMagenta}" >Magenta</option>
 			</select>
-		</f:entry> -->
+		</f:entry>
 	</f:section>
 </j:jelly>

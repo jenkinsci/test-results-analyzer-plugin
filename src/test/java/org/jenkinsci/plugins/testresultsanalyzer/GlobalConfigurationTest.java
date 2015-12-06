@@ -68,6 +68,21 @@ public class GlobalConfigurationTest {
 		assertTrue(driver.findElement(By.name("chartDataType")).isDisplayed());
 		assertTrue(driver.findElement(By.name("runTimeLowThreshold")).isDisplayed());
 		assertTrue(driver.findElement(By.name("runTimeHighThreshold")).isDisplayed());
+
+		assertTrue(driver.findElement(By.name("passedStatusColor")).isDisplayed());
+		assertTrue(driver.findElement(By.name("failedStatusColor")).isDisplayed());
+		assertTrue(driver.findElement(By.name("skippedStatusColor")).isDisplayed());
+		assertTrue(driver.findElement(By.name("totalStatusColor")).isDisplayed());
+		assertTrue(driver.findElement(By.name("runtimeStatusColor")).isDisplayed());
+		assertTrue(driver.findElement(By.name("naStatusColor")).isDisplayed());
+
+		assertTrue(driver.findElement(By.name("passedStatusText")).isDisplayed());
+		assertTrue(driver.findElement(By.name("failedStatusText")).isDisplayed());
+		assertTrue(driver.findElement(By.name("skippedStatusText")).isDisplayed());
+		assertTrue(driver.findElement(By.name("totalStatusText")).isDisplayed());
+		assertTrue(driver.findElement(By.name("runtimeStatusText")).isDisplayed());
+		assertTrue(driver.findElement(By.name("naStatusText")).isDisplayed());
+
 	}
 
 	@Test
