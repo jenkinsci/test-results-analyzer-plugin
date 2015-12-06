@@ -29,7 +29,7 @@
 		</f:entry>
 		<f:entry title="${%Passed Color}">
 			<select name="passedStatusColor">
-				<f:option value="${descriptor.getLightGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightGreen()) ? true : false }" >Light Green</f:option>
+				<f:option value="${descriptor.getLightGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightGreen()) ? true : false }" >Light Green (Recommended)</f:option>
 				<f:option value="${descriptor.getBrightGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getBrightGreen()) ? true : false }" >Bright Green</f:option>
 				<f:option value="${descriptor.getDarkGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getDarkGreen()) ? true : false }" >Dark Green</f:option>
 				<f:option value="${descriptor.getLightRed()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightRed()) ? true : false }" >Light Red</f:option>
