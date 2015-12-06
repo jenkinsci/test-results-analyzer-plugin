@@ -154,7 +154,7 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 		}
 
 		public String getBrightGreen() {
-			return darkGreen;
+			return brightGreen;
 		}
 
 		public String getDarkGreen() {
