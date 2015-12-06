@@ -61,7 +61,7 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 		private final String lightRed = "#F37A7A";
 		private final String brightRed = "#FF0000";
 		private final String darkRed = "#990000";
-		private final String lightyellow = "#FDED72";
+		private final String lightYellow = "#FDED72";
 		private final String brown = "#996633";
 		private final String purple = "#9900CC";
 		private final String lightBlue = "#67A4FF";
