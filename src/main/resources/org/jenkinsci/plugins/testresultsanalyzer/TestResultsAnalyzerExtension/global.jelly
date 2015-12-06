@@ -29,8 +29,8 @@
 		</f:entry>
 		<f:entry title="${%Passed Color}">
 			<select name="passedStatusColor">
-				<option value="${descriptor.getLightGreen()}" selected=${desciptor.getPassedStatusColor().equals(descriptor.getLightGreen()) ? "true" : "false" } >Light Green</option>
-				<option value="${descriptor.getBrightGreen()}" selected=${desciptor.getPassedStatusColor().equals(descriptor.getBrightGreen()) ? "true" : "false" } >Bright Green</option>
+				<option value="${descriptor.getLightGreen()}" selected="${desciptor.getPassedStatusColor().equals(descriptor.getLightGreen()) ? true : false }" >Light Green</option>
+				<!-- <option value="${descriptor.getBrightGreen()}" selected=${desciptor.getPassedStatusColor().equals(descriptor.getBrightGreen()) ? "true" : "false" } >Bright Green</option>
 				<option value="${descriptor.getDarkGreen()}" selected=${desciptor.getPassedStatusColor().equals(descriptor.getDarkGreen()) ? "true" : "false" } >Dark Green</option>
 				<option value="${descriptor.getLightRed()}" selected=${desciptor.getPassedStatusColor().equals(descriptor.getLightRed()) ? "true" : "false" } >Light Red</option>
 				<option value="${descriptor.getBrightRed()}" selected=${desciptor.getPassedStatusColor().equals(descriptor.getBrightRed()) ? "true" : "false" } >Bright Red</option>
@@ -41,6 +41,7 @@
 				<option value="${descriptor.getLightBlue()}" selected=${desciptor.getPassedStatusColor().equals(descriptor.getLightBlue()) ? "true" : "false" } >Light Blue</option>
 				<option value="${descriptor.getDarkBlue()}" selected=${desciptor.getPassedStatusColor().equals(descriptor.getDarkBlue()) ? "true" : "false" } >Dark Blue</option>
 				<option value="${descriptor.getMagenta()}" selected=${desciptor.getPassedStatusColor().equals(descriptor.getMagenta()) ? "true" : "false" } >Magenta</option>
+				-->
 			</select>
 		</f:entry>
 	</f:section>
