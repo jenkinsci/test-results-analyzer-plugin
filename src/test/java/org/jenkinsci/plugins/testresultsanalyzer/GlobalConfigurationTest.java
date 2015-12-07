@@ -77,14 +77,10 @@ public class GlobalConfigurationTest {
 		assertTrue(driver.findElement(By.name("skippedStatusColor")).isDisplayed());
 		assertTrue(driver.findElement(By.name("totalStatusColor")).isDisplayed());
 		assertTrue(driver.findElement(By.name("runtimeStatusColor")).isDisplayed());
-		assertTrue(driver.findElement(By.name("naStatusColor")).isDisplayed());
 
 		assertTrue(driver.findElement(By.name("passedStatusText")).isDisplayed());
 		assertTrue(driver.findElement(By.name("failedStatusText")).isDisplayed());
 		assertTrue(driver.findElement(By.name("skippedStatusText")).isDisplayed());
-		assertTrue(driver.findElement(By.name("totalStatusText")).isDisplayed());
-		assertTrue(driver.findElement(By.name("runtimeStatusText")).isDisplayed());
-		assertTrue(driver.findElement(By.name("naStatusText")).isDisplayed());
 	}
 
 	@Test
@@ -134,35 +130,34 @@ public class GlobalConfigurationTest {
 
 	@Test
 	public void ColorSelectionTest() throws Exception {
-		ColorSelectionHelper("passedStatusColor", "Light Red");
+		ColorSelectionHelper("passedStatusColor", "Dark Red");
 		ColorSelectionHelper("passedStatusColor", "Light Yellow");
 		ColorSelectionHelper("passedStatusColor", "Light Blue");
-		ColorSelectionHelper("passedStatusColor", "Light Green");
+		ColorSelectionHelper("passedStatusColor", "Light Green (Recommended)");
 
 		ColorSelectionHelper("failedStatusColor", "Light Yellow");
-		ColorSelectionHelper("failedStatusColor", "Light Blue");
-		ColorSelectionHelper("failedStatusColor", "Light Green");
-		ColorSelectionHelper("failedStatusColor", "Light Red");
+		ColorSelectionHelper("failedStatusColor", "Dark Blue");
+		ColorSelectionHelper("failedStatusColor", "Bright Green");
+		ColorSelectionHelper("failedStatusColor", "Light Red (Recommended)");
 
-		ColorSelectionHelper("skippedStatusColor", "Light Red");
-		ColorSelectionHelper("skippedStatusColor", "Light Blue");
-		ColorSelectionHelper("skippedStatusColor", "Light Green");
-		ColorSelectionHelper("skippedStatusColor", "Light Yellow");
+		ColorSelectionHelper("skippedStatusColor", "Bright Red");
+		ColorSelectionHelper("skippedStatusColor", "Purple");
+		ColorSelectionHelper("skippedStatusColor", "Dark Green");
+		ColorSelectionHelper("skippedStatusColor", "Light Yellow (Recommended)");
 
-		ColorSelectionHelper("totalStatusColor", "Light Red");
-		ColorSelectionHelper("totalStatusColor", "Light Green");
+		ColorSelectionHelper("totalStatusColor", "Brown");
+		ColorSelectionHelper("totalStatusColor", "Magenta");
 		ColorSelectionHelper("totalStatusColor", "Light Yellow");
-		ColorSelectionHelper("totalStatusColor", "Light Blue");
+		ColorSelectionHelper("totalStatusColor", "Light Blue (Recommended)");
 
 		ColorSelectionHelper("runtimeStatusColor", "Light Red");
 		ColorSelectionHelper("runtimeStatusColor", "Light Blue");
 		ColorSelectionHelper("runtimeStatusColor", "Light Green");
-		ColorSelectionHelper("runtimeStatusColor", "Light Yellow");
+		ColorSelectionHelper("runtimeStatusColor", "Light Yellow (Recommended)");
 	}
 
 	private void ColorSelectionHelper(String name, String text) {
 		WebElement passedColor = driver.findElement(By.name(name));
-
 		Select select = new Select(passedColor);
 		select.selectByVisibleText(text);
 
@@ -171,9 +166,10 @@ public class GlobalConfigurationTest {
 		waitForPageLoad();
 
 		WebElement passedColor2 = driver.findElement(By.name(name));
+		Select select2 = new Select(passedColor2);
 
 		//page has reloaded, previous object no longer valid
-		assertEquals(text, passedColor2.getText());
+		assertEquals(text, select2.getFirstSelectedOption().getText());
 	}
 
 	/**
