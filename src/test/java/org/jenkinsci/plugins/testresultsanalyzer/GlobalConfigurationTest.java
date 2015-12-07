@@ -44,6 +44,9 @@ public class GlobalConfigurationTest {
 		waitForPageLoad();
 	}
 
+	/**
+	 *  @brief assert that all required elements are present on the configuration page
+	 */
 	@Test
 	public void ConfigurationSectionExistsTest() throws Exception {
 		Exception ex = null;
@@ -82,7 +85,6 @@ public class GlobalConfigurationTest {
 		assertTrue(driver.findElement(By.name("totalStatusText")).isDisplayed());
 		assertTrue(driver.findElement(By.name("runtimeStatusText")).isDisplayed());
 		assertTrue(driver.findElement(By.name("naStatusText")).isDisplayed());
-
 	}
 
 	@Test
@@ -157,7 +159,8 @@ public class GlobalConfigurationTest {
 		ColorSelectionHelper("runtimeStatusColor", "Light Green");
 		ColorSelectionHelper("runtimeStatusColor", "Light Yellow");
 	}
-	private void ColorSelectionHelper(String name, String text){
+
+	private void ColorSelectionHelper(String name, String text) {
 		WebElement passedColor = driver.findElement(By.name(name));
 
 		Select select = new Select(passedColor);

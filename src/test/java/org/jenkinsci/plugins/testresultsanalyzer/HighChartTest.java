@@ -63,6 +63,10 @@ public class HighChartTest {
 		setChartsShown(true, true, true);
 	}
 
+	/**
+	 *  @brief Modifies check boxes on page
+	 *  Note that this will throw an exception if the settings menu has not been opened
+	 */
 	public void setChartsShown(boolean line, boolean bar, boolean pie) {
 		WebElement linegraph = driver.findElement(By.id("linegraph"));
 
@@ -148,6 +152,7 @@ public class HighChartTest {
 	public void tableColorTest() throws Exception {
 		setConfigurationColor("passedStatusColor", "Bright Green");
 		setPassFailCharts();
+		wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector(".passed")));
 		List<WebElement> elements = driver.findElements(By.cssSelector(".table-cell.build-result.passed"));
 		boolean found = false;
 
@@ -158,6 +163,7 @@ public class HighChartTest {
 		assertTrue(found);
 		setConfigurationColor("passedStatusColor", "Light Green (Recommended)");
 		setPassFailCharts();
+		wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector(".passed")));
 		List<WebElement> elements2 = driver.findElements(By.cssSelector(".table-cell.build-result.passed"));
 
 		for(WebElement e : elements2) {
@@ -171,21 +177,23 @@ public class HighChartTest {
 		setConfigurationText("passedStatusText", "HELLO");
 		setPassFailCharts();
 		showRuntimes(false);
-		List<WebElement> elements = driver.findElements(By.cssSelector(".table-cell.build-result.passed"));
+		wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector(".passed")));
+		List<WebElement> elements = driver.findElements(By.cssSelector(".passed"));
 		boolean found = false;
 
 		for(WebElement e : elements) {
 			found = true;
-			assertEquals("HELLO", e.getText());
+			assertEquals("HELLO", js.executeScript("return arguments[0].textContent;", e));
 		}
 		assertTrue(found);
 		setConfigurationText("passedStatusText", "PASSED");
 		setPassFailCharts();
 		showRuntimes(false);
+		wait.until(ExpectedConditions.textToBePresentInElementLocated(By.cssSelector(".passed"), "PASSED"));
 		List<WebElement> elements2 = driver.findElements(By.cssSelector(".table-cell.build-result.passed"));
 
 		for(WebElement e : elements2) {
-			assertEquals("PASSED", e.getText());
+			assertEquals("PASSED", js.executeScript("return arguments[0].textContent;", e));
 		}
 	}
 
@@ -198,6 +206,9 @@ public class HighChartTest {
 		driver.findElement(By.id("getbuildreport")).click();
 	}
 
+	/**
+	 *  @brief Goes to configuration page and sets text associated with given input element
+	 */
 	public void setConfigurationText(String element, String text) throws Exception {
 		driver.get(jenkinsRule.getURL() + "configure");
 		wait.until(
@@ -214,6 +225,9 @@ public class HighChartTest {
 		refreshDriver();
 	}
 
+	/**
+	 *  @brief Goes to configuration page and selects from a drop down menu associated with given input element and color
+	 */
 	public void setConfigurationColor(String element, String color) throws Exception {
 		driver.get(jenkinsRule.getURL() + "configure");
 		wait.until(
@@ -231,6 +245,9 @@ public class HighChartTest {
 		refreshDriver();
 	}
 
+	/**
+	 *  @brief Helper method for graphResizeTest method
+	 */
 	public void validateWindowWidth(int w, By by) {
 		setWindowWidth(w);
 		assertNoFloatsBy(by);
