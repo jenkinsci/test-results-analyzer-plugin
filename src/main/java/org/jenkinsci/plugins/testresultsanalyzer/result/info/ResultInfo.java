@@ -8,9 +8,9 @@ import java.util.TreeMap;
 import net.sf.json.JSONObject;
 
 public class ResultInfo {
-	
+
 	private Map<String,PackageInfo> packageResults = new TreeMap<String, PackageInfo>();
-	
+
 	public void addPackage(Integer buildNumber, TabulatedResult packageResult, String url) {
 		String packageName = packageResult.getName();
 		PackageInfo packageInfo;
@@ -23,7 +23,7 @@ public class ResultInfo {
 		packageInfo.putPackageResult(buildNumber, packageResult, url + "testReport/" + packageResult.getName());
 		packageResults.put(packageName, packageInfo);		
 	}
-	
+
 	public JSONObject getJsonObject(){
 		JSONObject json = new JSONObject();
 		for(String packageName: packageResults.keySet()){
@@ -31,7 +31,7 @@ public class ResultInfo {
 		}
 		return json;
 	}
-	
+
 	public Map<String,PackageInfo> getPackageResults(){
 		return this.packageResults;
 	}

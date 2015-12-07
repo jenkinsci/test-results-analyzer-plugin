@@ -195,11 +195,9 @@ function checkBoxEvents() {
 		if (this.checked) {
 			checkChildren(this, true);
 			checkParent(this);
-			//console.log("checked");
 		} else {
 			checkChildren(this, false);
 			checkParent(this);
-			//console.log("unchecked");
 		}
 		generateCharts();
 	});

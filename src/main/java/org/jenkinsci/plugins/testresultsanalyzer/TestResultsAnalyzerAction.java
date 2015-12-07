@@ -8,6 +8,7 @@ import hudson.tasks.test.AbstractTestResultAction;
 import hudson.util.RunList;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.*;
 
 import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
@@ -18,8 +19,6 @@ import org.jenkinsci.plugins.testresultsanalyzer.result.info.PackageInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.TestCaseInfo;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
-
-import java.util.*;
 
 public class TestResultsAnalyzerAction extends Actionable implements Action {
 	@SuppressWarnings("rawtypes")
@@ -90,12 +89,12 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 	private boolean hasPermission() {
 		return project.hasPermission(Item.READ);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public AbstractProject getProject() {
 		return this.project;
 	}
-   
+
 	@JavaScriptMethod
 	public JSONArray getNoOfBuilds(String noOfbuildsNeeded) {
 		JSONArray jsonArray;
@@ -153,12 +152,12 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
 		return noOfBuilds;
 	}
-	
+
 	public boolean isUpdated() {
 		int latestBuildNumber = project.getLastBuild().getNumber();
 		return !(builds.contains(latestBuildNumber));
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void getJsonLoadData() {
 		if(isUpdated()) {

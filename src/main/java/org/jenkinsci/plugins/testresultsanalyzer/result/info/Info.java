@@ -14,11 +14,11 @@ import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 
 public abstract class Info {
-	
+
 	protected String name;
 	protected Map<Integer,ResultData> buildResults = new HashMap<Integer, ResultData>();
 
-	protected List<String> statuses = new ArrayList<String>(); 
+	protected List<String> statuses = new ArrayList<String>();
 
 	public String getName() {
 		return name;

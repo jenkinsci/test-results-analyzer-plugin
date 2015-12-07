@@ -11,9 +11,9 @@ import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.PackageResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 
-public class PackageInfo extends Info {	
+public class PackageInfo extends Info {
 	protected Map<String, ClassInfo> classes = new TreeMap<String, ClassInfo>();
-	
+
 	public void putPackageResult(Integer buildNumber, TabulatedResult packageResult, String url){
 		PackageResultData packageResultData = new PackageResultData(packageResult, url);
 		evaluateStatusses(packageResult);
@@ -21,7 +21,7 @@ public class PackageInfo extends Info {
 		addClasses(buildNumber, packageResult, url);
 		this.buildResults.put(buildNumber, packageResultData);
 	}
-	
+
 	public ResultData getPackageResult(Integer buildNumber) {
 		if(this.buildResults.containsKey(buildNumber)){
 			return this.buildResults.get(buildNumber);
@@ -59,5 +59,4 @@ public class PackageInfo extends Info {
 		}
 		return json;
 	}
-
 }

@@ -181,8 +181,9 @@ public abstract class ResultData {
 		for(ResultData childResult : children) {
 			testsChildren.add(childResult.getJsonObject());
 		}
-		if(!(failureMessage.equalsIgnoreCase("")))
+		if(!(failureMessage.equalsIgnoreCase(""))) {
 			json.put("failureMessage", failureMessage);
+		}
 		json.put("children", testsChildren);
 		return json;
 	}
