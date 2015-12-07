@@ -7,8 +7,8 @@ import org.jenkinsci.plugins.testresultsanalyzer.result.data.TestCaseResultData;
 
 public class TestCaseInfo extends Info {
 
-	public void putTestCaseResult(Integer buildNumber, TestResult testCaseResult) {
-		TestCaseResultData testCaseResultData = new TestCaseResultData(testCaseResult);
+	public void putTestCaseResult(Integer buildNumber, TestResult testCaseResult, String url) {
+		TestCaseResultData testCaseResultData = new TestCaseResultData(testCaseResult, url);
 		evaluateStatusses(testCaseResult);
 		this.buildResults.put(buildNumber, testCaseResultData);
 	}
@@ -18,5 +18,4 @@ public class TestCaseInfo extends Info {
 
 		return new JSONObject();
 	}
-
 }

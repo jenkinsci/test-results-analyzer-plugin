@@ -16,7 +16,7 @@ import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 public abstract class Info {
 
 	protected String name;
-	protected Map<Integer, ResultData> buildResults = new HashMap<Integer, ResultData>();
+	protected Map<Integer,ResultData> buildResults = new HashMap<Integer, ResultData>();
 
 	protected List<String> statuses = new ArrayList<String>();
 
@@ -40,7 +40,7 @@ public abstract class Info {
 
 	protected JSONObject getBuildJson() {
 		JSONObject json = new JSONObject();
-		for (Integer buildNumber : buildResults.keySet()) {
+		for(Integer buildNumber : buildResults.keySet()){
 			json.put(buildNumber.toString(), buildResults.get(buildNumber).getJsonObject());
 		}
 		return json;
@@ -64,22 +64,22 @@ public abstract class Info {
 
 	protected void evaluateStatusses(TestResult testResult) {
 		boolean doTestNg = testResult.getClass().getName().equals("hudson.plugins.testng.results.MethodResult");
-		if (doTestNg) {
+		if(doTestNg) {
 			try {
 				Method method = testResult.getClass().getMethod("getStatus");
 				Object returnValue = method.invoke(testResult);
-				if (returnValue instanceof String) {
+				if(returnValue instanceof String) {
 					String status = ((String) returnValue).toLowerCase();
-					if (status.startsWith("fail")) {
+					if(status.startsWith("fail")) {
 						status = "FAILED";
 					}
-					else if (status.startsWith("pass")) {
+					else if(status.startsWith("pass")) {
 						status = "PASSED";
 					}
-					else if (status.startsWith("skip")) {
+					else if(status.startsWith("skip")) {
 						status = "SKIPPED";
 					}
-					if (!(statuses.contains(status))) {
+					if(!(statuses.contains(status))) {
 						statuses.add(status);
 					}
 				}
@@ -89,19 +89,19 @@ public abstract class Info {
 				doTestNg = false;
 			}
 		}
-		if (!doTestNg) {
+		if(!doTestNg) {
 			List<String> tStatusses = new ArrayList<String>();
-			if (testResult.getFailCount() > 0) {
+			if(testResult.getFailCount() > 0) {
 				tStatusses.add("FAILED");
 			}
-			if (testResult.getPassCount() > 0) {
+			if(testResult.getPassCount() > 0) {
 				tStatusses.add("PASSED");
 			}
-			if (testResult.getSkipCount() > 0) {
+			if(testResult.getSkipCount() > 0) {
 				tStatusses.add("SKIPPED");
 			}
-			for (String tStatus : tStatusses) {
-				if (!(statuses.contains(tStatus))) {
+			for(String tStatus : tStatusses) {
+				if(!(statuses.contains(tStatus))) {
 					statuses.add(tStatus);
 				}
 			}

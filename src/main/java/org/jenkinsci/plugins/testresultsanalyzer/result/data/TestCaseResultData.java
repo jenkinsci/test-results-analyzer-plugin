@@ -6,10 +6,11 @@ import java.lang.reflect.Method;
 
 public class TestCaseResultData extends ResultData {
 
-	public TestCaseResultData(TestResult testResult) {
+	public TestCaseResultData(TestResult testResult, String url) {
 		setName(testResult.getName());
 		boolean doTestNg = testResult.getClass().getName().equals("hudson.plugins.testng.results.MethodResult");
-		if (doTestNg) {
+
+		if(doTestNg) {
 			try {
 				Method method = testResult.getClass().getMethod("getStatus");
 				Object returnValue = method.invoke(testResult);
@@ -24,12 +25,13 @@ public class TestCaseResultData extends ResultData {
 					setTotalSkipped(status.startsWith("skip") ? 1 : 0);
 				}
 			}
-			catch (Exception e) {
+			catch(Exception e) {
 				// fallback to non testng code
 				doTestNg = false;
 			}
 		}
-		if (!doTestNg) {
+
+		if(!doTestNg) {
 			setPassed(testResult.isPassed());
 			setSkipped(testResult.getSkipCount() == testResult.getTotalCount());
 			setTotalTests(testResult.getTotalCount());
@@ -38,10 +40,11 @@ public class TestCaseResultData extends ResultData {
 			setTotalSkipped(testResult.getSkipCount());
 		}
 		setTotalTimeTaken(testResult.getDuration());
+		setUrl(url);
 		evaluateStatus();
-		if ("FAILED".equalsIgnoreCase(getStatus())) {
+
+		if("FAILED".equalsIgnoreCase(getStatus())) {
 			setFailureMessage(testResult.getErrorStackTrace());
 		}
 	}
-
 }

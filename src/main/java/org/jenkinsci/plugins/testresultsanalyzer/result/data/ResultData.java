@@ -1,15 +1,14 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.data;
 
 import hudson.tasks.test.TabulatedResult;
+import hudson.tasks.test.TestObject;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
 public abstract class ResultData {
-
 	private String name;
 	private boolean isPassed;
 	private boolean isSkipped;
@@ -22,6 +21,8 @@ public abstract class ResultData {
 	private float totalTimeTaken;
 	private String status;
 	private String failureMessage = "";
+
+	private String url;
 
 	public String getFailureMessage() {
 		return failureMessage;
@@ -115,14 +116,40 @@ public abstract class ResultData {
 		this.totalTimeTaken = totalTimeTaken;
 	}
 
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	/**
+	 *  @brief do nothing constructor
+	 */
+	public ResultData() {
+
+	}
+
+	public ResultData(TestObject result, String url) {
+		setName(result.getName());
+		setPassed(result.getFailCount() == 0);
+		setSkipped(result.getSkipCount() == result.getTotalCount());
+		setTotalTests(result.getTotalCount());
+		setTotalFailed(result.getFailCount());
+		setTotalPassed(result.getPassCount());
+		setTotalSkipped(result.getSkipCount());
+		setTotalTimeTaken(result.getDuration());
+		setUrl(url);
+		evaluateStatus();
+	}
+
 	protected void evaluateStatus() {
-		if (isPassed) {
-			status = "PASSED";
-		}
-		else if (isSkipped) {
+		if(isSkipped) {
 			status = "SKIPPED";
-		}
-		else {
+		} else if (isPassed) {
+			status = "PASSED";
+		} else {
 			status = "FAILED";
 		}
 	}
@@ -131,6 +158,13 @@ public abstract class ResultData {
 		return status;
 	}
 
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	/**
+	 *  @brief Constructs a JsonObject for use by the front end code
+	 */
 	public JSONObject getJsonObject() {
 		JSONObject json = new JSONObject();
 		json.put("name", name);
@@ -142,15 +176,15 @@ public abstract class ResultData {
 		json.put("isSkipped", isSkipped);
 		json.put("totalTimeTaken", totalTimeTaken);
 		json.put("status", status);
+		json.put("url", url);
 		JSONArray testsChildren = new JSONArray();
-		for (ResultData childResult : children) {
+		for(ResultData childResult : children) {
 			testsChildren.add(childResult.getJsonObject());
 		}
-		if (!(failureMessage.equalsIgnoreCase(""))) {
+		if(!(failureMessage.equalsIgnoreCase(""))) {
 			json.put("failureMessage", failureMessage);
 		}
 		json.put("children", testsChildren);
 		return json;
 	}
-
 }
