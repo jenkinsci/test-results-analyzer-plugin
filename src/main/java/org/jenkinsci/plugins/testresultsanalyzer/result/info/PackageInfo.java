@@ -1,18 +1,20 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 
-import hudson.tasks.junit.ClassResult;
-import hudson.tasks.junit.PackageResult;
-import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.testresultsanalyzer.result.data.PackageResultData;
-import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
+import hudson.tasks.test.TabulatedResult;
+import hudson.tasks.test.TestResult;
 
 import java.util.Map;
 import java.util.TreeMap;
 
+import net.sf.json.JSONObject;
+
+import org.jenkinsci.plugins.testresultsanalyzer.result.data.PackageResultData;
+import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
+
 public class PackageInfo extends Info {	
 	protected Map<String, ClassInfo> classes = new TreeMap<String, ClassInfo>();
 	
-	public void putPackageResult(Integer buildNumber, PackageResult packageResult, String url){
+	public void putPackageResult(Integer buildNumber, TabulatedResult packageResult, String url){
 		PackageResultData packageResultData = new PackageResultData(packageResult, url);
 		evaluateStatusses(packageResult);
 
@@ -35,8 +37,8 @@ public class PackageInfo extends Info {
 		this.classes = classes;
 	}
 
-	public void addClasses(Integer buildNumber, PackageResult packageResult, String url) {
-		for(ClassResult classResult : packageResult.getChildren()) {
+	public void addClasses(Integer buildNumber, TabulatedResult packageResult, String url) {
+		for(TestResult classResult : packageResult.getChildren()) {
 			String className = classResult.getName();
 			ClassInfo classInfo;
 			if(classes.containsKey(className)) {
@@ -45,7 +47,7 @@ public class PackageInfo extends Info {
 				classInfo = new ClassInfo();
 				classInfo.setName(className);
 			}
-			classInfo.putBuildClassResult(buildNumber, classResult, url + "/" + classResult.getName());
+			classInfo.putBuildClassResult(buildNumber, (TabulatedResult) classResult, url + "/" + classResult.getName());
 			classes.put(className, classInfo);
 		}
 	}

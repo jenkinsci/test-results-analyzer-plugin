@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.testresultsanalyzer;
 import hudson.model.*;
 import hudson.tasks.junit.PackageResult;
 import hudson.tasks.junit.TestResult;
+import hudson.tasks.test.TabulatedResult;
 import hudson.tasks.test.AbstractTestResultAction;
 import hudson.util.RunList;
 import java.math.RoundingMode;
@@ -196,7 +197,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 					Collection<PackageResult> packageResults = testResult.getChildren();
 
 					for(PackageResult packageResult : packageResults) { // packageresult
-						resultInfo.addPackage(buildNumber, packageResult, Jenkins.getInstance().getRootUrl() + buildUrl);
+						resultInfo.addPackage(buildNumber, (TabulatedResult) packageResult, Jenkins.getInstance().getRootUrl() + buildUrl);
 					}
 				}
 			}

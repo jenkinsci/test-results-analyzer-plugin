@@ -1,16 +1,17 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 
-import hudson.tasks.junit.PackageResult;
-import net.sf.json.JSONObject;
+import hudson.tasks.test.TabulatedResult;
 
 import java.util.Map;
 import java.util.TreeMap;
+
+import net.sf.json.JSONObject;
 
 public class ResultInfo {
 	
 	private Map<String,PackageInfo> packageResults = new TreeMap<String, PackageInfo>();
 	
-	public void addPackage(Integer buildNumber, PackageResult packageResult, String url) {
+	public void addPackage(Integer buildNumber, TabulatedResult packageResult, String url) {
 		String packageName = packageResult.getName();
 		PackageInfo packageInfo;
 		if(packageResults.containsKey(packageName)){

@@ -1,7 +1,7 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.data;
 
-import hudson.tasks.junit.PackageResult;
-import hudson.tasks.test.TestResult;
+import hudson.tasks.test.TabulatedResult;
+import hudson.tasks.test.TestObject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -12,7 +12,7 @@ public abstract class ResultData {
 	private String name;
 	private boolean isPassed;
 	private boolean isSkipped;
-	private transient PackageResult packageResult;
+	private transient TabulatedResult packageResult;
 	private int totalTests;
 	private int totalFailed;
 	private int totalPassed;
@@ -56,11 +56,11 @@ public abstract class ResultData {
 		this.isSkipped = isSkipped;
 	}
 
-	public PackageResult getPackageResult() {
+	public TabulatedResult getPackageResult() {
 		return packageResult;
 	}
 
-	public void setPackageResult(PackageResult packageResult) {
+	public void setPackageResult(TabulatedResult packageResult) {
 		this.packageResult = packageResult;
 	}
 
@@ -131,7 +131,7 @@ public abstract class ResultData {
 
 	}
 
-	public ResultData(TestResult result, String url) {
+	public ResultData(TestObject result, String url) {
 		setName(result.getName());
 		setPassed(result.getFailCount() == 0);
 		setSkipped(result.getSkipCount() == result.getTotalCount());
@@ -162,7 +162,9 @@ public abstract class ResultData {
 		this.status = status;
 	}
 
-
+	/**
+	 *  @brief Constructs a JsonObject for use by the front end code
+	 */
 	public JSONObject getJsonObject() {
 		JSONObject json = new JSONObject();
 		json.put("name", name);

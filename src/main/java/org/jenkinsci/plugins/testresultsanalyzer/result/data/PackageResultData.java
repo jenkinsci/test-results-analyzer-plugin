@@ -1,10 +1,10 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.data;
 
-import hudson.tasks.junit.PackageResult;
+import hudson.tasks.test.TestResult;
 
 public class PackageResultData extends ResultData {
 
-	public PackageResultData(PackageResult packageResult, String url) {
+	public PackageResultData(TestResult packageResult, String url) {
 		super(packageResult, url);
 	}
 }

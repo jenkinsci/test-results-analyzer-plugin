@@ -1,21 +1,14 @@
 package org.jenkinsci.plugins.testresultsanalyzer;
 
-import hudson.Extension;
-/*import hudson.model.Descriptor;
-import hudson.model.Describable;
-import hudson.model.AbstractProject;
-import hudson.model.Action;
-import hudson.model.TransientProjectActionFactory;*/
-import hudson.model.*;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import hudson.Extension;
+import hudson.model.*;
+
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
-
-import java.util.logging.*;
 
 @Extension
 public class TestResultsAnalyzerExtension extends TransientProjectActionFactory implements Describable<TestResultsAnalyzerExtension> {
@@ -91,6 +84,9 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
 			return "Test Results Analyzer";
 		}
 
+		/**
+		 *  @brief Method called when global configuration is saved
+		 */
 		@Override
 		public boolean configure(StaplerRequest req, JSONObject formData) {
 			try {

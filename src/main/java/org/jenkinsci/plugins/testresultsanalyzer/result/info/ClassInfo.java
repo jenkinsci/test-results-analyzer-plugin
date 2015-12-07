@@ -1,18 +1,20 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 
-import hudson.tasks.junit.CaseResult;
-import hudson.tasks.junit.ClassResult;
-import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.testresultsanalyzer.result.data.ClassResultData;
+import hudson.tasks.test.TabulatedResult;
+import hudson.tasks.test.TestResult;
 
 import java.util.Map;
 import java.util.TreeMap;
+
+import net.sf.json.JSONObject;
+
+import org.jenkinsci.plugins.testresultsanalyzer.result.data.ClassResultData;
 
 public class ClassInfo extends Info {
 
 	private Map<String, TestCaseInfo> tests = new TreeMap<String, TestCaseInfo>();
 
-	public void putBuildClassResult(Integer buildNumber, ClassResult classResult, String url) {
+	public void putBuildClassResult(Integer buildNumber, TabulatedResult classResult, String url) {
 		ClassResultData classResultData = new ClassResultData(classResult, url);
 		
 		evaluateStatusses(classResult);
@@ -28,8 +30,8 @@ public class ClassInfo extends Info {
 		this.tests = tests;
 	}
 
-	private void addTests(Integer buildNumber, ClassResult classResult, String url) {
-		for(CaseResult testCaseResult : classResult.getChildren()) {
+	private void addTests(Integer buildNumber, TabulatedResult classResult, String url) {
+		for(TestResult testCaseResult : classResult.getChildren()) {
 			String testCaseName = testCaseResult.getName();
 			TestCaseInfo testCaseInfo;
 			if(tests.containsKey(testCaseName)) {
