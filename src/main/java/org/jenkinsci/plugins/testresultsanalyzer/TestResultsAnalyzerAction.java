@@ -117,12 +117,11 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 			return builds;
 		}
 		List<Integer> buildList = new ArrayList<Integer>();
-		for (int i = (noOfBuilds - 1); i >= 0; i--) {
+		for(int i = 0; i < noOfBuilds; i++) {
 			int index = builds.get(i);
 			if(showFail || !(compileFailedBuilds.contains(index)))
 				buildList.add(index);
 		}
-		Collections.reverse(buildList);
 		return buildList;
 	}
 

@@ -116,7 +116,9 @@ function populateTemplate(){
 	displayValues  = $j("#show-durations").is(":checked");
 	
 	var showCompileFail = "no";
-	if ( $j("#showcompilefail").is(":checked"))	 showCompileFail = "show";
+	if ( $j("#showcompilefail").is(":checked")) {
+		showCompileFail = "show";
+	}
 
 	remoteAction.getTreeResult(noOfBuilds, showCompileFail, $j.proxy(function(t) {
 		var itemsResponse = t.responseObject();
