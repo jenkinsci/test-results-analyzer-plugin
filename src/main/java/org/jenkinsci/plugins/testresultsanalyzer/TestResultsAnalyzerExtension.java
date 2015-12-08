@@ -13,7 +13,6 @@ import org.kohsuke.stapler.StaplerRequest;
 @Extension
 public class TestResultsAnalyzerExtension extends TransientProjectActionFactory implements Describable<TestResultsAnalyzerExtension> {
 
-
 	@Override
 	public Collection<? extends Action> createFor(@SuppressWarnings("rawtypes") AbstractProject target) {
 		

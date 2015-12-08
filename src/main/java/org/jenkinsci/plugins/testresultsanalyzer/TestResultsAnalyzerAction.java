@@ -15,6 +15,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -162,6 +163,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 			while (runIterator.hasNext()) {
 				Run run = runIterator.next();
 				int buildNumber = run.getNumber();
+				String buildUrl = project.getBuildByNumber(buildNumber).getUrl();
 				builds.add(run.getNumber());
 				List<AbstractTestResultAction> testActions = run.getActions(hudson.tasks.test.AbstractTestResultAction.class);
 
@@ -180,7 +182,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 					TabulatedResult testResult = (TabulatedResult) testAction.getResult();
 					Collection<? extends TestResult> packageResults = testResult.getChildren();
 					for (TestResult packageResult : packageResults) { // packageresult
-						resultInfo.addPackage(buildNumber, (TabulatedResult) packageResult);
+						resultInfo.addPackage(buildNumber, (TabulatedResult) packageResult, Jenkins.getInstance().getRootUrl() + buildUrl);
 					}
 				}
 			}
@@ -210,9 +212,11 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         }		
         String header = "\"Package\",\"Class\",\"Test\"";
         header += buildsString;
-        String export = header + System.lineSeparator();
-		DecimalFormat df = new DecimalFormat("#.###");
-		df.setRoundingMode(RoundingMode.CEILING);
+
+		StringBuilder exportBuilder = new StringBuilder();
+        exportBuilder.append(header + System.lineSeparator());
+		DecimalFormat decimalFormat = new DecimalFormat("#.###");
+		decimalFormat.setRoundingMode(RoundingMode.CEILING);
         for (PackageInfo pInfo : packageResults.values()) {
             String packageName = pInfo.getName();
             //loop the classes
@@ -221,19 +225,19 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                 //loop the tests
                 for (TestCaseInfo tInfo : cInfo.getTests().values()) {
                     String testName = tInfo.getName();
-                    export += "\""+ packageName + "\",\"" + className + "\",\"" + testName+"\"";
+                    exportBuilder.append("\""+ packageName + "\",\"" + className + "\",\"" + testName+"\"");
                     for (ResultData buildResult : tInfo.getBuildPackageResults().values()) {
 						if(!isTimeBased) {
-							export += ",\"" + buildResult.getStatus() + "\"";
+							exportBuilder.append(",\"" + buildResult.getStatus() + "\"");
 						} else {
-							export += ",\"" + df.format(buildResult.getTotalTimeTaken()) + "\"";
+							exportBuilder.append(",\"" + decimalFormat.format(buildResult.getTotalTimeTaken()) + "\"");
 						}
                     }
-                    export += System.lineSeparator();
+                    exportBuilder.append(System.lineSeparator());
                 }
             }
         }
-        return export;
+        return exportBuilder.toString();
     }
 
 	@JavaScriptMethod

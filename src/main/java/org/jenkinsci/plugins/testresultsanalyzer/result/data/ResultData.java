@@ -1,12 +1,12 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.data;
 
 import hudson.tasks.test.TabulatedResult;
+import hudson.tasks.test.TestObject;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 public abstract class ResultData {
 
@@ -22,6 +22,7 @@ public abstract class ResultData {
 	private float totalTimeTaken;
 	private String status;
 	private String failureMessage = "";
+    private String url;
 
 	public String getFailureMessage() {
 		return failureMessage;
@@ -115,6 +116,33 @@ public abstract class ResultData {
 		this.totalTimeTaken = totalTimeTaken;
 	}
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    //Used for constructing mock object
+    public ResultData()
+    {
+
+    }
+
+    public ResultData(TestObject result, String url) {
+        setName(result.getName());
+        setPassed(result.getFailCount() == 0);
+        setSkipped(result.getSkipCount() == result.getTotalCount());
+        setTotalTests(result.getTotalCount());
+        setTotalFailed(result.getFailCount());
+        setTotalPassed(result.getPassCount());
+        setTotalSkipped(result.getSkipCount());
+        setTotalTimeTaken(result.getDuration());
+        setUrl(url);
+        evaluateStatus();
+    }
+
 	protected void evaluateStatus() {
 		if (isPassed) {
 			status = "PASSED";
@@ -142,6 +170,7 @@ public abstract class ResultData {
 		json.put("isSkipped", isSkipped);
 		json.put("totalTimeTaken", totalTimeTaken);
 		json.put("status", status);
+        json.put("url", url);
 		JSONArray testsChildren = new JSONArray();
 		for (ResultData childResult : children) {
 			testsChildren.add(childResult.getJsonObject());
