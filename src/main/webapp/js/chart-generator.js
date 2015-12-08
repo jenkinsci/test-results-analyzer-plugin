@@ -76,8 +76,7 @@ function generateRuntimePieChart(inputData) {
 	var highThreshold = parseFloat($j("#runTimeHighThreshold").val());
 
 	total = runtimeArray.length;
-	for (var key in runtimeArray) {
-		var time = runtimeArray[key];
+	runtimeArray.each(function (time) {
 		if (time < lowThreshold) {
 			fast ++;
 		} else if (time >= highThreshold) {
@@ -85,7 +84,7 @@ function generateRuntimePieChart(inputData) {
 		} else {
 			medi ++;
 		}
-	}
+	});
 	inputData = calculateRuntimePercentage(slow, medi, fast, total);
 	$j("#piechart").highcharts(getPieChartConfig(inputData, resultTitle))
 }
@@ -264,7 +263,7 @@ function getChartData(selectedRows, type) {
 			if (type == "runtime") {
 				var tempBuildResult = {
 					"Runtime" : jsonResult["totalTimeTaken"] ? jsonResult["totalTimeTaken"] : 0,
-					"RuntimeArray": jsonResult["totalTimeTaken"] ? [jsonResult["totalTimeTaken"]] : []
+					"RuntimeArray": jsonResult["totalTimeTaken"] !== undefined ? [jsonResult["totalTimeTaken"]] : []
 				}
 				if (chartResult[buildNumber]) {
 					var tempChartBuildResult = chartResult[buildNumber];
