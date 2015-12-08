@@ -5,6 +5,7 @@ import hudson.model.Item;
 import hudson.model.AbstractProject;
 import hudson.model.Actionable;
 import hudson.model.Run;
+import hudson.model.User;
 import hudson.tasks.test.TabulatedResult;
 import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.TestResult;
@@ -162,6 +163,18 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 				int buildNumber = run.getNumber();
 				builds.add(run.getNumber());
 				List<AbstractTestResultAction> testActions = run.getActions(hudson.tasks.test.AbstractTestResultAction.class);
+
+				if(testActions.size() == 0)
+					compileFailedBuilds.add(buildNumber);
+
+				//get user set for this build
+				Set<User> tempUsers = project.getBuildByNumber(buildNumber).getCulprits();
+				String userId = "";	   //convert user set to String of username
+				for(User user : tempUsers) {
+					userId += user.getId();
+				}
+				//save user name
+				userInBuildChange.add(userId);
 				for (hudson.tasks.test.AbstractTestResultAction testAction : testActions) {
 					TabulatedResult testResult = (TabulatedResult) testAction.getResult();
 					Collection<? extends TestResult> packageResults = testResult.getChildren();
