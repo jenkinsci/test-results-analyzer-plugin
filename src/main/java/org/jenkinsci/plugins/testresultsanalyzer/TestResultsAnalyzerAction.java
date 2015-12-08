@@ -113,14 +113,16 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 	private List<Integer> getBuildList(int noOfBuilds, String showCompileFail) {
 		boolean showFail = showCompileFail.equals("show");
 
-		if ((noOfBuilds <= 0) || (noOfBuilds >= builds.size())) {
-			return builds;
+		if ((noOfBuilds <= 0) || (noOfBuilds > builds.size())) {
+			noOfBuilds = builds.size();
 		}
 		List<Integer> buildList = new ArrayList<Integer>();
 		for(int i = 0; i < noOfBuilds; i++) {
 			int index = builds.get(i);
-			if(showFail || !(compileFailedBuilds.contains(index)))
+
+			if(showFail || !(compileFailedBuilds.contains(index))) {
 				buildList.add(index);
+			}
 		}
 		return buildList;
 	}
