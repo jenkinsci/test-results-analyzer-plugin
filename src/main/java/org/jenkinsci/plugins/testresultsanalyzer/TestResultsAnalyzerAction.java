@@ -176,9 +176,11 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         }		
         String header = "\"Package\",\"Class\",\"Test\"";
         header += buildsString;
-        String export = header + System.lineSeparator();
-		DecimalFormat df = new DecimalFormat("#.###");
-		df.setRoundingMode(RoundingMode.CEILING);
+
+		StringBuilder exportBuilder = new StringBuilder();
+        exportBuilder.append(header + System.lineSeparator());
+		DecimalFormat decimalFormat = new DecimalFormat("#.###");
+		decimalFormat.setRoundingMode(RoundingMode.CEILING);
         for (PackageInfo pInfo : packageResults.values()) {
             String packageName = pInfo.getName();
             //loop the classes
@@ -187,18 +189,18 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                 //loop the tests
                 for (TestCaseInfo tInfo : cInfo.getTests().values()) {
                     String testName = tInfo.getName();
-                    export += "\""+ packageName + "\",\"" + className + "\",\"" + testName+"\"";
+                    exportBuilder.append("\""+ packageName + "\",\"" + className + "\",\"" + testName+"\"");
                     for (ResultData buildResult : tInfo.getBuildPackageResults().values()) {
 						if(!isTimeBased) {
-							export += ",\"" + buildResult.getStatus() + "\"";
+							exportBuilder.append(",\"" + buildResult.getStatus() + "\"");
 						} else {
-							export += ",\"" + df.format(buildResult.getTotalTimeTaken()) + "\"";
+							exportBuilder.append(",\"" + decimalFormat.format(buildResult.getTotalTimeTaken()) + "\"");
 						}
                     }
-                    export += System.lineSeparator();
+                    exportBuilder.append(System.lineSeparator());
                 }
             }
         }
-        return export;
+        return exportBuilder.toString();
     }
 }
