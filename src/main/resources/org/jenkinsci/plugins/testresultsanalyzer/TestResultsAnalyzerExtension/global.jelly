@@ -1,0 +1,120 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<f:section title="${%Test Results Analyzer}">
+		<f:entry title="${%Number of Builds}">
+			<f:textbox name="noOfBuilds" value="${descriptor.getNoOfBuilds()}"/>
+		</f:entry>
+		<f:entry title="${%Show All Builds}">
+			<f:checkbox name="showAllBuilds" checked="${descriptor.getShowAllBuilds()}" />
+		</f:entry>
+		<f:entry title="${%Display run time for each test}">
+			<f:checkbox name="showBuildTime" checked="${descriptor.getShowBuildTime()}" />
+		</f:entry>
+		<f:entry title="${%Show Line Graph}">
+			<f:checkbox name="showLineGraph" checked="${descriptor.getShowLineGraph()}" />
+		</f:entry>
+		<f:entry title="${%Show Bar Graph}">
+			<f:checkbox name="showBarGraph" checked="${descriptor.getShowBarGraph()}" />
+		</f:entry>
+		<f:entry title="${%Show Pie Graph}">
+			<f:checkbox name="showPieGraph" checked="${descriptor.getShowPieGraph()}" />
+		</f:entry>
+		<f:entry title="${%Show Test Runtimes in Charts instead of Passes and Failures}">
+			<f:checkbox name="chartDataType" checked="${descriptor.getChartDataType()}" />
+		</f:entry>
+		<f:entry title="${%Run Time Low Threshold}">
+			<f:textbox name="runTimeLowThreshold" value="${descriptor.getRunTimeLowThreshold()}" />
+		</f:entry>
+		<f:entry title="${%Run Time High Threshold}">
+			<f:textbox name="runTimeHighThreshold" value="${descriptor.getRunTimeHighThreshold()}" />
+		</f:entry>
+		<f:entry title="${%Passed Color}">
+			<select name="passedStatusColor">
+				<f:option value="${descriptor.getLightGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightGreen()) ? true : false }" >Light Green (Recommended)</f:option>
+				<f:option value="${descriptor.getBrightGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getBrightGreen()) ? true : false }" >Bright Green</f:option>
+				<f:option value="${descriptor.getDarkGreen()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getDarkGreen()) ? true : false }" >Dark Green</f:option>
+				<f:option value="${descriptor.getLightRed()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightRed()) ? true : false }" >Light Red</f:option>
+				<f:option value="${descriptor.getBrightRed()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getBrightRed()) ? true : false }" >Bright Red</f:option>
+				<f:option value="${descriptor.getDarkRed()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getDarkRed()) ? true : false }" >Dark Red</f:option>
+				<f:option value="${descriptor.getLightYellow()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightYellow()) ? true : false }" >Light Yellow</f:option>
+				<f:option value="${descriptor.getBrown()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getBrown()) ? true : false }" >Brown</f:option>
+				<f:option value="${descriptor.getPurple()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getPurple()) ? true : false }" >Purple</f:option>
+				<f:option value="${descriptor.getLightBlue()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getLightBlue()) ? true : false }" >Light Blue</f:option>
+				<f:option value="${descriptor.getDarkBlue()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getDarkBlue()) ? true : false }" >Dark Blue</f:option>
+				<f:option value="${descriptor.getMagenta()}" selected="${descriptor.getPassedStatusColor().equals(descriptor.getMagenta()) ? true : false }" >Magenta</f:option>
+			</select>
+		</f:entry>
+		<f:entry title="${%Failed Color}">
+			<select name="failedStatusColor">
+				<f:option value="${descriptor.getLightGreen()}" selected="${descriptor.getFailedStatusColor().equals(descriptor.getLightGreen()) ? true : false }" >Light Green</f:option>
+				<f:option value="${descriptor.getBrightGreen()}" selected="${descriptor.getFailedStatusColor().equals(descriptor.getBrightGreen()) ? true : false }" >Bright Green</f:option>
+				<f:option value="${descriptor.getDarkGreen()}" selected="${descriptor.getFailedStatusColor().equals(descriptor.getDarkGreen()) ? true : false }" >Dark Green</f:option>
+				<f:option value="${descriptor.getLightRed()}" selected="${descriptor.getFailedStatusColor().equals(descriptor.getLightRed()) ? true : false }" >Light Red (Recommended)</f:option>
+				<f:option value="${descriptor.getBrightRed()}" selected="${descriptor.getFailedStatusColor().equals(descriptor.getBrightRed()) ? true : false }" >Bright Red</f:option>
+				<f:option value="${descriptor.getDarkRed()}" selected="${descriptor.getFailedStatusColor().equals(descriptor.getDarkRed()) ? true : false }" >Dark Red</f:option>
+				<f:option value="${descriptor.getLightYellow()}" selected="${descriptor.getFailedStatusColor().equals(descriptor.getLightYellow()) ? true : false }" >Light Yellow</f:option>
+				<f:option value="${descriptor.getBrown()}" selected="${descriptor.getFailedStatusColor().equals(descriptor.getBrown()) ? true : false }" >Brown</f:option>
+				<f:option value="${descriptor.getPurple()}" selected="${descriptor.getFailedStatusColor().equals(descriptor.getPurple()) ? true : false }" >Purple</f:option>
+				<f:option value="${descriptor.getLightBlue()}" selected="${descriptor.getFailedStatusColor().equals(descriptor.getLightBlue()) ? true : false }" >Light Blue</f:option>
+				<f:option value="${descriptor.getDarkBlue()}" selected="${descriptor.getFailedStatusColor().equals(descriptor.getDarkBlue()) ? true : false }" >Dark Blue</f:option>
+				<f:option value="${descriptor.getMagenta()}" selected="${descriptor.getFailedStatusColor().equals(descriptor.getMagenta()) ? true : false }" >Magenta</f:option>
+			</select>
+		</f:entry>
+		<f:entry title="${%Skipped Color}">
+			<select name="skippedStatusColor">
+				<f:option value="${descriptor.getLightGreen()}" selected="${descriptor.getSkippedStatusColor().equals(descriptor.getLightGreen()) ? true : false }" >Light Green</f:option>
+				<f:option value="${descriptor.getBrightGreen()}" selected="${descriptor.getSkippedStatusColor().equals(descriptor.getBrightGreen()) ? true : false }" >Bright Green</f:option>
+				<f:option value="${descriptor.getDarkGreen()}" selected="${descriptor.getSkippedStatusColor().equals(descriptor.getDarkGreen()) ? true : false }" >Dark Green</f:option>
+				<f:option value="${descriptor.getLightRed()}" selected="${descriptor.getSkippedStatusColor().equals(descriptor.getLightRed()) ? true : false }" >Light Red</f:option>
+				<f:option value="${descriptor.getBrightRed()}" selected="${descriptor.getSkippedStatusColor().equals(descriptor.getBrightRed()) ? true : false }" >Bright Red</f:option>
+				<f:option value="${descriptor.getDarkRed()}" selected="${descriptor.getSkippedStatusColor().equals(descriptor.getDarkRed()) ? true : false }" >Dark Red</f:option>
+				<f:option value="${descriptor.getLightYellow()}" selected="${descriptor.getSkippedStatusColor().equals(descriptor.getLightYellow()) ? true : false }" >Light Yellow (Recommended)</f:option>
+				<f:option value="${descriptor.getBrown()}" selected="${descriptor.getSkippedStatusColor().equals(descriptor.getBrown()) ? true : false }" >Brown</f:option>
+				<f:option value="${descriptor.getPurple()}" selected="${descriptor.getSkippedStatusColor().equals(descriptor.getPurple()) ? true : false }" >Purple</f:option>
+				<f:option value="${descriptor.getLightBlue()}" selected="${descriptor.getSkippedStatusColor().equals(descriptor.getLightBlue()) ? true : false }" >Light Blue</f:option>
+				<f:option value="${descriptor.getDarkBlue()}" selected="${descriptor.getSkippedStatusColor().equals(descriptor.getDarkBlue()) ? true : false }" >Dark Blue</f:option>
+				<f:option value="${descriptor.getMagenta()}" selected="${descriptor.getSkippedStatusColor().equals(descriptor.getMagenta()) ? true : false }" >Magenta</f:option>
+			</select>
+		</f:entry>
+		<f:entry title="${%Total Color}">
+			<select name="totalStatusColor">
+				<f:option value="${descriptor.getLightGreen()}" selected="${descriptor.getTotalStatusColor().equals(descriptor.getLightGreen()) ? true : false }" >Light Green</f:option>
+				<f:option value="${descriptor.getBrightGreen()}" selected="${descriptor.getTotalStatusColor().equals(descriptor.getBrightGreen()) ? true : false }" >Bright Green</f:option>
+				<f:option value="${descriptor.getDarkGreen()}" selected="${descriptor.getTotalStatusColor().equals(descriptor.getDarkGreen()) ? true : false }" >Dark Green</f:option>
+				<f:option value="${descriptor.getLightRed()}" selected="${descriptor.getTotalStatusColor().equals(descriptor.getLightRed()) ? true : false }" >Light Red</f:option>
+				<f:option value="${descriptor.getBrightRed()}" selected="${descriptor.getTotalStatusColor().equals(descriptor.getBrightRed()) ? true : false }" >Bright Red</f:option>
+				<f:option value="${descriptor.getDarkRed()}" selected="${descriptor.getTotalStatusColor().equals(descriptor.getDarkRed()) ? true : false }" >Dark Red</f:option>
+				<f:option value="${descriptor.getLightYellow()}" selected="${descriptor.getTotalStatusColor().equals(descriptor.getLightYellow()) ? true : false }" >Light Yellow</f:option>
+				<f:option value="${descriptor.getBrown()}" selected="${descriptor.getTotalStatusColor().equals(descriptor.getBrown()) ? true : false }" >Brown</f:option>
+				<f:option value="${descriptor.getPurple()}" selected="${descriptor.getTotalStatusColor().equals(descriptor.getPurple()) ? true : false }" >Purple</f:option>
+				<f:option value="${descriptor.getLightBlue()}" selected="${descriptor.getTotalStatusColor().equals(descriptor.getLightBlue()) ? true : false }" >Light Blue (Recommended)</f:option>
+				<f:option value="${descriptor.getDarkBlue()}" selected="${descriptor.getTotalStatusColor().equals(descriptor.getDarkBlue()) ? true : false }" >Dark Blue</f:option>
+				<f:option value="${descriptor.getMagenta()}" selected="${descriptor.getTotalStatusColor().equals(descriptor.getMagenta()) ? true : false }" >Magenta</f:option>
+			</select>
+		</f:entry>
+		<f:entry title="${%Runtime Color}">
+			<select name="runtimeStatusColor">
+				<f:option value="${descriptor.getLightGreen()}" selected="${descriptor.getRuntimeStatusColor().equals(descriptor.getLightGreen()) ? true : false }" >Light Green</f:option>
+				<f:option value="${descriptor.getBrightGreen()}" selected="${descriptor.getRuntimeStatusColor().equals(descriptor.getBrightGreen()) ? true : false }" >Bright Green</f:option>
+				<f:option value="${descriptor.getDarkGreen()}" selected="${descriptor.getRuntimeStatusColor().equals(descriptor.getDarkGreen()) ? true : false }" >Dark Green</f:option>
+				<f:option value="${descriptor.getLightRed()}" selected="${descriptor.getRuntimeStatusColor().equals(descriptor.getLightRed()) ? true : false }" >Light Red</f:option>
+				<f:option value="${descriptor.getBrightRed()}" selected="${descriptor.getRuntimeStatusColor().equals(descriptor.getBrightRed()) ? true : false }" >Bright Red</f:option>
+				<f:option value="${descriptor.getDarkRed()}" selected="${descriptor.getRuntimeStatusColor().equals(descriptor.getDarkRed()) ? true : false }" >Dark Red</f:option>
+				<f:option value="${descriptor.getLightYellow()}" selected="${descriptor.getRuntimeStatusColor().equals(descriptor.getLightYellow()) ? true : false }" >Light Yellow (Recommended)</f:option>
+				<f:option value="${descriptor.getBrown()}" selected="${descriptor.getRuntimeStatusColor().equals(descriptor.getBrown()) ? true : false }" >Brown</f:option>
+				<f:option value="${descriptor.getPurple()}" selected="${descriptor.getRuntimeStatusColor().equals(descriptor.getPurple()) ? true : false }" >Purple</f:option>
+				<f:option value="${descriptor.getLightBlue()}" selected="${descriptor.getRuntimeStatusColor().equals(descriptor.getLightBlue()) ? true : false }" >Light Blue</f:option>
+				<f:option value="${descriptor.getDarkBlue()}" selected="${descriptor.getRuntimeStatusColor().equals(descriptor.getDarkBlue()) ? true : false }" >Dark Blue</f:option>
+				<f:option value="${descriptor.getMagenta()}" selected="${descriptor.getRuntimeStatusColor().equals(descriptor.getMagenta()) ? true : false }" >Magenta</f:option>
+			</select>
+		</f:entry>
+		<f:entry title="${%Passed Status Text}">
+			<f:textbox name="passedStatusText" value="${descriptor.getPassedStatusText()}"/>
+		</f:entry>
+		<f:entry title="${%Failed Status Text}">
+			<f:textbox name="failedStatusText" value="${descriptor.getFailedStatusText()}"/>
+		</f:entry>
+		<f:entry title="${%Skipped Status Text}">
+			<f:textbox name="skippedStatusText" value="${descriptor.getSkippedStatusText()}"/>
+		</f:entry>
+	</f:section>
+</j:jelly>

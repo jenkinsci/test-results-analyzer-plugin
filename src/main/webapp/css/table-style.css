@@ -23,18 +23,6 @@
         font-weight: bold;
         font-size: larger;
     }
-    
-	.failed {
-        background-color: #F37A7A;
-    }
-
-    .passed {
-        background-color: #92D050;
-    }
-
-    .skipped{
-        background-color: #FDED72;
-    }
 
     .no_status{
         background-color: #E8F5FF;
@@ -66,10 +54,7 @@
 	}
 
 	.extrabuttons {
-		right: 0px;
-		position: absolute;
-		display: initial;
-
+		float: right;
 	}
 
 	.icon {
