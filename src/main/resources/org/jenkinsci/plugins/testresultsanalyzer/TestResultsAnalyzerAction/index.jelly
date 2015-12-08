@@ -100,50 +100,50 @@ Select chart type:
 </div>
 
 <script>
-  $j("#downloadCSV").click(function () {
-        remoteAction.getExportCSV(displayValues, function(t) {
-            download("Test Results.csv", t.responseObject());
-        })
+    $j("#downloadCSV").click(function () {
+          remoteAction.getExportCSV(displayValues, function(t) {
+              download("Test Results.csv", t.responseObject());
+          })
+      });
+    $j("#getbuildreport").click(function () {
+       $j("#tableOptions").css("display", "block");
+      populateTemplate();
     });
-  $j("#getbuildreport").click(function () {
-     $j("#tableOptions").css("display", "block");
-    populateTemplate();
-  });
-  
-  $j("#expandall").click(function () {
-    expandAll();
-  });
-  
-  $j("#collapseall").click(function () {
-    collapseAll();
-  });
-  $j("#generatechart").click(function () {
-          var chartType = $j('#reporttype').val();
-        generateChart(chartType);
+    
+    $j("#expandall").click(function () {
+      expandAll();
     });
-    $j("#hidecharts").click(function () {
-        resetCharts();
+    
+    $j("#collapseall").click(function () {
+      collapseAll();
     });
+    $j("#generatechart").click(function () {
+            var chartType = $j('#reporttype').val();
+          generateChart(chartType);
+      });
+      $j("#hidecharts").click(function () {
+          resetCharts();
+      });
 
-    $j("#show-advanced-options").click(function() {
-        var $this = $j(this);
+      $j("#show-advanced-options").click(function() {
+          var $this = $j(this);
 
-        if ($this.is(':checked')) {
-            $j("#advancedOptions").show();
-        } else {
-            resetAdvancedOptions();
-            $j("#advancedOptions").hide();
-        }
-    });
-  function download(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();  
-    document.body.removeChild(element);
-  }
+          if ($this.is(':checked')) {
+              $j("#advancedOptions").show();
+          } else {
+              resetAdvancedOptions();
+              $j("#advancedOptions").hide();
+          }
+      });
+    function download(filename, text) {
+      var element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+      element.setAttribute('download', filename);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();  
+      document.body.removeChild(element);
+    }
 </script>
   </l:main-panel>
   </l:layout>
