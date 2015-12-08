@@ -47,8 +47,8 @@ Last builds and show
 </div>
 
 <div class="extrabuttons">
-  <button id="expandall">Expand All</button>
-  <button id="collapseall">Collapse All</button>
+	<button id="expandall">Expand All</button>
+	<button id="collapseall">Collapse All</button>
 </div>
 
 <div class="chartbuttons">
