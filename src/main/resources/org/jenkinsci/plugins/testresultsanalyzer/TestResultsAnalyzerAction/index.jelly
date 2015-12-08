@@ -10,6 +10,7 @@
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highcharts.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/json3-min.js"></script>
 
+
 <script src="http://code.highcharts.com/modules/exporting.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/testresult.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/chart-generator.js"></script>
@@ -82,10 +83,12 @@ Select chart type:
    </div>
 
 </div>
+
 <div id="tableOptions" style="display:none">
-      Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Class/Package" onkeyup="searchTests()"/>
-      <button id="downloadCSV">Download Test (CSV)</button>
+   Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Class/Package" onkeyup="searchTests()"/>
+   <button id="downloadCSV" >Download Test (CSV)</button>
 </div>
+
 <br/>
 <div id="tree">
    <div class="table">
