@@ -3,6 +3,23 @@ var treeMarkup = "";
 var reevaluateChartData = true;
 var displayValues = false;
 
+function newFailingTests(){
+    var table_rows = $j(".table-row");
+    var i;
+    for (i=0;i<table_rows.length;i++){
+        row = table_rows[i];
+            row_cells = $j(row).find(".build-result");
+            last_test = row_cells[0];
+            if (!JSON.parse($j(last_test).attr("data-result"))["isPassed"] && row_cells.length>1){
+                second_to_last = row_cells[1];
+                if (JSON.parse($j(second_to_last).attr("data-result"))["isPassed"]){
+                    var cell = $j(row).find(".icon-exclamation-sign")[0];
+                    $j(cell).css("display","inline-block");
+                }   
+            }
+    }
+}
+
 function reset(){
     reevaluateChartData = true;
     $j(".table").html("")
@@ -79,6 +96,7 @@ function addEvents() {
         toggleHandler(this);
     });
     checkBoxEvents();
+    newFailingTests();
 }
 
 function checkBoxEvents() {
