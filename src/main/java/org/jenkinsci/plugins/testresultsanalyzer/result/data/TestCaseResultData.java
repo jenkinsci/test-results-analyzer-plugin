@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 
 public class TestCaseResultData extends ResultData {
 
-	public TestCaseResultData(TestResult testResult) {
+	public TestCaseResultData(TestResult testResult, String url) {
 		setName(testResult.getName());
 		boolean doTestNg = testResult.getClass().getName().equals("hudson.plugins.testng.results.MethodResult");
 		if (doTestNg) {
@@ -38,6 +38,7 @@ public class TestCaseResultData extends ResultData {
 			setTotalSkipped(testResult.getSkipCount());
 		}
 		setTotalTimeTaken(testResult.getDuration());
+		setUrl(url);
 		evaluateStatus();
 		if ("FAILED".equalsIgnoreCase(getStatus())) {
 			setFailureMessage(testResult.getErrorStackTrace());

@@ -15,11 +15,11 @@ public class PackageInfo extends Info {
 
 	protected Map<String, ClassInfo> classes = new TreeMap<String, ClassInfo>();
 
-	public void putPackageResult(Integer buildNumber, TabulatedResult packageResult) {
-		PackageResultData packageResultData = new PackageResultData(packageResult);
+	public void putPackageResult(Integer buildNumber, TabulatedResult packageResult, String url) {
+		PackageResultData packageResultData = new PackageResultData(packageResult, url);
 		evaluateStatusses(packageResult);
 
-		addClasses(buildNumber, packageResult);
+		addClasses(buildNumber, packageResult, url);
 		this.buildResults.put(buildNumber, packageResultData);
 	}
 
@@ -34,7 +34,7 @@ public class PackageInfo extends Info {
 		return classes;
 	}
 
-	public void addClasses(Integer buildNumber, TabulatedResult packageResult) {
+	public void addClasses(Integer buildNumber, TabulatedResult packageResult, String url) {
 		for (TestResult classResult : packageResult.getChildren()) {
 			String className = classResult.getName();
 			ClassInfo classInfo;
@@ -45,7 +45,7 @@ public class PackageInfo extends Info {
 				classInfo = new ClassInfo();
 				classInfo.setName(className);
 			}
-			classInfo.putBuildClassResult(buildNumber, (TabulatedResult) classResult);
+			classInfo.putBuildClassResult(buildNumber, (TabulatedResult) classResult, url + "/" + classResult.getName());
 			classes.put(className, classInfo);
 		}
 	}
