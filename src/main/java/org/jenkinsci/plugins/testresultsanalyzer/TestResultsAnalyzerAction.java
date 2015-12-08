@@ -201,4 +201,116 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         }
         return export;
     }
+
+	public String getNoOfBuilds() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getNoOfBuilds();
+	}
+
+	public boolean getShowAllBuilds() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowAllBuilds();
+	}
+
+	public boolean getShowLineGraph() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowLineGraph();
+	}
+
+	public boolean getShowBarGraph() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowBarGraph();
+	}
+
+	public boolean getShowPieGraph() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowPieGraph();
+	}
+
+	public boolean getShowBuildTime() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowBuildTime();
+	}
+
+	public boolean getChartDataType() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getChartDataType();
+	}
+
+	public String getRunTimeLowThreshold() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getRunTimeLowThreshold();
+	}
+
+	public String getRunTimeHighThreshold() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getRunTimeHighThreshold();
+	}
+
+	public String getPassedStatusColor() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedStatusColor();
+	}
+
+	public String getFailedStatusColor() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getFailedStatusColor();
+	}
+
+	public String getSkippedStatusColor() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getSkippedStatusColor();
+	}
+
+	public String getTotalStatusColor() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getTotalStatusColor();
+	}
+
+	public String getRuntimeStatusColor() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getRuntimeStatusColor();
+	}
+
+	public String getPassedStatusText() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedStatusText();
+	}
+
+	public String getFailedStatusText() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getFailedStatusText();
+	}
+
+	public String getSkippedStatusText() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getSkippedStatusText();
+	}
+
+	public String getLightGreen() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getLightGreen();
+	}
+
+	public String getDarkGreen() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getDarkGreen();
+	}
+
+	public String getLightRed() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getLightRed();
+	}
+
+	public String getBrightRed() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getBrightRed();
+	}
+
+	public String getDarkRed() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getDarkRed();
+	}
+
+	public String getLightYellow() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getLightYellow();
+	}
+
+	public String getBrown() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getBrown();
+	}
+
+	public String getPurple() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getPurple();
+	}
+
+	public String getLightBlue() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getLightBlue();
+	}
+
+	public String getDarkBlue() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getDarkBlue();
+	}
+
+	public String getMagenta() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getMagenta();
+	}
 }

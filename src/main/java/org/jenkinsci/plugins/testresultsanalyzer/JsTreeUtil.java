@@ -26,6 +26,15 @@ public class JsTreeUtil {
             results.add(createJson(builds, packageJson));
         }
         tree.put("results", results);
+
+		JSONArray owner = new JSONArray();
+		for(int i=0; i < users.size(); i++){
+			JSONObject userJson = new JSONObject();
+			userJson.put( "userSet" , users.get(i) );
+			owner.add(userJson);
+		}
+
+		tree.put("owneruser", owner);
         return tree;
     }
 
