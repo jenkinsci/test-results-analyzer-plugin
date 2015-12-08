@@ -30,8 +30,11 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 	@SuppressWarnings("rawtypes")
 	AbstractProject project;
 	private List<Integer> builds = new ArrayList<Integer>();
+	private List <String> userInBuildChange = new ArrayList<String>();
+	private Vector<Integer> compileFailedBuilds = new Vector<Integer>();
 
 	ResultInfo resultInfo;
+	List <String> userString;
 
 	public TestResultsAnalyzerAction(@SuppressWarnings("rawtypes")
 	AbstractProject project) {
@@ -93,7 +96,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 		JSONArray jsonArray;
 		int noOfBuilds = getNoOfBuildRequired(noOfbuildsNeeded);
 
-		jsonArray = getBuildsArray(getBuildList(noOfBuilds));
+		jsonArray = getBuildsArray(getBuildList(noOfBuilds, "no"));
 
 		return jsonArray;
 	}
@@ -106,16 +109,29 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 		return jsonArray;
 	}
 
-	private List<Integer> getBuildList(int noOfBuilds) {
+	private List<Integer> getBuildList(int noOfBuilds, String showCompileFail) {
+		boolean showFail = showCompileFail.equals("show");
+
 		if ((noOfBuilds <= 0) || (noOfBuilds >= builds.size())) {
 			return builds;
 		}
 		List<Integer> buildList = new ArrayList<Integer>();
 		for (int i = (noOfBuilds - 1); i >= 0; i--) {
-			buildList.add(builds.get(i));
+			int index = builds.get(i);
+			if(showFail || !(compileFailedBuilds.contains(index)))
+				buildList.add(index);
 		}
 		Collections.reverse(buildList);
 		return buildList;
+	}
+
+	public List<String> getUsersList(List<Integer> buildList) {
+		userString = new ArrayList<String>();
+
+		for(int position=0; position<buildList.size(); position++) {
+			userString.add(userInBuildChange.get(position));
+		}
+		return userString;
 	}
 
 	private int getNoOfBuildRequired(String noOfbuildsNeeded) {
@@ -154,16 +170,20 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 					}
 				}
 			}
+			//check whether the username is Null, and set it to the old username
+			for(int i=0; i < userInBuildChange.size(); i++) {
+				updateEmptyUser(i);
+			}
 		}
 	}
 
     @JavaScriptMethod
-    public JSONObject getTreeResult(String noOfBuildsNeeded) {
+    public JSONObject getTreeResult(String noOfBuildsNeeded, String showCompileFail) {
         int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
-        List<Integer> buildList = getBuildList(noOfBuilds);
-
+        List<Integer> buildList = getBuildList(noOfBuilds, showCompileFail);
+        getUsersList(buildList);
         JsTreeUtil jsTreeUtils = new JsTreeUtil();
-        return jsTreeUtils.getJsTree(buildList, resultInfo);
+        return jsTreeUtils.getJsTree(buildList, resultInfo, userString);
     }
 	
 	@JavaScriptMethod
@@ -201,6 +221,28 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         }
         return export;
     }
+
+	@JavaScriptMethod
+	public int getTotalNoOfBuilds() {
+		return builds.size();
+	}
+
+	//if the username is NULL, go back to history, find the first build with non-Null username
+	private void updateEmptyUser(int i) {
+		//if the username is Null
+		if(userInBuildChange.get(i).equals("")) {
+			//go back to history
+			for(int j = i; j < userInBuildChange.size(); j++) {
+				//if found the first one with non-Null username
+				if(!(userInBuildChange.get(j).equals(""))) {
+					userInBuildChange.set(i, userInBuildChange.get(j));
+					break;
+				}
+			}
+		} else {
+			return;
+		}
+	}
 
 	public String getNoOfBuilds() {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getNoOfBuilds();

@@ -11,7 +11,7 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 
 @Extension
-public class TestResultsAnalyzerExtension extends TransientProjectActionFactory{
+public class TestResultsAnalyzerExtension extends TransientProjectActionFactory implements Describable<TestResultsAnalyzerExtension> {
 
 
 	@Override
@@ -47,7 +47,6 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory{
 		private boolean showPieGraph = true;
 		private String runTimeLowThreshold = "0.5";
 		private String runTimeHighThreshold = "1.0";
-
 
 		private final String lightGreen = "#92D050";
 		private final String brightGreen = "#00FF00";

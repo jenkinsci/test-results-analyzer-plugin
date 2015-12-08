@@ -10,7 +10,7 @@ import net.sf.json.JSONObject;
 
 public class JsTreeUtil {
 
-    public JSONObject getJsTree(List<Integer> builds, ResultInfo resultInfo) {
+    public JSONObject getJsTree(List<Integer> builds, ResultInfo resultInfo, List<String> users) {
         JSONObject tree = new JSONObject();
 
         JSONArray buildJson = new JSONArray();
