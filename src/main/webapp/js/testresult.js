@@ -20,6 +20,7 @@ function populateTemplate(){
         treeMarkup = analyzerTemplate(itemsResponse);
         $j(".table").html(treeMarkup);
         addEvents();
+        generateCharts();
     },this));
 }
 
@@ -82,19 +83,18 @@ function addEvents() {
 }
 
 function checkBoxEvents() {
-    $j("input[type='checkbox']").change(function () {
-            reevaluateChartData = true;
-            if (this.checked) {
-                checkChildren(this, true);
-                checkParent(this);
-                console.log("checked");
-            } else {
-                checkChildren(this, false);
-                checkParent(this);
-                console.log("unchecked");
-            }
-        }
-    );
+	var table = $j(".table")[0];
+	$j(table).find("input[type='checkbox']").change(function () {
+		reevaluateChartData = true;
+		if (this.checked) {
+			checkChildren(this, true);
+			checkParent(this);
+		} else {
+			checkChildren(this, false);
+			checkParent(this);
+		}
+		generateCharts();
+	});
 }
 
 function checkChildren(node, checked) {

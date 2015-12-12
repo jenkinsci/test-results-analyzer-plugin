@@ -205,4 +205,40 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         }
         return exportBuilder.toString();
     }
+
+	public String getNoOfBuilds() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getNoOfBuilds();
+	}
+
+	public boolean getShowAllBuilds() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowAllBuilds();
+	}
+
+	public boolean getShowLineGraph() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowLineGraph();
+	}
+
+	public boolean getShowBarGraph() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowBarGraph();
+	}
+
+	public boolean getShowPieGraph() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowPieGraph();
+	}
+
+	public boolean getShowBuildTime() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowBuildTime();
+	}
+
+	public String getChartDataType() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getChartDataType();
+	}
+
+	public String getRunTimeLowThreshold() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getRunTimeLowThreshold();
+	}
+
+	public String getRunTimeHighThreshold() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getRunTimeHighThreshold();
+	}
 }
