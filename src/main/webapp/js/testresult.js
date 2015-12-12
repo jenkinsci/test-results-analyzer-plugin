@@ -3,7 +3,6 @@ var treeMarkup = "";
 var reevaluateChartData = true;
 var displayValues = false;
 
-<<<<<<< HEAD
 function newFailingTests(){
     var table_rows = $j(".table-row");
     var i;
