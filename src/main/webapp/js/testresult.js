@@ -87,18 +87,18 @@ function addEvents() {
 }
 
 function checkBoxEvents() {
-	var table = $j(".table")[0];
-	$j(table).find("input[type='checkbox']").change(function () {
-		reevaluateChartData = true;
-		if (this.checked) {
-			checkChildren(this, true);
-			checkParent(this);
-		} else {
-			checkChildren(this, false);
-			checkParent(this);
-		}
-		generateCharts();
-	});
+    var table = $j(".table")[0];
+    $j(table).find("input[type='checkbox']").change(function () {
+        reevaluateChartData = true;
+        if (this.checked) {
+            checkChildren(this, true);
+            checkParent(this);
+        } else {
+            checkChildren(this, false);
+            checkParent(this);
+        }
+        generateCharts();
+    });
 }
 
 function checkChildren(node, checked) {

@@ -23,28 +23,28 @@ function generateChart(chartType) {
     }
     resetCharts();
 
-   	if(chartType.type === "runtime") {
-   	    console.log("showing runtimes");
-
-   	    if (chartType.line) {
-   	        generateRuntimeLineChart();
-   	    }
-   	    if (chartType.pie) {
-   	        generateRuntimePieChart();
-   	    }
-   	} else {
-   	    if (chartType.line) {
-   	        generateLineChart();
-   	    }
-
-   	    if (chartType.bar) {
-   	        generateBarChart();
-   	    }
-   
-   	    if (chartType.pie) {
-   	        generatePieChart();
-   	    }
-   	}
+    if(chartType.type === "runtime") {
+        console.log("showing runtimes");
+    
+        if (chartType.line) {
+            generateRuntimeLineChart();
+        }
+        if (chartType.pie) {
+            generateRuntimePieChart();
+        }
+    } else {
+        if (chartType.line) {
+            generateLineChart();
+        }
+    
+        if (chartType.bar) {
+            generateBarChart();
+        }
+    
+        if (chartType.pie) {
+            generatePieChart();
+        }
+    }
 }
 
 function resetCharts(){
@@ -312,59 +312,59 @@ function generatePieChart(inputData, resultTitle){
 }
 
 function getChartData(selectedRows, type) {
-	var chartResult = {};
-	var baseRows;
+    var chartResult = {};
+    var baseRows;
 
-	if(selectedRows.size() > 0) {
-		baseRows = selectedRows;
-	} else {
-		baseRows = $j("[parentclass='base']");
-	}
+    if(selectedRows.size() > 0) {
+        baseRows = selectedRows;
+    } else {
+        baseRows = $j("[parentclass='base']");
+    }
 
-	$j.each(baseRows, function(index, baseRow) {
-		var buildResults = $j(baseRow).find(".build-result.table-cell");
-		$j.each(buildResults, function(index, buildResult){
-			var jsonResult = $j.parseJSON($j(buildResult).attr("data-result"));
-			var buildNumber = jsonResult["buildNumber"];
+    $j.each(baseRows, function(index, baseRow) {
+        var buildResults = $j(baseRow).find(".build-result.table-cell");
+        $j.each(buildResults, function(index, buildResult){
+            var jsonResult = $j.parseJSON($j(buildResult).attr("data-result"));
+            var buildNumber = jsonResult["buildNumber"];
 
-			if (type == "runtime") {
-				var tempBuildResult = {
-					"Runtime" : jsonResult["totalTimeTaken"] ? jsonResult["totalTimeTaken"] : 0,
-					"RuntimeArray": jsonResult["totalTimeTaken"] !== undefined ? [jsonResult["totalTimeTaken"]] : []
-				}
-				if (chartResult[buildNumber]) {
-					var tempChartBuildResult = chartResult[buildNumber];
-					var result = {
-						"Runtime": tempChartBuildResult["Runtime"] + tempBuildResult["Runtime"],
-						"RuntimeArray": tempChartBuildResult["RuntimeArray"].concat(tempBuildResult["RuntimeArray"])
-					}
-					chartResult[buildNumber] = result;
-				} else {
-					chartResult[buildNumber] = tempBuildResult;
-				}
-			} else {
-				var tempBuildResult = {
-					"Failed" :   jsonResult["totalFailed"] ? jsonResult["totalFailed"] : 0,
-					"Skipped" :   jsonResult["totalSkipped"] ? jsonResult["totalSkipped"] : 0,
-					"Passed" :   jsonResult["totalPassed"] ? jsonResult["totalPassed"] : 0,
-					"Total" :   jsonResult["totalTests"] ? jsonResult["totalTests"] : 0
-				};
-				if(chartResult[buildNumber]) {
-					var tempChartBuildResult = chartResult[buildNumber];
-					var result = {
-						"Failed": tempChartBuildResult["Failed"] + tempBuildResult["Failed"],
-						"Skipped": tempChartBuildResult["Skipped"] + tempBuildResult["Skipped"],
-						"Passed": tempChartBuildResult["Passed"] + tempBuildResult["Passed"],
-						"Total": tempChartBuildResult["Total"] + tempBuildResult["Total"]
-					}
-					chartResult[buildNumber] = result;
-				} else {
-					chartResult[buildNumber] = tempBuildResult;
-				}
-			}
-		});
-	});
-	return chartResult;
+            if (type == "runtime") {
+                var tempBuildResult = {
+                    "Runtime" : jsonResult["totalTimeTaken"] ? jsonResult["totalTimeTaken"] : 0,
+                    "RuntimeArray": jsonResult["totalTimeTaken"] !== undefined ? [jsonResult["totalTimeTaken"]] : []
+                }
+                if (chartResult[buildNumber]) {
+                    var tempChartBuildResult = chartResult[buildNumber];
+                    var result = {
+                        "Runtime": tempChartBuildResult["Runtime"] + tempBuildResult["Runtime"],
+                        "RuntimeArray": tempChartBuildResult["RuntimeArray"].concat(tempBuildResult["RuntimeArray"])
+                    }
+                    chartResult[buildNumber] = result;
+                } else {
+                    chartResult[buildNumber] = tempBuildResult;
+                }
+            } else {
+                var tempBuildResult = {
+                    "Failed" :   jsonResult["totalFailed"] ? jsonResult["totalFailed"] : 0,
+                    "Skipped" :   jsonResult["totalSkipped"] ? jsonResult["totalSkipped"] : 0,
+                    "Passed" :   jsonResult["totalPassed"] ? jsonResult["totalPassed"] : 0,
+                    "Total" :   jsonResult["totalTests"] ? jsonResult["totalTests"] : 0
+                };
+                if(chartResult[buildNumber]) {
+                    var tempChartBuildResult = chartResult[buildNumber];
+                    var result = {
+                        "Failed": tempChartBuildResult["Failed"] + tempBuildResult["Failed"],
+                        "Skipped": tempChartBuildResult["Skipped"] + tempBuildResult["Skipped"],
+                        "Passed": tempChartBuildResult["Passed"] + tempBuildResult["Passed"],
+                        "Total": tempChartBuildResult["Total"] + tempBuildResult["Total"]
+                    }
+                    chartResult[buildNumber] = result;
+                } else {
+                    chartResult[buildNumber] = tempBuildResult;
+                }
+            }
+        });
+    });
+    return chartResult;
 }
 
 function getSelectedRows(){
