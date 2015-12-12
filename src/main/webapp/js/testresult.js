@@ -12,7 +12,11 @@ function reset(){
 
 function populateTemplate(){
     reset();
-    var noOfBuilds = $j('#noofbuilds').val();
+    var noOfBuilds = "-1";
+
+    if (!$j("#allnoofbuilds").is(":checked")) {
+        noOfBuilds = $j("#noofbuilds").val();
+    }
     displayValues  = $j("#show-build-durations").is(":checked");
 
     remoteAction.getTreeResult(noOfBuilds,$j.proxy(function(t) {
