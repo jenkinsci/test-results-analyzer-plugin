@@ -1,6 +1,7 @@
 var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" parentclass= "{{parentclass}}" parentname="{{parentname}}" name = "{{addName text}}" {{#if isChild}} style="display:none"{{/if}}>' +
     '\n' + '         ' +
     '\n' + '         ' +
+    '\n' + '         <div class="table-cell"><div class="icon icon-exclamation-sign" style="display:none" ></div></div>' +
     '\n' + '         <div class="table-cell"><input type="checkbox" parentclass= "{{parentclass}}" parentname="{{parentname}}" name = "checkbox-{{addName text}}" result-name = "{{addName text}}"/></div> ' +
     '<div class="children  table-cell" >  ' +
     '{{#if children}}' +
@@ -25,6 +26,7 @@ var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" pare
     '{{/each}}';
 
 var tableBody = '<div class="heading">' +
+    '\n' + '        <div class="table-cell" >New Failures</div>' +
     '\n' + '        <div class="table-cell">Chart</div><div class="table-cell">See children</div> <div class="table-cell">Build Number &rArr;<br>Package-Class-Testmethod names &dArr;</div>' +
     '{{#each builds}}' +
     '\n' + '         <div class="table-cell">{{this}}</div>' +
