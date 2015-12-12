@@ -66,10 +66,7 @@
 	}
 
 	.extrabuttons {
-		right: 0px;
-		position: absolute;
-		display: initial;
-
+		float: right;
 	}
 
 	.icon {

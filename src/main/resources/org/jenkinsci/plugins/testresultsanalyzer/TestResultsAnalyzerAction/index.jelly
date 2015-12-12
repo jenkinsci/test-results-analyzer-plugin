@@ -10,7 +10,7 @@
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highcharts.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/json3-min.js"></script>
 
-<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<script src="//code.highcharts.com/modules/exporting.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/testresult.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/chart-generator.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/test-result-analyzer-template.js"></script>
@@ -20,44 +20,53 @@ var $j = jQuery.noConflict();
 </script>
 <j:set var="temp" value="${it.jsonLoadData}"/>
 <j:set var="builds" value="${it.builds}"/>
-<div>
-Number of latest builds:
-<input id="noofbuilds" type="number" min="1" step="1" value="10" disabled="true" />
-(all: <input id="allnoofbuilds" type="checkbox" checked="true" />)
-<br />
-Show
-<select id="teststatus">
-  <option value="all">All</option>
-  <option value="FAILED">FAILED</option>
-  <option value="PASSED">PASSED</option>
-  <option value="SKIPPED">SKIPPED</option>
-</select>
- tests
- <br/>Advanced options: <input type="checkbox" id="show-advanced-options" name="show-advanced-options"/>
- <button id="getbuildreport">Get Build Report</button>
- <div id="advancedOptions" style="display:none">
-    Display duration (in secs): <input type="checkbox" id="show-build-durations" name="show-build-durations" value="durations"/>
- </div>
 
+<button id="settingsmenubutton">Options</button>
+<div id="settingsmenu" style="display: none;">
+	<table>
+		<tr>
+			<td>Number of builds:</td>
+			<td>
+				<input id="noofbuilds" type="number" value="${it.noOfBuilds}" min="1" step="1" disabled="${it.showAllBuilds}"/>
+				(all: <input id="allnoofbuilds" type="checkbox" checked="${it.showAllBuilds}" />)
+			</td>
+		</tr>
+		<tr>
+			<td>Display run time for each test:</td>
+			<td><input type="checkbox" id="show-build-durations" name="show-build-durations" checked="${it.showBuildTime}"/></td>
+		</tr>
+		<tr>
+			<td>Chart type:</td>
+			<td>
+				<input id="linegraph" type="checkbox" checked="${it.showLineGraph}" /> Line
+				<input id="bargraph" type="checkbox" checked="${it.showBarGraph}" /> Bar
+				<input id="piegraph" type="checkbox" checked="${it.showPieGraph}" /> Pie
+			</td>
+		</tr>
+		<tr>
+			<td>Chart Data Type:</td>
+			<td>
+				<select id="chartDataType">
+					<option value="passfail">Passes/Failures</option>
+					<option value="runtime">Test Runtimes</option>
+				</select>
+			</td>
+		</tr>
+	</table>
+	<div>
+		<button id="getbuildreport">Update</button>
+	</div>
 </div>
 
 <div class="extrabuttons">
 	<button id="expandall">Expand All</button>
 	<button id="collapseall">Collapse All</button>
 </div>
+<br/>
+<div id="tree">
+   <div class="table">
 
-<div class="chartbuttons">
-Select chart type:
-
- <select id="reporttype">
-   <option value="all">All</option>
-   <option value="line">Line</option>
-   <option value="bar">Bar</option>
-   <option value="pie">Pie</option>
- </select>
-
-<button class = "charts" id="generatechart">Generate Charts</button>
-<button class = "charts" id="hidecharts">Hide Charts</button>
+   </div>
 </div>
 <br/>
 <br/>
@@ -78,61 +87,82 @@ Select chart type:
    </div>
 
 </div>
-
-<div id="tableOptions" style="display:none">
-   Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Class/Package" onkeyup="searchTests()"/>
-   <button id="downloadCSV" >Download Test (CSV)</button>
-</div>
-
-<br/>
-<div id="tree">
-   <div class="table">
-
-   </div>
-</div>
+<button id="downloadCSV" style="display:none">Download Test (CSV)</button>
 <div id="builddetail">
 
 </div>
 
 <script>
-	$j("#downloadCSV").click(function () {
+	var runtimeLowThreshold = "${it.runTimeLowThreshold}";
+	var runtimeHighThreshold = "${it.runTimeHighThreshold}";
+
+	function generateCharts() {
+		var chartType = {
+			type: jQuery("#chartDataType").val(),
+			line: jQuery('#linegraph').is(':checked'),
+			bar: jQuery('#bargraph').is(':checked'),
+			pie: jQuery('#piegraph').is(':checked')
+		};
+		generateChart(chartType);
+
+		//fixes Jenkins issue where page content is not correctly placed until the window is resized
+		window.dispatchEvent(new Event('resize'));
+	}
+
+	jQuery(document).ready(function () {
+		jQuery("#allnoofbuilds")[0].checked = ${it.showAllBuilds};
+		jQuery("#show-build-durations")[0].checked = ${it.showBuildTime};
+		jQuery("#linegraph")[0].checked = ${it.showLineGraph};
+		jQuery("#bargraph")[0].checked = ${it.showBarGraph};
+		jQuery("#piegraph")[0].checked = ${it.showPieGraph};
+		jQuery("#noofbuilds").attr('disabled', ${it.showAllBuilds});
+
+		if ("${it.chartDataType}" === "runtime") {
+			jQuery("#chartDataType").val("runtime");
+			jQuery("#bargraph").attr('disabled', true);
+		} else {
+			jQuery("#chartDataType").val("passfail");
+		}
+		populateTemplate();
+	});
+
+	jQuery("#settingsmenubutton").click(function () {
+		jQuery("#settingsmenu").slideToggle(400, function () {
+			//fixes Jenkins issue where page content is not correctly placed until the window is resized
+			window.dispatchEvent(new Event('resize'));
+		});
+
+		//fixes Jenkins issue where page content is not correctly placed until the window is resized
+		window.dispatchEvent(new Event('resize'));
+	});
+
+	jQuery("#allnoofbuilds").change(function () {
+		jQuery("#noofbuilds").attr('disabled', this.checked);
+	});
+
+	jQuery("#chartDataType").change(function (e) {
+		jQuery("#bargraph").attr('disabled', e.target.value == "runtime");
+	});
+
+	jQuery("#downloadCSV").click(function () {
         remoteAction.getExportCSV(displayValues, function(t) {
             download("Test Results.csv", t.responseObject());
         })
     });
-    $j("#allnoofbuilds").on("change", function() {
-        $j("#noofbuilds").attr("disabled", this.checked);
-    })
-	$j("#getbuildreport").click(function () {
-		 $j("#tableOptions").css("display", "block");
+
+	jQuery("#getbuildreport").click(function () {
+		 jQuery("#downloadCSV").css("display", "block");
 		populateTemplate();
 	});
 	
-	$j("#expandall").click(function () {
+	jQuery("#expandall").click(function () {
 		expandAll();
 	});
 	
-	$j("#collapseall").click(function () {
+	jQuery("#collapseall").click(function () {
 		collapseAll();
 	});
-	$j("#generatechart").click(function () {
-	        var chartType = $j('#reporttype').val();
-    		generateChart(chartType);
-    });
-    $j("#hidecharts").click(function () {
-    		resetCharts();
-    });
 
-    $j("#show-advanced-options").click(function() {
-        var $this = $j(this);
-
-        if ($this.is(':checked')) {
-            $j("#advancedOptions").show();
-        } else {
-            resetAdvancedOptions();
-            $j("#advancedOptions").hide();
-        }
-    });
 	function download(filename, text) {
 		var element = document.createElement('a');
 		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));

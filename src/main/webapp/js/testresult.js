@@ -96,7 +96,11 @@ function reset(){
 
 function populateTemplate(){
     reset();
-    var noOfBuilds = $j("#allnoofbuilds").is(":checked") ? "all" : $j('#noofbuilds').val();
+    var noOfBuilds = "-1";
+
+    if (!$j("#allnoofbuilds").is(":checked")) {
+        noOfBuilds = $j("#noofbuilds").val();
+    }
     displayValues  = $j("#show-build-durations").is(":checked");
 
     remoteAction.getTreeResult(noOfBuilds,$j.proxy(function(t) {
@@ -104,6 +108,7 @@ function populateTemplate(){
         treeMarkup = analyzerTemplate(itemsResponse);
         $j(".table").html(treeMarkup);
         addEvents();
+        generateCharts();
     },this));
 }
 
@@ -167,19 +172,18 @@ function addEvents() {
 }
 
 function checkBoxEvents() {
-    $j("input[type='checkbox']").change(function () {
-            reevaluateChartData = true;
-            if (this.checked) {
-                checkChildren(this, true);
-                checkParent(this);
-                console.log("checked");
-            } else {
-                checkChildren(this, false);
-                checkParent(this);
-                console.log("unchecked");
-            }
+    var table = $j(".table")[0];
+    $j(table).find("input[type='checkbox']").change(function () {
+        reevaluateChartData = true;
+        if (this.checked) {
+            checkChildren(this, true);
+            checkParent(this);
+        } else {
+            checkChildren(this, false);
+            checkParent(this);
         }
-    );
+        generateCharts();
+    });
 }
 
 function checkChildren(node, checked) {

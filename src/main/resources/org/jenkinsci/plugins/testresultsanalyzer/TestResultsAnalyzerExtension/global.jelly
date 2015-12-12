@@ -1,0 +1,34 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+	<f:section title="${%Test Results Analyzer}">
+		<f:entry title="${%Number of Builds}">
+			<f:textbox name="noOfBuilds" value="${descriptor.getNoOfBuilds()}"/>
+		</f:entry>
+		<f:entry title="${%Show All Builds}">
+			<f:checkbox name="showAllBuilds" checked="${descriptor.getShowAllBuilds()}" />
+		</f:entry>
+		<f:entry title="${%Display run time for each test}">
+			<f:checkbox name="showBuildTime" checked="${descriptor.getShowBuildTime()}" />
+		</f:entry>
+		<f:entry title="${%Show Line Graph}">
+			<f:checkbox name="showLineGraph" checked="${descriptor.getShowLineGraph()}" />
+		</f:entry>
+		<f:entry title="${%Show Bar Graph}">
+			<f:checkbox name="showBarGraph" checked="${descriptor.getShowBarGraph()}" />
+		</f:entry>
+		<f:entry title="${%Show Pie Graph}">
+			<f:checkbox name="showPieGraph" checked="${descriptor.getShowPieGraph()}" />
+		</f:entry>
+		<f:entry title="${%Chart Data Type}">
+			<select name="chartDataType">
+				<f:option value="${descriptor.getPassFailString()}" selected="${descriptor.getChartDataType().equals(descriptor.getPassFailString()) ? true : false }" >Passes/Failures</f:option>
+				<f:option value="${descriptor.getRuntimeString()}" selected="${descriptor.getChartDataType().equals(descriptor.getRuntimeString()) ? true : false }" >Test Runtimes</f:option>
+			</select>
+		</f:entry>
+		<f:entry title="${%Runtime Low Threshold}">
+			<f:textbox name="runTimeLowThreshold" value="${descriptor.getRunTimeLowThreshold()}" />
+		</f:entry>
+		<f:entry title="${%Runtime High Threshold}">
+			<f:textbox name="runTimeHighThreshold" value="${descriptor.getRunTimeHighThreshold()}" />
+		</f:entry>
+	</f:section>
+</j:jelly>
