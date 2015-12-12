@@ -8,6 +8,8 @@
 
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/handlebars-v2.0.0.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highcharts.js"></script>
+<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/json3-min.js"></script>
+
 
 <script src="http://code.highcharts.com/modules/exporting.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/testresult.js"></script>
@@ -81,7 +83,12 @@ Select chart type:
    </div>
 
 </div>
-<button id="downloadCSV" style="display:none">Download Test (CSV)</button>
+
+<div id="tableOptions" style="display:none">
+   Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Class/Package" onkeyup="searchTests()"/>
+   <button id="downloadCSV" >Download Test (CSV)</button>
+</div>
+
 <br/>
 <div id="tree">
    <div class="table">
@@ -99,7 +106,7 @@ Select chart type:
         })
     });
 	$j("#getbuildreport").click(function () {
-		 $j("#downloadCSV").css("display", "block");
+		 $j("#tableOptions").css("display", "block");
 		populateTemplate();
 	});
 	
