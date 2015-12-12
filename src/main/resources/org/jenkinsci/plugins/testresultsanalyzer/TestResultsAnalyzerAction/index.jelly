@@ -20,22 +20,18 @@ var $j = jQuery.noConflict();
 <j:set var="temp" value="${it.jsonLoadData}"/>
 <j:set var="builds" value="${it.builds}"/>
 <div>
-Select
-<select id="noofbuilds">
-  <option value="all">All</option>
-  <option value="10">10</option>
-  <option value="20">20</option>
-  <option value="30">30</option>
-</select>
-Last builds and show
-
+Number of latest builds:
+<input id="noofbuilds" type="number" min="1" step="1" value="10" disabled="true" />
+(all: <input id="allnoofbuilds" type="checkbox" checked="true" />)
+<br />
+Show
 <select id="teststatus">
   <option value="all">All</option>
   <option value="FAILED">FAILED</option>
   <option value="PASSED">PASSED</option>
   <option value="SKIPPED">SKIPPED</option>
 </select>
- tests.
+ tests
  <br/>Advanced options: <input type="checkbox" id="show-advanced-options" name="show-advanced-options"/>
  <button id="getbuildreport">Get Build Report</button>
  <div id="advancedOptions" style="display:none">
@@ -98,6 +94,9 @@ Select chart type:
             download("Test Results.csv", t.responseObject());
         })
     });
+    $j("#allnoofbuilds").on("change", function() {
+        $j("#noofbuilds").attr("disabled", this.checked);
+    })
 	$j("#getbuildreport").click(function () {
 		 $j("#downloadCSV").css("display", "block");
 		populateTemplate();
