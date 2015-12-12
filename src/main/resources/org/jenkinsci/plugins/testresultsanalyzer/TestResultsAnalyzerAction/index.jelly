@@ -123,8 +123,6 @@ var $j = jQuery.noConflict();
 			jQuery("#bargraph").attr('disabled', true);
 		} else {
 			jQuery("#chartDataType").val("passfail");
-            jQuery("#runTimeLowThreshold").attr('disabled', true);
-            jQuery("#runTimeHighThreshold").attr('disabled', true);
 		}
 		populateTemplate();
 	});
@@ -145,8 +143,6 @@ var $j = jQuery.noConflict();
 
 	jQuery("#chartDataType").change(function (e) {
 		jQuery("#bargraph").attr('disabled', e.target.value == "runtime");
-		jQuery("#runTimeLowThreshold").attr('disabled', e.target.value !== "runtime");
-		jQuery("#runTimeHighThreshold").attr('disabled', e.target.value !== "runtime");
 	});
 
 	jQuery("#downloadCSV").click(function () {
@@ -154,17 +150,9 @@ var $j = jQuery.noConflict();
             download("Test Results.csv", t.responseObject());
         })
     });
-<<<<<<< HEAD
 
 	jQuery("#getbuildreport").click(function () {
 		 jQuery("#downloadCSV").css("display", "block");
-=======
-    $j("#allnoofbuilds").on("change", function() {
-        $j("#noofbuilds").attr("disabled", this.checked);
-    })
-	$j("#getbuildreport").click(function () {
-		 $j("#tableOptions").css("display", "block");
->>>>>>> 316d9f688c01dcb84de34df2a9fa65b256abe472
 		populateTemplate();
 	});
 	
