@@ -3,6 +3,7 @@ var treeMarkup = "";
 var reevaluateChartData = true;
 var displayValues = false;
 
+<<<<<<< HEAD
 function newFailingTests(){
     var table_rows = $j(".table-row");
     var i;
@@ -20,6 +21,73 @@ function newFailingTests(){
     }
 }
 
+function searchTests(){
+    var table = $j(".table")[0];
+    var rows = $j(table).find(".table-row");
+    $j.each(rows, function(index, row){
+        var searchStr = $j("#filter").val().toLowerCase();
+
+        // If user has removed the filter text, revert to showing the most-high level packages
+        if (searchStr == ""){
+            if ($j(row).attr("parentname") == "base"){
+                $j(row).css("display", "table-row");
+            }
+            else {
+                $j(row).css("display", "none");
+            }
+        }
+        // Filter tests by searchStr
+        else {  
+
+            var testCell = $j(row).find(".row-heading")[0];
+            var rowText = $j(testCell).text().toLowerCase();
+            if (rowText.indexOf(searchStr) == -1 ){
+                $j(row).css("display", "none");
+            }
+            else {
+                $j(row).css("display", "table-row");
+            }
+        }   
+    });
+
+    // If user has removed the filter text, 
+    // but expanded some options during/before the search, 
+    //they should remain expanded after the search
+
+    var rows_to_expand = $j(table).find(".icon-minus-sign").parent().parent();  // expanded rows
+    var searchStr = $j("#filter").val().toLowerCase();
+    if (searchStr == "") {
+        $j.each($j(rows_to_expand), function(index,row){
+            // for every expanded test, all ancestor packages need to be expanded as well
+            var parentclass = $j(row).attr("parentclass");
+            var parent = $j("." + parentclass);
+            var ancestor_arr = [];
+            while (parentclass!="base" && $j(parent).find(".icon-plus-sign").length>0){
+                ancestor_arr.push(parent);
+                var parentclass = $j(parent).attr("parentclass");
+                parent = $j("." + parentclass);
+            }
+            // Expand ancestors in top-down manner
+            $j.each($j(ancestor_arr).get().reverse(),function(index, row){
+                $j(row).find(".icon-plus-sign")[0].click();
+            });
+
+            // Make sure that it has been clicked
+            if ($j(row).find(".icon-minus-sign").length!=0){
+                $j(row).find(".icon-minus-sign")[0].click();
+            }
+
+            $j(row).find(".icon-plus-sign")[0].click();
+            
+            // Make sure that it has been clicked
+            if ($j(row).find(".icon-plus-sign")[0]){
+                $j(row).find(".icon-plus-sign")[0].click();
+            }
+            
+        });
+    }
+}
+
 function reset(){
     reevaluateChartData = true;
     $j(".table").html("")
@@ -29,7 +97,7 @@ function reset(){
 
 function populateTemplate(){
     reset();
-    var noOfBuilds = $j('#noofbuilds').val();
+    var noOfBuilds = $j("#allnoofbuilds").is(":checked") ? "all" : $j('#noofbuilds').val();
     displayValues  = $j("#show-build-durations").is(":checked");
 
     remoteAction.getTreeResult(noOfBuilds,$j.proxy(function(t) {
