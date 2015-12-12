@@ -92,7 +92,7 @@ public class AnalyzerPageTest {
                                                 "addEvents();";
         job.executeJavaScript(javaScriptCommand);
         DomElement exclamation_mark = (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]").get(0);
-        assert(exclamation_mark.getAttribute("style").contains("inline-block"));
+        assertTrue(exclamation_mark.getAttribute("style").contains("inline-block"));
     }
 
     @Test
@@ -139,7 +139,7 @@ public class AnalyzerPageTest {
                                                 "addEvents();";
         job.executeJavaScript(javaScriptCommand);
         DomElement exclamation_mark = (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]").get(0);
-        assert(exclamation_mark.getAttribute("style").contains("none"));
+        assertTrue(exclamation_mark.getAttribute("style").contains("none"));
     }
 
 
@@ -175,7 +175,7 @@ public class AnalyzerPageTest {
                                                 "addEvents();" ;
         job.executeJavaScript(javaScriptCommand);
         DomElement exclamation_mark = (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]").get(0);
-        assert(exclamation_mark.getAttribute("style").contains("none"));
+        assertTrue(exclamation_mark.getAttribute("style").contains("none"));
     }
 
 
@@ -211,7 +211,7 @@ public class AnalyzerPageTest {
                                                 "addEvents();";
         job.executeJavaScript(javaScriptCommand);
         DomElement exclamation_mark = (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]").get(0);
-        assert(exclamation_mark.getAttribute("style").contains("none"));   
+        assertTrue(exclamation_mark.getAttribute("style").contains("none"));
     }
 
     
@@ -271,7 +271,7 @@ public class AnalyzerPageTest {
                                                 "addEvents();";
         job.executeJavaScript(javaScriptCommand);
         DomElement exclamation_mark = (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]").get(0);
-        assert(exclamation_mark.getAttribute("style").contains("inline-block"));
+        assertTrue(exclamation_mark.getAttribute("style").contains("inline-block"));
     }
 
     @Test
@@ -330,7 +330,7 @@ public class AnalyzerPageTest {
                                                 "addEvents();";
         job.executeJavaScript(javaScriptCommand);
         DomElement exclamation_mark = (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]").get(0);
-        assert(exclamation_mark.getAttribute("style").contains("none"));
+        assertTrue(exclamation_mark.getAttribute("style").contains("none"));
     }
 
     @Test
@@ -439,16 +439,11 @@ public class AnalyzerPageTest {
                                                 "addEvents();";
         job.executeJavaScript(javaScriptCommand);
         DomElement cs427_exclamation_mark = (DomElement) job.getByXPath("//*[contains(@class, 'cs427')]//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]").get(0);
-        assert(cs427_exclamation_mark.getAttribute("style").contains("none"));
+        assertTrue(cs427_exclamation_mark.getAttribute("style").contains("none"));
         DomElement cs512_exclamation_mark = (DomElement) job.getByXPath("//*[contains(@class, 'cs512')]//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]").get(0);
-        assert(cs512_exclamation_mark.getAttribute("style").contains("inline-block"));
+        assertTrue(cs512_exclamation_mark.getAttribute("style").contains("inline-block"));
     }
-    
-    
 
-}
-=======
-    
     String singleTest_populateTable_javascript = "var Obj =   {" +
                 "\"builds\":[\"2\",\"1\"]," +
                 "\"results\":   [{" +
@@ -497,7 +492,7 @@ public class AnalyzerPageTest {
         String javaScriptCommand = singleTest_populateTable_javascript + "$j(\"#filter\").val(\"illinois\");searchTests();";
         ScriptResult result = job.executeJavaScript(javaScriptCommand);
         DomElement row = (DomElement) job.getByXPath("//*[contains(@class, 'cs427')]").get(0);
-        assert(row.getAttribute("style").contains("table-row"));
+        assertTrue(row.getAttribute("style").contains("table-row"));
     }
 
     @Test
@@ -506,7 +501,7 @@ public class AnalyzerPageTest {
         String javaScriptCommand = singleTest_populateTable_javascript + "$j(\"#filter\").val(\"was\");searchTests();";
         ScriptResult result = job.executeJavaScript(javaScriptCommand);
         DomElement row = (DomElement) job.getByXPath("//*[contains(@class, 'cs427')]").get(0);
-        assert(row.getAttribute("style").contains("none"));
+        assertTrue(row.getAttribute("style").contains("none"));
     }
 
     @Test
@@ -515,7 +510,7 @@ public class AnalyzerPageTest {
         String javaScriptCommand = singleTest_populateTable_javascript + "$j(\"#filter\").val(\"\");searchTests();";
         ScriptResult result = job.executeJavaScript(javaScriptCommand);
         DomElement row = (DomElement) job.getByXPath("//*[contains(@class, 'cs427')]").get(0);
-        assert(row.getAttribute("style").contains("table-row"));
+        assertTrue(row.getAttribute("style").contains("table-row"));
     }
 
     
