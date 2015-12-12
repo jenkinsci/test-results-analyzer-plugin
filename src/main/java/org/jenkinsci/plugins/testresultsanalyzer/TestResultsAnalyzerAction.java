@@ -111,11 +111,13 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 		if ((noOfBuilds <= 0) || (noOfBuilds >= builds.size())) {
 			return builds;
 		}
+
 		List<Integer> buildList = new ArrayList<Integer>();
-		for (int i = (noOfBuilds - 1); i >= 0; i--) {
+
+		for(int i = 0; i < noOfBuilds; i++) {
 			buildList.add(builds.get(i));
 		}
-		Collections.reverse(buildList);
+
 		return buildList;
 	}
 
