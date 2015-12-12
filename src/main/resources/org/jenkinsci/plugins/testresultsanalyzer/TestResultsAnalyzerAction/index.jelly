@@ -8,6 +8,8 @@
 
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/handlebars-v2.0.0.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highcharts.js"></script>
+<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/json3-min.js"></script>
+
 
 <script src="//code.highcharts.com/modules/exporting.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/testresult.js"></script>
@@ -152,9 +154,17 @@ var $j = jQuery.noConflict();
             download("Test Results.csv", t.responseObject());
         })
     });
+<<<<<<< HEAD
 
 	jQuery("#getbuildreport").click(function () {
 		 jQuery("#downloadCSV").css("display", "block");
+=======
+    $j("#allnoofbuilds").on("change", function() {
+        $j("#noofbuilds").attr("disabled", this.checked);
+    })
+	$j("#getbuildreport").click(function () {
+		 $j("#tableOptions").css("display", "block");
+>>>>>>> 316d9f688c01dcb84de34df2a9fa65b256abe472
 		populateTemplate();
 	});
 	
