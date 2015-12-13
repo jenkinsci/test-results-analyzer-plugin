@@ -57,7 +57,7 @@ var $j = jQuery.noConflict();
 		<button id="getbuildreport">Update</button>
 	</div>
 </div>
-
+<button id="downloadCSV" >Download Test (CSV)</button>
 <div class="extrabuttons">
 	<button id="expandall">Expand All</button>
 	<button id="collapseall">Collapse All</button>
@@ -87,7 +87,6 @@ var $j = jQuery.noConflict();
    </div>
 
 </div>
-<button id="downloadCSV" style="display:none">Download Test (CSV)</button>
 <div id="builddetail">
 
 </div>
@@ -151,7 +150,6 @@ var $j = jQuery.noConflict();
     });
 
 	jQuery("#getbuildreport").click(function () {
-		 jQuery("#downloadCSV").css("display", "block");
 		populateTemplate();
 	});
 	
