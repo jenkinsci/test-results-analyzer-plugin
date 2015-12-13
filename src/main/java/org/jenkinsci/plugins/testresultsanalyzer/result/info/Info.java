@@ -3,10 +3,7 @@ package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 import hudson.tasks.test.TestResult;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -16,7 +13,7 @@ import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 public abstract class Info {
 
 	protected String name;
-	protected Map<Integer, ResultData> buildResults = new HashMap<Integer, ResultData>();
+	protected Map<Integer, ResultData> buildResults = new TreeMap<Integer, ResultData>(Collections.<Integer>reverseOrder());
 
 	protected List<String> statuses = new ArrayList<String>();
 
