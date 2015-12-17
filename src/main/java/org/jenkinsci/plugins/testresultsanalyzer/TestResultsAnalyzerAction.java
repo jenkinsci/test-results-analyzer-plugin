@@ -194,13 +194,20 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                 for (TestCaseInfo tInfo : cInfo.getTests().values()) {
                     String testName = tInfo.getName();
                     exportBuilder.append("\""+ packageName + "\",\"" + className + "\",\"" + testName+"\"");
-                    for (ResultData buildResult : tInfo.getBuildPackageResults().values()) {
-						if(!isTimeBased) {
-							exportBuilder.append(",\"" + buildResult.getStatus() + "\"");
-						} else {
-							exportBuilder.append(",\"" + decimalFormat.format(buildResult.getTotalTimeTaken()) + "\"");
+					Map<Integer, ResultData> buildPackageResults = tInfo.getBuildPackageResults();
+					for (int i = 0; i < builds.size(); i++) {
+						Integer buildNumber = builds.get(i);
+						String data = "N/A";
+						if(buildPackageResults.containsKey(buildNumber)) {
+							ResultData buildResult = buildPackageResults.get(buildNumber);
+							if(!isTimeBased) {
+								data = buildResult.getStatus();
+							} else {
+								data = decimalFormat.format(buildResult.getTotalTimeTaken());
+							}
 						}
-                    }
+						exportBuilder.append(",\"" + data + "\"");
+					}
                     exportBuilder.append(System.lineSeparator());
                 }
             }
