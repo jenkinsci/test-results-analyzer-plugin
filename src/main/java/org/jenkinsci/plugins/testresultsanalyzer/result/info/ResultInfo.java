@@ -21,7 +21,7 @@ public class ResultInfo {
 			packageInfo = new PackageInfo();
 			packageInfo.setName(packageName);
 		}
-		packageInfo.putPackageResult(buildNumber, packageResult, url + "testReport/" + packageResult.getName());
+		packageInfo.putPackageResult(buildNumber, packageResult, url + getResultUrl(packageResult) +"/" + packageResult.getName());
 		packageResults.put(packageName, packageInfo);
 	}
 
@@ -35,5 +35,14 @@ public class ResultInfo {
 
 	public Map<String, PackageInfo> getPackageResults() {
 		return this.packageResults;
+	}
+
+	protected String getResultUrl(TabulatedResult result){
+		boolean isTestng = result.getClass().getName().startsWith("hudson.plugins.testng.results");
+		if(isTestng){
+			return "testngreports";
+		} else {
+			return "testReport";
+		}
 	}
 }
