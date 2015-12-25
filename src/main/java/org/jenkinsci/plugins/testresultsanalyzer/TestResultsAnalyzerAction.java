@@ -171,11 +171,14 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
     }
 	
 	@JavaScriptMethod
-    public String getExportCSV(String timeBased) {
+    public String getExportCSV(String timeBased, String noOfBuildsNeeded) {
 		boolean isTimeBased = Boolean.parseBoolean(timeBased);
         Map<String, PackageInfo> packageResults = resultInfo.getPackageResults();
-        String buildsString = "";
-        for (int i = 0; i < builds.size(); i++) {
+		int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
+		List<Integer> buildList = getBuildList(noOfBuilds);
+
+		String buildsString = "";
+        for (int i = 0; i < buildList.size(); i++) {
             buildsString += ",\"" + Integer.toString(builds.get(i)) + "\"";
         }		
         String header = "\"Package\",\"Class\",\"Test\"";
@@ -195,8 +198,8 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                     String testName = tInfo.getName();
                     exportBuilder.append("\""+ packageName + "\",\"" + className + "\",\"" + testName+"\"");
 					Map<Integer, ResultData> buildPackageResults = tInfo.getBuildPackageResults();
-					for (int i = 0; i < builds.size(); i++) {
-						Integer buildNumber = builds.get(i);
+					for (int i = 0; i < buildList.size(); i++) {
+						Integer buildNumber = buildList.get(i);
 						String data = "N/A";
 						if(buildPackageResults.containsKey(buildNumber)) {
 							ResultData buildResult = buildPackageResults.get(buildNumber);

@@ -144,7 +144,12 @@ var $j = jQuery.noConflict();
 	});
 
 	jQuery("#downloadCSV").click(function () {
-        remoteAction.getExportCSV(displayValues, function(t) {
+	    var noOfBuilds = "-1";
+
+        if (!jQuery("#allnoofbuilds").is(":checked")) {
+            noOfBuilds = jQuery("#noofbuilds").val();
+        }
+        remoteAction.getExportCSV(displayValues, noOfBuilds, function(t) {
             download("Test Results.csv", t.responseObject());
         })
     });
