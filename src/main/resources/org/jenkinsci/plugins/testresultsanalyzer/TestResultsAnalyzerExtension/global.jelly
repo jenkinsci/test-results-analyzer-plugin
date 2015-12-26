@@ -30,5 +30,19 @@
 		<f:entry title="${%Runtime High Threshold}">
 			<f:textbox name="runTimeHighThreshold" value="${descriptor.getRunTimeHighThreshold()}" />
 		</f:entry>
+		<f:optionalBlock name="useCustomStatusNames" title="${%Use Custom Names for Passed/Failed/Skipped/NA status}" checked="${descriptor.useCustomStatusNames}">
+            <f:entry title="${%Passed}" field="passedRepresentation">
+                <f:textbox name="passedRepresentation" value="${descriptor.passedRepresentation}"/>
+            </f:entry>
+            <f:entry title="${%Failed}" field="failedRepresentation">
+                <f:textbox name="failedRepresentation" value="${descriptor.failedRepresentation}"/>
+            </f:entry>
+            <f:entry title="${%Skipped}" field="skippedRepresentation">
+                <f:textbox name="skippedRepresentation" value="${descriptor.skippedRepresentation}"/>
+            </f:entry>
+            <f:entry title="${%NA}" field="naRepresentation">
+                <f:textbox name="naRepresentation" value="${descriptor.naRepresentation}"/>
+            </f:entry>
+        </f:optionalBlock>
 	</f:section>
 </j:jelly>

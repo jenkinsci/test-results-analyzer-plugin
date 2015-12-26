@@ -253,4 +253,24 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 	public String getRunTimeHighThreshold() {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getRunTimeHighThreshold();
 	}
+
+	public boolean isUseCustomStatusNames() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.isUseCustomStatusNames();
+	}
+
+	public String getPassedRepresentation() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedRepresentation();
+	}
+
+	public String getFailedRepresentation() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getFailedRepresentation();
+	}
+
+	public String getSkippedRepresentation() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getSkippedRepresentation();
+	}
+
+	public String getNaRepresentation() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getNaRepresentation();
+	}
 }
