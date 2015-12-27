@@ -75,6 +75,8 @@ var $j = jQuery.noConflict();
 	</div>
 </div>
 <button id="downloadCSV" >Download Test (CSV)</button>
+Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Class/Package" onkeyup="searchTests()"/>
+
 <div class="extrabuttons">
 	<button id="expandall">Expand All</button>
 	<button id="collapseall">Collapse All</button>

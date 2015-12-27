@@ -21,10 +21,10 @@ import org.kohsuke.stapler.StaplerRequest;
 @Extension
 public class TestResultsAnalyzerExtension extends TransientProjectActionFactory implements Describable<TestResultsAnalyzerExtension> {
 
-	@Override
-	public Collection<? extends Action> createFor(@SuppressWarnings("rawtypes") AbstractProject target) {
-		
-		final List<TestResultsAnalyzerAction> projectActions = target
+    @Override
+    public Collection<? extends Action> createFor(@SuppressWarnings("rawtypes") AbstractProject target) {
+
+        final List<TestResultsAnalyzerAction> projectActions = target
                 .getActions(TestResultsAnalyzerAction.class);
         final ArrayList<Action> actions = new ArrayList<Action>();
         if (projectActions.isEmpty()) {
@@ -34,17 +34,17 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
         } else {
             return projectActions;
         }
-	}
+    }
 
-	//based on DiskUsageProjectActionFactory
-	@Extension
-	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+    //based on DiskUsageProjectActionFactory
+    @Extension
+    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
-	public Descriptor<TestResultsAnalyzerExtension> getDescriptor() {
-		return DESCRIPTOR;
-	}
+    public Descriptor<TestResultsAnalyzerExtension> getDescriptor() {
+        return DESCRIPTOR;
+    }
 
-	public static class DescriptorImpl extends Descriptor<TestResultsAnalyzerExtension> {
+    public static class DescriptorImpl extends Descriptor<TestResultsAnalyzerExtension> {
 
         private static final String PASSED_STATUS_COLOR = "#92D050";
         private static final String FAILED_STATUS_COLOR = "#F37A7A";
@@ -77,31 +77,31 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
         private String skippedColor = SKIP_STATUS_COLOR;
         private String naColor = NA_STATUS_COLOR;
 
-		//true = Show Test Runtimes in Charts instead of Passes and Failures
-		private String chartDataType = passFailString;
+        //true = Show Test Runtimes in Charts instead of Passes and Failures
+        private String chartDataType = passFailString;
 
-		public DescriptorImpl() {
-			//jenkins actually will edit your program's memory and set variables
-			load();
-		}
+        public DescriptorImpl() {
+            //jenkins actually will edit your program's memory and set variables
+            load();
+        }
 
-		@Override
-		public String getDisplayName() {
-			return "Test Results Analyzer";
-		}
+        @Override
+        public String getDisplayName() {
+            return "Test Results Analyzer";
+        }
 
-		@Override
-		public boolean configure(StaplerRequest req, JSONObject formData) {
-			try {
-				noOfBuilds = formData.getString("noOfBuilds");
-				showAllBuilds = formData.getBoolean("showAllBuilds");
-				showBuildTime = formData.getBoolean("showBuildTime");
-				showLineGraph = formData.getBoolean("showLineGraph");
-				showBarGraph = formData.getBoolean("showBarGraph");
-				showPieGraph = formData.getBoolean("showPieGraph");
-				runTimeLowThreshold = formData.getString("runTimeLowThreshold");
-				runTimeHighThreshold = formData.getString("runTimeHighThreshold");
-				chartDataType = formData.getString("chartDataType");
+        @Override
+        public boolean configure(StaplerRequest req, JSONObject formData) {
+            try {
+                noOfBuilds = formData.getString("noOfBuilds");
+                showAllBuilds = formData.getBoolean("showAllBuilds");
+                showBuildTime = formData.getBoolean("showBuildTime");
+                showLineGraph = formData.getBoolean("showLineGraph");
+                showBarGraph = formData.getBoolean("showBarGraph");
+                showPieGraph = formData.getBoolean("showPieGraph");
+                runTimeLowThreshold = formData.getString("runTimeLowThreshold");
+                runTimeHighThreshold = formData.getString("runTimeHighThreshold");
+                chartDataType = formData.getString("chartDataType");
                 if (formData.containsKey("useCustomStatusNames")) {
                     JSONObject customData = formData.getJSONObject("useCustomStatusNames");
                     useCustomStatusNames = true;
@@ -131,33 +131,33 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
                     naColor = NA_STATUS_COLOR;
                 }
             } catch(Exception e) {
-				e.printStackTrace();
-			}
-			save();
-			return false;
-		}
+                e.printStackTrace();
+            }
+            save();
+            return false;
+        }
 
-		public String getNoOfBuilds() { return noOfBuilds; }
+        public String getNoOfBuilds() { return noOfBuilds; }
 
-		public boolean getShowAllBuilds() { return showAllBuilds; }
+        public boolean getShowAllBuilds() { return showAllBuilds; }
 
-		public boolean getShowLineGraph() { return showLineGraph; }
+        public boolean getShowLineGraph() { return showLineGraph; }
 
-		public boolean getShowBarGraph() { return showBarGraph; }
+        public boolean getShowBarGraph() { return showBarGraph; }
 
-		public boolean getShowPieGraph() { return showPieGraph; }
+        public boolean getShowPieGraph() { return showPieGraph; }
 
-		public boolean getShowBuildTime() { return showBuildTime; }
+        public boolean getShowBuildTime() { return showBuildTime; }
 
-		public String getRunTimeLowThreshold() { return runTimeLowThreshold; }
+        public String getRunTimeLowThreshold() { return runTimeLowThreshold; }
 
-		public String getRunTimeHighThreshold() { return runTimeHighThreshold; }
+        public String getRunTimeHighThreshold() { return runTimeHighThreshold; }
 
-		public String getChartDataType() { return chartDataType; }
+        public String getChartDataType() { return chartDataType; }
 
-		public String getPassFailString() { return passFailString; }
+        public String getPassFailString() { return passFailString; }
 
-		public String getRuntimeString() { return runtimeString; }
+        public String getRuntimeString() { return runtimeString; }
 
         public String getPassedRepresentation() {
             return passedRepresentation;
