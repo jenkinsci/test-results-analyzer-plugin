@@ -273,4 +273,20 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 	public String getNaRepresentation() {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getNaRepresentation();
 	}
+
+    public String getPassedColor() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedColor();
+    }
+
+    public String getFailedColor() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getFailedColor();
+    }
+
+    public String getSkippedColor() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getSkippedColor();
+    }
+
+    public String getNaColor() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getNaColor();
+    }
 }

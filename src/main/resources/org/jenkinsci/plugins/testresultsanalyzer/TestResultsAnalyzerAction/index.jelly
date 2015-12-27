@@ -18,6 +18,23 @@
 
 var $j = jQuery.noConflict();
 </script>
+<style type="text/css">
+    .failed {
+        background-color: ${it.failedColor};
+    }
+
+    .passed {
+        background-color: ${it.passedColor};
+    }
+
+    .skipped{
+        background-color: ${it.skippedColor};
+    }
+
+    .no_status{
+        background-color: ${it.naColor};
+    }
+</style>
 <j:set var="temp" value="${it.jsonLoadData}"/>
 <j:set var="builds" value="${it.builds}"/>
 
