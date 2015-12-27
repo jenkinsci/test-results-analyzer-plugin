@@ -200,11 +200,11 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 					Map<Integer, ResultData> buildPackageResults = tInfo.getBuildPackageResults();
 					for (int i = 0; i < buildList.size(); i++) {
 						Integer buildNumber = buildList.get(i);
-						String data = "N/A";
+						String data = getCustomStatus("NA");
 						if(buildPackageResults.containsKey(buildNumber)) {
 							ResultData buildResult = buildPackageResults.get(buildNumber);
 							if(!isTimeBased) {
-								data = buildResult.getStatus();
+								data = getCustomStatus(buildResult.getStatus());
 							} else {
 								data = decimalFormat.format(buildResult.getTotalTimeTaken());
 							}
@@ -217,6 +217,28 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         }
         return exportBuilder.toString();
     }
+
+	private String getCustomStatus(String status) {
+		ResultStatus resultStatus = null;
+		try {
+			resultStatus = ResultStatus.valueOf(status);
+		} catch (IllegalArgumentException e) {
+
+		}
+		if (resultStatus == null)
+			return status;
+		switch (resultStatus) {
+			case PASSED:
+				return getPassedRepresentation();
+			case FAILED:
+				return getFailedRepresentation();
+			case SKIPPED:
+				return getSkippedRepresentation();
+			case NA:
+				return getNaRepresentation();
+		}
+		return status;
+	}
 
 	public String getNoOfBuilds() {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getNoOfBuilds();
@@ -253,4 +275,40 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 	public String getRunTimeHighThreshold() {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getRunTimeHighThreshold();
 	}
+
+	public boolean isUseCustomStatusNames() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.isUseCustomStatusNames();
+	}
+
+	public String getPassedRepresentation() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedRepresentation();
+	}
+
+	public String getFailedRepresentation() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getFailedRepresentation();
+	}
+
+	public String getSkippedRepresentation() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getSkippedRepresentation();
+	}
+
+	public String getNaRepresentation() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getNaRepresentation();
+	}
+
+    public String getPassedColor() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedColor();
+    }
+
+    public String getFailedColor() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getFailedColor();
+    }
+
+    public String getSkippedColor() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getSkippedColor();
+    }
+
+    public String getNaColor() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getNaColor();
+    }
 }

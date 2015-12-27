@@ -30,5 +30,34 @@
 		<f:entry title="${%Runtime High Threshold}">
 			<f:textbox name="runTimeHighThreshold" value="${descriptor.getRunTimeHighThreshold()}" />
 		</f:entry>
+		<f:optionalBlock field="useCustomStatusNames" title="${%Use Custom Names for Passed/Failed/Skipped/NA status}" checked="${descriptor.useCustomStatusNames}">
+            <f:entry title="${%Passed}" field="passedRepresentation">
+                <f:textbox name="passedRepresentation" value="${descriptor.passedRepresentation}"/>
+            </f:entry>
+            <f:entry title="${%Failed}" field="failedRepresentation">
+                <f:textbox name="failedRepresentation" value="${descriptor.failedRepresentation}"/>
+            </f:entry>
+            <f:entry title="${%Skipped}" field="skippedRepresentation">
+                <f:textbox name="skippedRepresentation" value="${descriptor.skippedRepresentation}"/>
+            </f:entry>
+            <f:entry title="${%NA}" field="naRepresentation">
+                <f:textbox name="naRepresentation" value="${descriptor.naRepresentation}"/>
+            </f:entry>
+        </f:optionalBlock>
+		<f:optionalBlock field="useCustomStatusColors" title="${%Use Custom Colors for execution status}" checked="${descriptor.useCustomStatusColors}">
+            <f:entry title="${%Passed Status Color}" field="passedColor">
+                <f:textbox name="passedColor" value="${descriptor.passedColor}"/>
+            </f:entry>
+            <f:entry title="${%Failed Status Color}" field="failedColor">
+                <f:textbox name="failedColor" value="${descriptor.failedColor}"/>
+            </f:entry>
+            <f:entry title="${%Skipped Status Color}" field="skippedColor">
+                <f:textbox name="skippedColor" value="${descriptor.skippedColor}"/>
+            </f:entry>
+            <f:entry title="${%NA Status Color}" field="naColor">
+                <f:textbox name="naColor" value="${descriptor.naColor}"/>
+            </f:entry>
+        </f:optionalBlock>
+
 	</f:section>
 </j:jelly>

@@ -18,6 +18,23 @@
 
 var $j = jQuery.noConflict();
 </script>
+<style type="text/css">
+    .failed {
+        background-color: ${it.failedColor};
+    }
+
+    .passed {
+        background-color: ${it.passedColor};
+    }
+
+    .skipped{
+        background-color: ${it.skippedColor};
+    }
+
+    .no_status{
+        background-color: ${it.naColor};
+    }
+</style>
 <j:set var="temp" value="${it.jsonLoadData}"/>
 <j:set var="builds" value="${it.builds}"/>
 
@@ -94,14 +111,19 @@ var $j = jQuery.noConflict();
 <script>
 	var runtimeLowThreshold = "${it.runTimeLowThreshold}";
 	var runtimeHighThreshold = "${it.runTimeHighThreshold}";
-
+    var customStatuses = {
+        'PASSED':'PASSED',
+        'SKIPPED':'SKIPPED',
+        'FAILED':'FAILED',
+        'N/A':'N/A'
+    }
 	function generateCharts() {
 		var chartType = {
 			type: jQuery("#chartDataType").val(),
 			line: jQuery('#linegraph').is(':checked'),
 			bar: jQuery('#bargraph').is(':checked'),
 			pie: jQuery('#piegraph').is(':checked')
-		};
+		}
 		generateChart(chartType);
 
 		//fixes Jenkins issue where page content is not correctly placed until the window is resized
@@ -122,6 +144,7 @@ var $j = jQuery.noConflict();
 		} else {
 			jQuery("#chartDataType").val("passfail");
 		}
+		setCustomStatuses();
 		populateTemplate();
 	});
 
@@ -165,6 +188,13 @@ var $j = jQuery.noConflict();
 	jQuery("#collapseall").click(function () {
 		collapseAll();
 	});
+
+    function setCustomStatuses(){
+        customStatuses['PASSED'] = "${it.passedRepresentation}";
+        customStatuses['SKIPPED'] = "${it.skippedRepresentation}";
+        customStatuses['FAILED'] = "${it.failedRepresentation}";
+        customStatuses['N/A'] = "${it.naRepresentation}";
+    }
 
 	function download(filename, text) {
 		var element = document.createElement('a');
