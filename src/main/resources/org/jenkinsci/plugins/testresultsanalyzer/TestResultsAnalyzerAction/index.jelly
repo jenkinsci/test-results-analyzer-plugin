@@ -112,10 +112,10 @@ var $j = jQuery.noConflict();
 	var runtimeLowThreshold = "${it.runTimeLowThreshold}";
 	var runtimeHighThreshold = "${it.runTimeHighThreshold}";
     var customStatuses = {
-            'PASSED':'PASSED',
-            'SKIPPED':'SKIPPED',
-            'FAILED':'FAILED',
-            'N/A':'N/A'
+        'PASSED':'PASSED',
+        'SKIPPED':'SKIPPED',
+        'FAILED':'FAILED',
+        'N/A':'N/A'
     }
 	function generateCharts() {
 		var chartType = {
@@ -189,12 +189,12 @@ var $j = jQuery.noConflict();
 		collapseAll();
 	});
 
-	function setCustomStatuses(){
-	    customStatuses['PASSED'] = "${it.passedRepresentation}";
-    	customStatuses['SKIPPED'] = "${it.skippedRepresentation}";
-    	customStatuses['FAILED'] = "${it.failedRepresentation}";
-    	customStatuses['N/A'] = "${it.naRepresentation}";
-	}
+    function setCustomStatuses(){
+        customStatuses['PASSED'] = "${it.passedRepresentation}";
+        customStatuses['SKIPPED'] = "${it.skippedRepresentation}";
+        customStatuses['FAILED'] = "${it.failedRepresentation}";
+        customStatuses['N/A'] = "${it.naRepresentation}";
+    }
 
 	function download(filename, text) {
 		var element = document.createElement('a');
