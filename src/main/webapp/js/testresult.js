@@ -102,13 +102,14 @@ function populateTemplate(){
         noOfBuilds = $j("#noofbuilds").val();
     }
     displayValues  = $j("#show-build-durations").is(":checked");
-
+    $j("#table-loading").show();
     remoteAction.getTreeResult(noOfBuilds,$j.proxy(function(t) {
         var itemsResponse = t.responseObject();
         treeMarkup = analyzerTemplate(itemsResponse);
         $j(".table").html(treeMarkup);
         addEvents();
         generateCharts();
+        $j("#table-loading").hide();
     },this));
 }
 

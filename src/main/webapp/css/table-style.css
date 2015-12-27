@@ -135,6 +135,10 @@
     .row-heading input[type="checkbox"] {
 
     }
+    #table-loading {
+        margin-left: 20%;
+        margin-top: 10%;
+    }
 
 
 	
