@@ -18,6 +18,7 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.log4j.Logger;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ClassInfo;
@@ -31,6 +32,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 	@SuppressWarnings("rawtypes")
 	AbstractProject project;
 	private List<Integer> builds = new ArrayList<Integer>();
+	private final static Logger LOG = Logger.getLogger(TestResultsAnalyzerAction.class.getName());
 
 	ResultInfo resultInfo;
 
@@ -151,10 +153,14 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 				builds.add(run.getNumber());
 				List<AbstractTestResultAction> testActions = run.getActions(hudson.tasks.test.AbstractTestResultAction.class);
 				for (hudson.tasks.test.AbstractTestResultAction testAction : testActions) {
-					TabulatedResult testResult = (TabulatedResult) testAction.getResult();
-					Collection<? extends TestResult> packageResults = testResult.getChildren();
-					for (TestResult packageResult : packageResults) { // packageresult
-						resultInfo.addPackage(buildNumber, (TabulatedResult) packageResult, Jenkins.getInstance().getRootUrl() + buildUrl);
+					try {
+						TabulatedResult testResult = (TabulatedResult) testAction.getResult();
+						Collection<? extends TestResult> packageResults = testResult.getChildren();
+						for (TestResult packageResult : packageResults) { // packageresult
+							resultInfo.addPackage(buildNumber, (TabulatedResult) packageResult, Jenkins.getInstance().getRootUrl() + buildUrl);
+						}
+					} catch (ClassCastException e) {
+						LOG.info("Got ClassCast exception while converting results to Tabulated Result from action: " + testAction.getClass().getName() + ". Ignoring as we only want test results for processing.");
 					}
 				}
 			}
