@@ -1,39 +1,33 @@
 package org.jenkinsci.plugins.testresultsanalyzer;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 
 import hudson.Extension;
-import hudson.model.AbstractProject;
 import hudson.model.Action;
-import hudson.model.TransientProjectActionFactory;
-import hudson.model.Descriptor;
 import hudson.model.Describable;
-
+import hudson.model.Descriptor;
+import hudson.model.Job;
 import hudson.util.FormValidation;
+import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 @Extension
-public class TestResultsAnalyzerExtension extends TransientProjectActionFactory implements Describable<TestResultsAnalyzerExtension> {
+public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> implements Describable<TestResultsAnalyzerExtension> {
 
     @Override
-    public Collection<? extends Action> createFor(@SuppressWarnings("rawtypes") AbstractProject target) {
+    public @Nonnull Collection<? extends Action> createFor(@Nonnull Job target) {
+        return Collections.singleton(new TestResultsAnalyzerAction(target));
+    }
 
-        final List<TestResultsAnalyzerAction> projectActions = target
-                .getActions(TestResultsAnalyzerAction.class);
-        final ArrayList<Action> actions = new ArrayList<Action>();
-        if (projectActions.isEmpty()) {
-            final TestResultsAnalyzerAction newAction = new TestResultsAnalyzerAction(target);
-            actions.add(newAction);
-            return actions;
-        } else {
-            return projectActions;
-        }
+    @Override
+    public Class<Job> type() {
+        return Job.class;
     }
 
     //based on DiskUsageProjectActionFactory
