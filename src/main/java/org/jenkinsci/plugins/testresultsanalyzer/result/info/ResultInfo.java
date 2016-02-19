@@ -21,7 +21,7 @@ public class ResultInfo {
 			packageInfo = new PackageInfo();
 			packageInfo.setName(packageName);
 		}
-		packageInfo.putPackageResult(buildNumber, packageResult, url + getResultUrl(packageResult) +"/" + packageResult.getName());
+		packageInfo.putPackageResult(buildNumber, packageResult, url + getResultUrl(packageResult) +"/" + packageResult.getSafeName());
 		packageResults.put(packageName, packageInfo);
 	}
 

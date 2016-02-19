@@ -40,7 +40,7 @@ public class ClassInfo extends Info {
 				testCaseInfo.setName(testCaseName);
 			}
 
-			testCaseInfo.putTestCaseResult(buildNumber, testCaseResult, url + "/" + testCaseResult.getName());
+			testCaseInfo.putTestCaseResult(buildNumber, testCaseResult, url + "/" + testCaseResult.getSafeName());
 			tests.put(testCaseName, testCaseInfo);
 		}
 	}

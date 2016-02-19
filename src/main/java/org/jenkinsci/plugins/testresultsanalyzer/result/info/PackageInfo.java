@@ -45,7 +45,7 @@ public class PackageInfo extends Info {
 				classInfo = new ClassInfo();
 				classInfo.setName(className);
 			}
-			classInfo.putBuildClassResult(buildNumber, (TabulatedResult) classResult, url + "/" + classResult.getName());
+			classInfo.putBuildClassResult(buildNumber, (TabulatedResult) classResult, url + "/" + classResult.getSafeName());
 			classes.put(className, classInfo);
 		}
 	}
