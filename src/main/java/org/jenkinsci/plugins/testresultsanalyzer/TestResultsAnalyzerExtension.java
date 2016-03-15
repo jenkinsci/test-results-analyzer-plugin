@@ -134,7 +134,7 @@ public class TestResultsAnalyzerExtension extends TransientProjectActionFactory 
                 e.printStackTrace();
             }
             save();
-            return false;
+            return true;
         }
 
         public String getNoOfBuilds() { return noOfBuilds; }
