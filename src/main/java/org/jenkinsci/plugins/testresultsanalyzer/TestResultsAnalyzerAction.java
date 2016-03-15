@@ -148,6 +148,9 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 			Iterator<Run> runIterator = runs.iterator();
 			while (runIterator.hasNext()) {
 				Run run = runIterator.next();
+				if(run.isBuilding()) {
+					continue;
+				}
 				int buildNumber = run.getNumber();
 				String buildUrl = project.getBuildByNumber(buildNumber).getUrl();
 				builds.add(run.getNumber());
