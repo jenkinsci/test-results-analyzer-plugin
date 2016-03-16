@@ -2,7 +2,7 @@ package org.jenkinsci.plugins.testresultsanalyzer;
 
 import hudson.model.Action;
 import hudson.model.Item;
-import hudson.model.AbstractProject;
+import hudson.model.Job;
 import hudson.model.Actionable;
 import hudson.model.Run;
 import hudson.tasks.test.TabulatedResult;
@@ -23,21 +23,19 @@ import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ClassInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.PackageInfo;
-import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.TestCaseInfo;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
 public class TestResultsAnalyzerAction extends Actionable implements Action {
 
 	@SuppressWarnings("rawtypes")
-	AbstractProject project;
+	Job project;
 	private List<Integer> builds = new ArrayList<Integer>();
 	private final static Logger LOG = Logger.getLogger(TestResultsAnalyzerAction.class.getName());
 
 	ResultInfo resultInfo;
 
-	public TestResultsAnalyzerAction(@SuppressWarnings("rawtypes")
-	AbstractProject project) {
+	public TestResultsAnalyzerAction(@SuppressWarnings("rawtypes") Job project) {
 		this.project = project;
 	}
 
@@ -87,7 +85,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public AbstractProject getProject() {
+	public Job getProject() {
 		return this.project;
 	}
 
