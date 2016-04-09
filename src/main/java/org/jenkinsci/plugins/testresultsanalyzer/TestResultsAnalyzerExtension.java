@@ -54,6 +54,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
         private boolean showLineGraph = true;
         private boolean showBarGraph = true;
         private boolean showPieGraph = true;
+        private boolean hideConfigurationMethods = false;
         private String runTimeLowThreshold = "0.5";
         private String runTimeHighThreshold = "1.0";
 
@@ -90,6 +91,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
                 noOfBuilds = formData.getString("noOfBuilds");
                 showAllBuilds = formData.getBoolean("showAllBuilds");
                 showBuildTime = formData.getBoolean("showBuildTime");
+                hideConfigurationMethods = formData.getBoolean("hideConfigurationMethods");
                 showLineGraph = formData.getBoolean("showLineGraph");
                 showBarGraph = formData.getBoolean("showBarGraph");
                 showPieGraph = formData.getBoolean("showPieGraph");
@@ -131,19 +133,23 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
             return true;
         }
 
-        public String getNoOfBuilds() { return noOfBuilds; }
+		public String getNoOfBuilds() { return noOfBuilds; }
 
-        public boolean getShowAllBuilds() { return showAllBuilds; }
+		public boolean getShowAllBuilds() { return showAllBuilds; }
 
-        public boolean getShowLineGraph() { return showLineGraph; }
+		public boolean getShowLineGraph() { return showLineGraph; }
 
-        public boolean getShowBarGraph() { return showBarGraph; }
+		public boolean getShowBarGraph() { return showBarGraph; }
 
-        public boolean getShowPieGraph() { return showPieGraph; }
+		public boolean getShowPieGraph() { return showPieGraph; }
+
+		public boolean getHideConfigurationMethods() {
+			return hideConfigurationMethods;
+		}
 
         public boolean getShowBuildTime() { return showBuildTime; }
 
-        public String getRunTimeLowThreshold() { return runTimeLowThreshold; }
+		public String getRunTimeLowThreshold() { return runTimeLowThreshold; }
 
         public String getRunTimeHighThreshold() { return runTimeHighThreshold; }
 

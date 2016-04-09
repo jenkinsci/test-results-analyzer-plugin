@@ -19,6 +19,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ClassInfo;
@@ -169,12 +170,12 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 	}
 
     @JavaScriptMethod
-    public JSONObject getTreeResult(String noOfBuildsNeeded) {
-        int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
+    public JSONObject getTreeResult(UserConfig userConfig) {
+        int noOfBuilds = getNoOfBuildRequired(userConfig.getNoOfBuildsNeeded());
         List<Integer> buildList = getBuildList(noOfBuilds);
 
         JsTreeUtil jsTreeUtils = new JsTreeUtil();
-        return jsTreeUtils.getJsTree(buildList, resultInfo);
+        return jsTreeUtils.getJsTree(buildList, resultInfo, userConfig);
     }
 	
 	@JavaScriptMethod
@@ -269,6 +270,10 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
 	public boolean getShowBuildTime() {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowBuildTime();
+	}
+
+	public boolean getHideConfigurationMethods() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getHideConfigurationMethods();
 	}
 
 	public String getChartDataType() {

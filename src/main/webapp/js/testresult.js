@@ -96,21 +96,32 @@ function reset(){
 
 function populateTemplate(){
     reset();
-    var noOfBuilds = "-1";
-
-    if (!$j("#allnoofbuilds").is(":checked")) {
-        noOfBuilds = $j("#noofbuilds").val();
-    }
     displayValues  = $j("#show-build-durations").is(":checked");
     $j("#table-loading").show();
-    remoteAction.getTreeResult(noOfBuilds,$j.proxy(function(t) {
+    remoteAction.getTreeResult(getUserConfig(),$j.proxy(function(t) {
         var itemsResponse = t.responseObject();
         treeMarkup = analyzerTemplate(itemsResponse);
         $j(".table").html(treeMarkup);
         addEvents();
         generateCharts();
         $j("#table-loading").hide();
+        hideConfigMethods();
     },this));
+}
+
+function getUserConfig(){
+    var userConfig = {};
+
+    var noOfBuilds = "-1";
+
+    if (!$j("#allnoofbuilds").is(":checked")) {
+        noOfBuilds = $j("#noofbuilds").val();
+    }
+    userConfig["noOfBuildsNeeded"] = noOfBuilds;
+
+    var hideConfig = $j("#hide-config-methods").is(":checked");
+    userConfig["hideConfigMethods"] = hideConfig;
+    return userConfig;
 }
 
 function collapseAll(){

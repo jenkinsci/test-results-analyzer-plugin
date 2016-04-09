@@ -9,6 +9,9 @@
 		<f:entry title="${%Display run time for each test}">
 			<f:checkbox name="showBuildTime" checked="${descriptor.getShowBuildTime()}" />
 		</f:entry>
+		<f:entry title="${%Hide configuration methods - Only for TestNG results}">
+        	<f:checkbox name="hideConfigurationMethods" checked="${descriptor.getHideConfigurationMethods()}" />
+        </f:entry>
 		<f:entry title="${%Show Line Graph}">
 			<f:checkbox name="showLineGraph" checked="${descriptor.getShowLineGraph()}" />
 		</f:entry>

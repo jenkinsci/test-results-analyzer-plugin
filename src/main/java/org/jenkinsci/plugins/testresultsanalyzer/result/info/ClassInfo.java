@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import net.sf.json.JSONObject;
 
+import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ClassResultData;
 
 public class ClassInfo extends Info {
@@ -46,10 +47,14 @@ public class ClassInfo extends Info {
 	}
 
 	@Override
-	protected JSONObject getChildrensJson() {
+	protected JSONObject getChildrensJson(UserConfig userConfig) {
 		JSONObject json = new JSONObject();
 		for (String testName : tests.keySet()) {
-			json.put(testName, tests.get(testName).getJsonObject());
+			TestCaseInfo testCaseInfo = tests.get(testName);
+			if(userConfig.isHideConfigMethods() && testCaseInfo.isConfig) {
+				continue;
+			}
+			json.put(testName, tests.get(testName).getJsonObject(userConfig));
 		}
 		return json;
 	}
