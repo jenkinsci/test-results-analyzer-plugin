@@ -8,11 +8,13 @@ import java.util.*;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 
 public abstract class Info {
 
 	protected String name;
+	protected boolean isConfig = false;
 	protected Map<Integer, ResultData> buildResults = new TreeMap<Integer, ResultData>(Collections.<Integer>reverseOrder());
 
 	protected List<String> statuses = new ArrayList<String>();
@@ -33,11 +35,14 @@ public abstract class Info {
 		this.buildResults = buildResults;
 	}
 
-	protected abstract JSONObject getChildrensJson();
+	protected abstract JSONObject getChildrensJson(UserConfig userConfig);
 
-	protected JSONObject getBuildJson() {
+	protected JSONObject getBuildJson(UserConfig userConfig) {
 		JSONObject json = new JSONObject();
 		for (Integer buildNumber : buildResults.keySet()) {
+			ResultData resultData = buildResults.get(buildNumber);
+			if(userConfig.isHideConfigMethods() && resultData.isConfig())
+				continue;
 			json.put(buildNumber.toString(), buildResults.get(buildNumber).getJsonObject());
 		}
 		return json;
@@ -49,13 +54,21 @@ public abstract class Info {
 		return buildStatuses;
 	}
 
-	public JSONObject getJsonObject() {
+	public boolean isConfig() {
+		return isConfig;
+	}
+
+	public void setConfig(boolean config) {
+		isConfig = config;
+	}
+
+	public JSONObject getJsonObject(UserConfig userConfig) {
 		JSONObject json = new JSONObject();
 		json.put("name", name);
 		json.put("type", "package");
 		json.put("buildStatuses", getBuildStatuses());
-		json.put("builds", getBuildJson());
-		json.put("children", getChildrensJson());
+		json.put("builds", getBuildJson(userConfig));
+		json.put("children", getChildrensJson(userConfig));
 		return json;
 	}
 

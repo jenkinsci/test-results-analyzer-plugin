@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import net.sf.json.JSONObject;
+import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 
 public class ResultInfo {
 
@@ -25,10 +26,10 @@ public class ResultInfo {
 		packageResults.put(packageName, packageInfo);
 	}
 
-	public JSONObject getJsonObject() {
+	public JSONObject getJsonObject(UserConfig userConfig) {
 		JSONObject json = new JSONObject();
 		for (String packageName : packageResults.keySet()) {
-			json.put(packageName, packageResults.get(packageName).getJsonObject());
+			json.put(packageName, packageResults.get(packageName).getJsonObject(userConfig));
 		}
 		return json;
 	}

@@ -11,10 +11,10 @@ public class TestCaseResultData extends ResultData {
 		boolean doTestNg = testResult.getClass().getName().equals("hudson.plugins.testng.results.MethodResult");
 		if (doTestNg) {
 			try {
-				Method method = testResult.getClass().getMethod("getStatus");
-				Object returnValue = method.invoke(testResult);
-				if (returnValue instanceof String) {
-					String status = ((String) returnValue).toLowerCase();
+				Method statusMethod = testResult.getClass().getMethod("getStatus");
+				Object statusReturnValue = statusMethod.invoke(testResult);
+				if (statusReturnValue instanceof String) {
+					String status = ((String) statusReturnValue).toLowerCase();
 
 					setPassed(status.startsWith("pass"));
 					setSkipped(status.startsWith("skip"));
@@ -22,6 +22,12 @@ public class TestCaseResultData extends ResultData {
 					setTotalFailed(status.startsWith("fail") ? 1 : 0);
 					setTotalPassed(status.startsWith("pass") ? 1 : 0);
 					setTotalSkipped(status.startsWith("skip") ? 1 : 0);
+				}
+				Method configMethod = testResult.getClass().getMethod("isConfig");
+				Object configReturnValue = configMethod.invoke(testResult);
+				if (configReturnValue instanceof Boolean) {
+					boolean isConfig = ((Boolean) configReturnValue);
+					setConfig(isConfig);
 				}
 			}
 			catch (Exception e) {

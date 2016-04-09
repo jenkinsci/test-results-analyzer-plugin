@@ -13,6 +13,7 @@ public abstract class ResultData {
 	private String name;
 	private boolean isPassed;
 	private boolean isSkipped;
+	private boolean isConfig = false;
 	private transient TabulatedResult packageResult;
 	private int totalTests;
 	private int totalFailed;
@@ -54,6 +55,14 @@ public abstract class ResultData {
 
 	public void setSkipped(boolean isSkipped) {
 		this.isSkipped = isSkipped;
+	}
+
+	public boolean isConfig() {
+		return isConfig;
+	}
+
+	public void setConfig(boolean config) {
+		isConfig = config;
 	}
 
 	public TabulatedResult getPackageResult() {
@@ -168,6 +177,7 @@ public abstract class ResultData {
 		json.put("totalSkipped", totalSkipped);
 		json.put("isPassed", isPassed);
 		json.put("isSkipped", isSkipped);
+		json.put("isConfig", isConfig);
 		json.put("totalTimeTaken", totalTimeTaken);
 		json.put("status", status);
         json.put("url", url);

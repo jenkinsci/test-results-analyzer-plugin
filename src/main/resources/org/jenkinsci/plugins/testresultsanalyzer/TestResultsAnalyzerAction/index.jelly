@@ -54,6 +54,10 @@ var $j = jQuery.noConflict();
 			<td><input type="checkbox" id="show-build-durations" name="show-build-durations" checked="${it.showBuildTime}"/></td>
 		</tr>
 		<tr>
+        	<td>Hide configuration methods (Only for TestNG results}</td>
+        	<td><input type="checkbox" id="hide-config-methods" name="hide-config-methods" checked="${it.hideConfigurationMethods}"/></td>
+        </tr>
+		<tr>
 			<td>Chart type:</td>
 			<td>
 				<input id="linegraph" type="checkbox" checked="${it.showLineGraph}" /> Line
@@ -139,6 +143,7 @@ Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Cl
 	jQuery(document).ready(function () {
 		jQuery("#allnoofbuilds")[0].checked = ${it.showAllBuilds};
 		jQuery("#show-build-durations")[0].checked = ${it.showBuildTime};
+		jQuery("#hide-config-methods")[0].checked = ${it.hideConfigurationMethods};
 		jQuery("#linegraph")[0].checked = ${it.showLineGraph};
 		jQuery("#bargraph")[0].checked = ${it.showBarGraph};
 		jQuery("#piegraph")[0].checked = ${it.showPieGraph};

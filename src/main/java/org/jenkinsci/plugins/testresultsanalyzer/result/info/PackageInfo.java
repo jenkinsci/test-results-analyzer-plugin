@@ -8,6 +8,7 @@ import java.util.TreeMap;
 
 import net.sf.json.JSONObject;
 
+import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.PackageResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 
@@ -51,10 +52,10 @@ public class PackageInfo extends Info {
 	}
 
 	@Override
-	protected JSONObject getChildrensJson() {
+	protected JSONObject getChildrensJson(UserConfig userConfig) {
 		JSONObject json = new JSONObject();
 		for (String className : classes.keySet()) {
-			json.put(className, classes.get(className).getJsonObject());
+			json.put(className, classes.get(className).getJsonObject(userConfig));
 		}
 		return json;
 	}

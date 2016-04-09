@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.testresultsanalyzer;
 import java.util.List;
 import java.util.Set;
 
+import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 
 import net.sf.json.JSONArray;
@@ -10,7 +11,7 @@ import net.sf.json.JSONObject;
 
 public class JsTreeUtil {
 
-    public JSONObject getJsTree(List<Integer> builds, ResultInfo resultInfo) {
+    public JSONObject getJsTree(List<Integer> builds, ResultInfo resultInfo, UserConfig userConfig) {
         JSONObject tree = new JSONObject();
 
         JSONArray buildJson = new JSONArray();
@@ -18,7 +19,7 @@ public class JsTreeUtil {
             buildJson.add(buildNumber.toString());
         }
         tree.put("builds", buildJson);
-        JSONObject packageResults = resultInfo.getJsonObject();
+        JSONObject packageResults = resultInfo.getJsonObject(userConfig);
         JSONArray results = new JSONArray();
         for (Object packageName : packageResults.keySet()) {
 
