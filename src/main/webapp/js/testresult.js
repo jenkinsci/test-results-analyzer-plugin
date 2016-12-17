@@ -150,10 +150,12 @@ function addEvents() {
         if ($j(node).hasClass('icon-plus-sign')) {
             $j(node).removeClass('icon-plus-sign');
             $j(node).addClass('icon-minus-sign');
+            $j(node).attr('title', 'Hide Children');
             $j(childLocator).show();
         } else {
             $j(node).removeClass('icon-minus-sign');
             $j(node).addClass('icon-plus-sign');
+            $j(node).attr('title', 'Show Children');
             $j(childLocator).hide();
             hideChilds($j(childLocator));
         }
@@ -165,9 +167,11 @@ function addEvents() {
             var nodeName = $j(this).parent().parent(".table-row").attr("name");
             var childLocator = "[parentclass='" + parent + "-" + nodeName + "']";
 
-            if ($j(this).find('.icon').hasClass('icon-minus-sign')) {
-                $j(this).find('.icon').removeClass('icon-minus-sign');
-                $j(this).find('.icon').addClass('icon-plus-sign');
+            var icon = $j(this).find('.icon');
+            if (icon.hasClass('icon-minus-sign')) {
+                icon.removeClass('icon-minus-sign');
+                icon.addClass('icon-plus-sign');
+                icon.attr('title', 'Show Children');
             }
             var childElements = $j(childLocator);
             childElements.hide();

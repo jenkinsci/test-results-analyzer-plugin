@@ -3,15 +3,16 @@ var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" pare
     '\n' + '         ' +
     '\n' + '         <div class="table-cell"><div class="icon icon-exclamation-sign" style="display:none" ></div></div>' +
     '\n' + '         <div class="table-cell"><input type="checkbox" parentclass= "{{parentclass}}" parentname="{{parentname}}" name = "checkbox-{{addName text}}" result-name = "{{addName text}}"/></div> ' +
-    '<div class="children  table-cell" >  ' +
-    '{{#if children}}' +
-        '<div class="icon icon-plus-sign" ></div> ' +
-    '{{/if}}</div>' +
     ' <div class="name row-heading table-cell" ' +
         '{{#if hierarchyLevel}}' +
             'style="padding-left:{{addspaces hierarchyLevel}}em;"' +
         '{{/if}}' +
-        '>&nbsp;{{text}}</div>' +
+    '>' +
+        '{{#if children}}' +
+            '<span class="icon icon-plus-sign" title="Show Children"></span> ' +
+        '{{/if}}' +
+        '&nbsp;{{text}}</span>' +
+    '</div>' +
     '' +
     '{{#each this.buildResults}}' +
     '\n' + '         <div class="table-cell build-result {{applystatus status}}" is-config="{{isConfig}}" data-result=\'{{JSON2string this}}\'><a href="{{url}}">{{applyvalue status totalTimeTaken}}</a></div>' +
@@ -27,7 +28,8 @@ var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" pare
 
 var tableBody = '<div class="heading">' +
     '\n' + '        <div class="table-cell" >New Failures</div>' +
-    '\n' + '        <div class="table-cell">Chart</div><div class="table-cell">See children</div> <div class="table-cell">Build Number &rArr;<br>Package-Class-Testmethod names &dArr;</div>' +
+    '\n' + '        <div class="table-cell">Chart</div> ' +
+    '<div class="table-cell">Build Number &rArr;<br>Package-Class-Testmethod names &dArr;</div>' +
     '{{#each builds}}' +
     '\n' + '         <div class="table-cell">{{this}}</div>' +
     '{{/each}}' +
