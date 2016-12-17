@@ -1,7 +1,6 @@
 var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" parentclass= "{{parentclass}}" parentname="{{parentname}}" name = "{{addName text}}" {{#if isChild}} style="display:none"{{/if}}>' +
     '\n' + '         ' +
     '\n' + '         ' +
-    '\n' + '         <div class="table-cell"><div class="icon icon-exclamation-sign" style="display:none" ></div></div>' +
     '\n' + '         <div class="table-cell"><input type="checkbox" parentclass= "{{parentclass}}" parentname="{{parentname}}" name = "checkbox-{{addName text}}" result-name = "{{addName text}}"/></div> ' +
     ' <div class="name row-heading table-cell" ' +
         '{{#if hierarchyLevel}}' +
@@ -11,6 +10,7 @@ var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" pare
         '{{#if children}}' +
             '<span class="icon icon-plus-sign" title="Show Children"></span> ' +
         '{{/if}}' +
+        '<span class="{{failureIconWhenNecessary buildResults}}" title="New Failure" ></span>' +
         '&nbsp;{{text}}</span>' +
     '</div>' +
     '' +
@@ -27,7 +27,6 @@ var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" pare
     '{{/each}}';
 
 var tableBody = '<div class="heading">' +
-    '\n' + '        <div class="table-cell" >New Failures</div>' +
     '\n' + '        <div class="table-cell">Chart</div> ' +
     '<div class="table-cell">Build Number &rArr;<br>Package-Class-Testmethod names &dArr;</div>' +
     '{{#each builds}}' +
@@ -141,4 +140,16 @@ Handlebars.registerHelper('addHierarchy', function (context, parentHierarchy, op
     context["hierarchyLevel"] = parentHierarchy + 1;
 });
 
+Handlebars.registerHelper('failureIconWhenNecessary', function (buildResults) {
+    if (buildResults.length < 2) {
+        return '';
+    }
+
+    if (buildResults[0].status == "FAILED" &&
+        buildResults[1].status == "PASSED") {
+        return 'icon icon-exclamation-sign';
+    } else {
+        return '';
+    }
+});
 var analyzerTemplate = Handlebars.compile(tableBody);
