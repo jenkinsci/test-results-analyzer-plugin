@@ -46,9 +46,6 @@ public class TestCaseResultData extends ResultData {
 		setTotalTimeTaken(testResult.getDuration());
 		setUrl(url);
 		evaluateStatus();
-		if ("FAILED".equalsIgnoreCase(getStatus())) {
-			setFailureMessage(testResult.getErrorStackTrace());
-		}
 	}
 
 }

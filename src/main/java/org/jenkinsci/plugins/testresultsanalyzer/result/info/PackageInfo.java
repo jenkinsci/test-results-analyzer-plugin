@@ -18,7 +18,6 @@ public class PackageInfo extends Info {
 
 	public void putPackageResult(Integer buildNumber, TabulatedResult packageResult, String url) {
 		PackageResultData packageResultData = new PackageResultData(packageResult, url);
-		evaluateStatusses(packageResult);
 
 		addClasses(buildNumber, packageResult, url);
 		this.buildResults.put(buildNumber, packageResultData);

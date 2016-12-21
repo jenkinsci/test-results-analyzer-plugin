@@ -18,7 +18,6 @@ public class ClassInfo extends Info {
 	public void putBuildClassResult(Integer buildNumber, TabulatedResult classResult, String url) {
 		ClassResultData classResultData = new ClassResultData(classResult, url);
 
-		evaluateStatusses(classResult);
 		addTests(buildNumber, classResult, url);
 		this.buildResults.put(buildNumber, classResultData);
 	}

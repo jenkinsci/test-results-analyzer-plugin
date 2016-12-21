@@ -40,8 +40,6 @@ public class JsTreeUtil {
     private JSONObject createJson(List<Integer> builds, JSONObject dataJson) {
         JSONObject baseJson = getBaseJson();
         baseJson.put("text", dataJson.get("name"));
-        baseJson.put("type", dataJson.get("type"));
-        baseJson.put("buildStatuses", dataJson.get("buildStatuses"));
         JSONObject packageBuilds = dataJson.getJSONObject("builds");
         JSONArray treeDataJson = new JSONArray();
         for (Integer buildNumber : builds) {

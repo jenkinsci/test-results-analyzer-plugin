@@ -19,19 +19,9 @@ public abstract class ResultData {
 	private int totalFailed;
 	private int totalPassed;
 	private int totalSkipped;
-	private List<ResultData> children = new ArrayList<ResultData>();
 	private float totalTimeTaken;
 	private String status;
-	private String failureMessage = "";
     private String url;
-
-	public String getFailureMessage() {
-		return failureMessage;
-	}
-
-	public void setFailureMessage(String failureMessage) {
-		this.failureMessage = failureMessage;
-	}
 
 	public String getName() {
 		return name;
@@ -105,18 +95,6 @@ public abstract class ResultData {
 		this.totalSkipped = totalSkipped;
 	}
 
-	public List<ResultData> getChildren() {
-		return this.children;
-	}
-
-	public void addChildResult(ResultData childResultData) {
-		this.children.add(childResultData);
-	}
-
-	public void addChildResult(List<ResultData> childResults) {
-		this.children.addAll(childResults);
-	}
-
 	public float getTotalTimeTaken() {
 		return totalTimeTaken;
 	}
@@ -170,25 +148,13 @@ public abstract class ResultData {
 
 	public JSONObject getJsonObject() {
 		JSONObject json = new JSONObject();
-		json.put("name", name);
 		json.put("totalTests", totalTests);
 		json.put("totalFailed", totalFailed);
 		json.put("totalPassed", totalPassed);
 		json.put("totalSkipped", totalSkipped);
-		json.put("isPassed", isPassed);
-		json.put("isSkipped", isSkipped);
-		json.put("isConfig", isConfig);
 		json.put("totalTimeTaken", totalTimeTaken);
 		json.put("status", status);
         json.put("url", url);
-		JSONArray testsChildren = new JSONArray();
-		for (ResultData childResult : children) {
-			testsChildren.add(childResult.getJsonObject());
-		}
-		if (!(failureMessage.equalsIgnoreCase(""))) {
-			json.put("failureMessage", failureMessage);
-		}
-		json.put("children", testsChildren);
 		return json;
 	}
 
