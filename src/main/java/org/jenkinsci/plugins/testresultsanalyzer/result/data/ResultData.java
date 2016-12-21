@@ -11,8 +11,6 @@ import java.util.List;
 public abstract class ResultData {
 
 	private String name;
-	private boolean isPassed;
-	private boolean isSkipped;
 	private boolean isConfig = false;
 	private transient TabulatedResult packageResult;
 	private int totalTests;
@@ -29,22 +27,6 @@ public abstract class ResultData {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public boolean isPassed() {
-		return isPassed;
-	}
-
-	public void setPassed(boolean isPassed) {
-		this.isPassed = isPassed;
-	}
-
-	public boolean isSkipped() {
-		return isSkipped;
-	}
-
-	public void setSkipped(boolean isSkipped) {
-		this.isSkipped = isSkipped;
 	}
 
 	public boolean isConfig() {
@@ -119,8 +101,6 @@ public abstract class ResultData {
 
     public ResultData(TestObject result, String url) {
         setName(result.getName());
-        setPassed(result.getFailCount() == 0);
-        setSkipped(result.getSkipCount() == result.getTotalCount());
         setTotalTests(result.getTotalCount());
         setTotalFailed(result.getFailCount());
         setTotalPassed(result.getPassCount());
@@ -131,11 +111,11 @@ public abstract class ResultData {
     }
 
 	protected void evaluateStatus() {
-		if (isPassed) {
-			status = "PASSED";
-		}
-		else if (isSkipped) {
+		if (totalSkipped == totalTests) {
 			status = "SKIPPED";
+		}
+		else if (totalFailed == 0) {
+			status = "PASSED";
 		}
 		else {
 			status = "FAILED";
