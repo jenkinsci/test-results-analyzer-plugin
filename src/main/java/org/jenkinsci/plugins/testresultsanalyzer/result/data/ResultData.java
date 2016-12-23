@@ -2,11 +2,6 @@ package org.jenkinsci.plugins.testresultsanalyzer.result.data;
 
 import hudson.tasks.test.TabulatedResult;
 import hudson.tasks.test.TestObject;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class ResultData {
 
@@ -124,18 +119,6 @@ public abstract class ResultData {
 
 	public String getStatus() {
 		return status;
-	}
-
-	public JSONObject getJsonObject() {
-		JSONObject json = new JSONObject();
-		json.put("totalTests", totalTests);
-		json.put("totalFailed", totalFailed);
-		json.put("totalPassed", totalPassed);
-		json.put("totalSkipped", totalSkipped);
-		json.put("totalTimeTaken", totalTimeTaken);
-		json.put("status", status);
-        json.put("url", url);
-		return json;
 	}
 
 }

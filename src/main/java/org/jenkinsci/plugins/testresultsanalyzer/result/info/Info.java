@@ -1,15 +1,10 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 
-import hudson.tasks.test.TestResult;
-
-import java.lang.reflect.Method;
-import java.util.*;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
 
 public abstract class Info {
 
@@ -29,22 +24,15 @@ public abstract class Info {
 		return buildResults;
 	}
 
+	public ResultData getBuildResult(Integer buildNumber) {
+		return buildResults.get(buildNumber);
+	}
+
 	public void setBuildPackageResults(Map<Integer, ResultData> buildResults) {
 		this.buildResults = buildResults;
 	}
 
-	protected abstract JSONObject getChildrensJson(UserConfig userConfig);
-
-	protected JSONObject getBuildJson(UserConfig userConfig) {
-		JSONObject json = new JSONObject();
-		for (Integer buildNumber : buildResults.keySet()) {
-			ResultData resultData = buildResults.get(buildNumber);
-			if(userConfig.isHideConfigMethods() && resultData.isConfig())
-				continue;
-			json.put(buildNumber.toString(), buildResults.get(buildNumber).getJsonObject());
-		}
-		return json;
-	}
+	public abstract Map<String, ? extends Info> getChildren();
 
 	public boolean isConfig() {
 		return isConfig;
@@ -52,13 +40,5 @@ public abstract class Info {
 
 	public void setConfig(boolean config) {
 		isConfig = config;
-	}
-
-	public JSONObject getJsonObject(UserConfig userConfig) {
-		JSONObject json = new JSONObject();
-		json.put("name", name);
-		json.put("builds", getBuildJson(userConfig));
-		json.put("children", getChildrensJson(userConfig));
-		return json;
 	}
 }

@@ -2,15 +2,11 @@ package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 
 import hudson.tasks.test.TabulatedResult;
 import hudson.tasks.test.TestResult;
+import org.jenkinsci.plugins.testresultsanalyzer.result.data.PackageResultData;
+import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 
 import java.util.Map;
 import java.util.TreeMap;
-
-import net.sf.json.JSONObject;
-
-import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
-import org.jenkinsci.plugins.testresultsanalyzer.result.data.PackageResultData;
-import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 
 public class PackageInfo extends Info {
 
@@ -51,12 +47,8 @@ public class PackageInfo extends Info {
 	}
 
 	@Override
-	protected JSONObject getChildrensJson(UserConfig userConfig) {
-		JSONObject json = new JSONObject();
-		for (String className : classes.keySet()) {
-			json.put(className, classes.get(className).getJsonObject(userConfig));
-		}
-		return json;
+	public Map<String, ClassInfo> getChildren() {
+		return classes;
 	}
 
 }
