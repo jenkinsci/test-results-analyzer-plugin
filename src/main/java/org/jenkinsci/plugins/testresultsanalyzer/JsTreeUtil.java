@@ -14,7 +14,7 @@ import net.sf.json.JSONObject;
 
 public class JsTreeUtil {
 
-    public JSONObject getJsTree(List<Integer> builds, ResultInfo resultInfo, UserConfig userConfig) {
+    public JSONObject getJsTree(List<Integer> builds, ResultInfo resultInfo, boolean hideConfigMethods) {
         JSONObject tree = new JSONObject();
 
         JSONArray buildJson = new JSONArray();
@@ -25,7 +25,7 @@ public class JsTreeUtil {
 
         JSONArray results = new JSONArray();
         for (Map.Entry<String, ? extends Info> entry : resultInfo.getPackageResults().entrySet()) {
-            results.add(createJson(builds, entry.getValue(), userConfig.isHideConfigMethods()));
+            results.add(createJson(builds, entry.getValue(), hideConfigMethods));
         }
         tree.put("results", results);
 
