@@ -1,7 +1,13 @@
-var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" parentclass= "{{parentclass}}" parentname="{{parentname}}" name = "{{addName text}}" {{#if isChild}} style="display:none"{{/if}}>' +
+var tableContent = '<div class="table-row" name = "{{addName text}}" ' +
+                         '{{#if hierarchyLevel}}' +
+                            'hierarchyLevel="{{hierarchyLevel}}" style="display:none"' +
+                         '{{else}}' +
+                            'hierarchyLevel="0"' +
+                         '{{/if}}' +
+                   '>' +
     '\n' + '         ' +
     '\n' + '         ' +
-    '\n' + '         <div class="table-cell"><input type="checkbox" parentclass= "{{parentclass}}" parentname="{{parentname}}" name = "checkbox-{{addName text}}" result-name = "{{addName text}}"/></div> ' +
+    '\n' + '         <div class="table-cell"><input type="checkbox"/></div> ' +
     ' <div class="name row-heading table-cell" ' +
         '{{#if hierarchyLevel}}' +
             'style="padding-left:{{addspaces hierarchyLevel}}em;"' +
@@ -19,10 +25,7 @@ var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" pare
     '{{/each}}' +
     '\n' + '</div>' +
     '{{#each children}}\n' +
-    '\n' + '{{storeParent this "parentclass" ../parentclass ../text}}' +
-    '\n' + '{{store this "parentname" ../text}}' +
     '\n' + '{{addHierarchy this ../hierarchyLevel}}' +
-    '\n' + '{{store this "isChild" true}}' +
     '\n' + '{{> tableBodyTemplate this}}' +
     '{{/each}}';
 
@@ -40,8 +43,6 @@ var tableBody = '<div class="heading">' +
     '{{/each}}' +
     '\n' + '      </div>' +
     '{{#each results}}' +
-    '{{store this "parentname" "base"}}' +
-    '{{store this "parentclass" "base"}}' +
     '{{> tableBodyTemplate}}' +
     '\n' + '{{/each}}';
 
@@ -70,12 +71,6 @@ function removeSpecialChars(name){
 
 Handlebars.registerPartial("tableBodyTemplate", tableContent);
 Handlebars.registerPartial("worstTestsTableBodyTemplate", worstTestsTableContent);
-Handlebars.registerHelper('store', function (context, key, value, options) {
-    if (key !== undefined && value != undefined) {
-        context[key] = value;
-    }
-    return "";
-});
 
 Handlebars.registerHelper('JSON2string', function (object) {
     return JSON.stringify(object);
@@ -87,20 +82,6 @@ Handlebars.registerHelper('buildLinks', function (object) {
            text = Handlebars.escapeExpression(value.buildNumber);
       return "<a href=" + url + ">" + text + "</a>";
     }).join(', '));
-});
-
-Handlebars.registerHelper('storeParent', function (context, key, value1, value2, options) {
-    if (value1 == undefined) {
-        value1 = "";
-    }
-    if (value2 == undefined) {
-        value2 = "";
-    }
-
-    if (key !== undefined) {
-        context[key] = removeSpecialChars(value1) + "-" + removeSpecialChars(value2);
-    }
-    return "";
 });
 
 
