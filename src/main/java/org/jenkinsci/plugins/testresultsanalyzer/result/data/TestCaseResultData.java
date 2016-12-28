@@ -16,8 +16,6 @@ public class TestCaseResultData extends ResultData {
 				if (statusReturnValue instanceof String) {
 					String status = ((String) statusReturnValue).toLowerCase();
 
-					setPassed(status.startsWith("pass"));
-					setSkipped(status.startsWith("skip"));
 					setTotalTests(1);
 					setTotalFailed(status.startsWith("fail") ? 1 : 0);
 					setTotalPassed(status.startsWith("pass") ? 1 : 0);
@@ -36,8 +34,6 @@ public class TestCaseResultData extends ResultData {
 			}
 		}
 		if (!doTestNg) {
-			setPassed(testResult.isPassed());
-			setSkipped(testResult.getSkipCount() == testResult.getTotalCount());
 			setTotalTests(testResult.getTotalCount());
 			setTotalFailed(testResult.getFailCount());
 			setTotalPassed(testResult.getPassCount());
@@ -46,9 +42,6 @@ public class TestCaseResultData extends ResultData {
 		setTotalTimeTaken(testResult.getDuration());
 		setUrl(url);
 		evaluateStatus();
-		if ("FAILED".equalsIgnoreCase(getStatus())) {
-			setFailureMessage(testResult.getErrorStackTrace());
-		}
 	}
 
 }
