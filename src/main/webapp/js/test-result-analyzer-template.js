@@ -19,7 +19,7 @@ var tableContent = '<div class="table-row" name = "{{addName text}}" ' +
         '<span class="{{failureIconWhenNecessary buildResults}}" title="New Failure" ></span>' +
         '&nbsp;{{text}}</span>' +
     '</div>' +
-    '' +
+    '\n' + '<div class="table-cell" title="Builds (Tests)">{{percentPassed buildResults}}</div> ' +
     '{{#each this.buildResults}}' +
     '\n' + '         <div class="table-cell build-result {{applystatus status}}" data-result=\'{{JSON2string this}}\'><a href="{{url}}">{{applyvalue status totalTimeTaken}}</a></div>' +
     '{{/each}}' +
@@ -38,6 +38,7 @@ var worstTestsTableContent = '<div class="worst-tests-table-row">' +
 var tableBody = '<div class="heading">' +
     '\n' + '        <div class="table-cell">Chart</div> ' +
     '<div class="table-cell">Package/Class/Testmethod</div>' +
+    ' <div class="table-cell">Passed</div> ' +
     '{{#each builds}}' +
     '\n' + '         <div class="table-cell" title="Build {{this}}">{{this}}</div>' +
     '{{/each}}' +
@@ -164,5 +165,37 @@ Handlebars.registerHelper('failureIconWhenNecessary', function (buildResults) {
         return '';
     }
 });
-var analyzerTemplate = Handlebars.compile(tableBody);
-var analyzerWorstTestsTemplate = Handlebars.compile(worstTestsTableBody);
+
+Handlebars.registerHelper('percentPassed', function (buildResults) {
+    var buildsPassed = 0;
+    var buildsFailed = 0;
+    var testsPassed = 0;
+    var testsFailed = 0;
+
+    var buildResultsLength = buildResults.length;
+    for (var i = 0; i < buildResultsLength; ++i) {
+        if (buildResults[i].status == "N/A") {
+            continue;
+        }
+
+        if (buildResults[i].totalFailed > 0) {
+            ++buildsFailed;
+        } else if (buildResults[i].totalPassed > 0) {
+            ++buildsPassed;
+        }
+
+        testsPassed += buildResults[i].totalPassed;
+        testsFailed += buildResults[i].totalFailed;
+    }
+
+    var totalBuilds = buildsPassed + buildsFailed;
+    var totalTests = testsPassed + testsFailed;
+    if (totalBuilds == 0 || totalTests == 0) {
+        return "N/A";
+    }
+
+    return Math.round(100.0 * buildsPassed / totalBuilds).toString() +
+        "% (" + Math.round(100.0 * testsPassed / totalTests) + "%)";
+});
+
+var analyzerTemplate = Handlebars.compile(tableBody);var analyzerWorstTestsTemplate = Handlebars.compile(worstTestsTableBody);
