@@ -20,6 +20,7 @@ var tableContent = '<div class="table-row" name = "{{addName text}}" ' +
         '&nbsp;{{text}}</span>' +
     '</div>' +
     '\n' + '<div class="table-cell" title="Builds (Tests)">{{percentPassed buildResults}}</div> ' +
+    '\n' + '<div class="table-cell" title="Number of transitions from passed to failed and failed to passed.">{{numberTransitions buildResults}}</div> ' +
     '{{#each this.buildResults}}' +
     '\n' + '         <div class="table-cell build-result {{applystatus status}}" data-result=\'{{JSON2string this}}\'><a href="{{url}}">{{applyvalue status totalTimeTaken}}</a></div>' +
     '{{/each}}' +
@@ -33,6 +34,7 @@ var tableBody = '<div class="heading">' +
     '\n' + '        <div class="table-cell">Chart</div> ' +
     '<div class="table-cell">Package/Class/Testmethod</div>' +
     ' <div class="table-cell">Passed</div> ' +
+    ' <div class="table-cell" title="Number of transitions from passed to failed and failed to passed.">Transitions</div> ' +
     '{{#each builds}}' +
     '\n' + '         <div class="table-cell" title="Build {{this}}">{{this}}</div>' +
     '{{/each}}' +
@@ -164,6 +166,44 @@ Handlebars.registerHelper('percentPassed', function (buildResults) {
 
     return Math.round(100.0 * buildsPassed / totalBuilds).toString() +
         "% (" + Math.round(100.0 * testsPassed / totalTests) + "%)";
+});
+
+Handlebars.registerHelper('numberTransitions', function (buildResults) {
+    var hasPrevious = false;
+    var peviousPassed = false;
+
+    var result = 0;
+    var it = buildResults.length;
+    while (--it >= 0) {
+        var build = buildResults[it];
+        if (build.status == "N/A") {
+            continue;
+        }
+
+        if (hasPrevious) {
+            if (build.totalFailed > 0) {
+                if (peviousPassed) {
+                    ++result;
+                    peviousPassed = false;
+                }
+            } else if (build.totalPassed > 0) {
+                if (!peviousPassed) {
+                    ++result;
+                    peviousPassed = true;
+                }
+            }
+        } else {
+            if (build.totalFailed > 0) {
+                hasPrevious = true;
+                peviousPassed = false;
+            } else if (build.totalPassed > 0) {
+                hasPrevious = true;
+                peviousPassed = true;
+            }
+        }
+    }
+
+    return result;
 });
 
 var analyzerTemplate = Handlebars.compile(tableBody);
