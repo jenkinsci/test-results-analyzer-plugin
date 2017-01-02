@@ -31,9 +31,9 @@ var tableContent = '<div class="table-row" name = "{{addName text}}" ' +
 
 var tableBody = '<div class="heading">' +
     '\n' + '        <div class="table-cell">Chart</div> ' +
-    '<div class="table-cell">Build Number &rArr;<br>Package-Class-Testmethod names &dArr;</div>' +
+    '<div class="table-cell">Package/Class/Testmethod</div>' +
     '{{#each builds}}' +
-    '\n' + '         <div class="table-cell">{{this}}</div>' +
+    '\n' + '         <div class="table-cell" title="Build {{this}}">{{this}}</div>' +
     '{{/each}}' +
     '\n' + '      </div>' +
     '{{#each results}}' +
