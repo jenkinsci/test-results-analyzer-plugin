@@ -25,6 +25,12 @@ var tableContent = '<div class="table-row {{parentclass}}-{{addName text}}" pare
     '\n' + '{{> tableBodyTemplate this}}' +
     '{{/each}}';
 
+var worstTestsTableContent = '<div class="worst-tests-table-row">' +
+    '\n' + '         <div class="table-cell row-heading">{{k}}</div>' +
+    '\n' + '         <div class="table-cell build-result">{{v.length}}</div>' +
+    '\n' + '         <div class="table-cell build-result">{{{buildLinks v}}}</div>' +
+    '</div>'
+
 var tableBody = '<div class="heading">' +
     '\n' + '        <div class="table-cell" >New Failures</div>' +
     '\n' + '        <div class="table-cell">Chart</div><div class="table-cell">See children</div> <div class="table-cell">Build Number &rArr;<br>Package-Class-Testmethod names &dArr;</div>' +
@@ -38,6 +44,22 @@ var tableBody = '<div class="heading">' +
     '{{> tableBodyTemplate}}' +
     '\n' + '{{/each}}';
 
+var worstTestsTableBody = '<h2 align="center">Top 10 Most Broken Tests</h2>' +
+    '\n' + '{{#if this.length}}' +
+    '<div class=table>' +
+    '\n' + '<div class="heading">' +
+    '\n' + '        <div class="table-cell">Test Name</div>' +
+    '\n' + '        <div class="table-cell">Times Failed</div>' +
+    '\n' + '        <div class="table-cell">Recent Failed Builds</div>' +
+    '\n' + '      </div>' +
+    '{{#each this}}' +
+    '{{> worstTestsTableBodyTemplate}}' +
+    '\n' + '{{/each}}' +
+    '</div>' +
+    '\n' + '{{else}}' +
+    '\n' + '<p>There are no failing tests</p>' +
+    '\n' + '{{/if}}';
+
 function removeSpecialChars(name){
     var modName = "";
     //modName = name.split('.').join('_');
@@ -46,6 +68,7 @@ function removeSpecialChars(name){
 }
 
 Handlebars.registerPartial("tableBodyTemplate", tableContent);
+Handlebars.registerPartial("worstTestsTableBodyTemplate", worstTestsTableContent);
 Handlebars.registerHelper('store', function (context, key, value, options) {
     if (key !== undefined && value != undefined) {
         context[key] = value;
@@ -55,6 +78,14 @@ Handlebars.registerHelper('store', function (context, key, value, options) {
 
 Handlebars.registerHelper('JSON2string', function (object) {
     return JSON.stringify(object);
+});
+
+Handlebars.registerHelper('buildLinks', function (object) {
+    return new Handlebars.SafeString($j.map(object.slice(0, 10), function( value, index ) {
+       var url = Handlebars.escapeExpression(value.buildUrl),
+           text = Handlebars.escapeExpression(value.buildNumber);
+      return "<a href=" + url + ">" + text + "</a>";
+    }).join(', '));
 });
 
 Handlebars.registerHelper('storeParent', function (context, key, value1, value2, options) {
@@ -140,3 +171,4 @@ Handlebars.registerHelper('addHierarchy', function (context, parentHierarchy, op
 });
 
 var analyzerTemplate = Handlebars.compile(tableBody);
+var analyzerWorstTestsTemplate = Handlebars.compile(worstTestsTableBody);
