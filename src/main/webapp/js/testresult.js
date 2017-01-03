@@ -264,7 +264,7 @@ function findChildren(hash, path = '') {
       findChildren(value, path);
     } else if ( index == 'buildResults' ) {
       $j.each(value, function(index1, buildResult) {
-        if (buildResult.status == 'PASSED') {
+        if (buildResult.status == 'FAILED') {
           if ( worstTests[path] === undefined ) { worstTests[path] = [] }
           worstTests[path].push({buildNumber: buildResult.buildNumber, buildUrl: buildResult.url});
         }
