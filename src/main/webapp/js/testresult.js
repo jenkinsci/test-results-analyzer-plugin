@@ -1,96 +1,58 @@
 var colTemplate = "{'cellClass':'col1','value':'build20','header':'20','title':'20'}";
-var treeMarkup = "";
 var reevaluateChartData = true;
 var displayValues = false;
 
-function newFailingTests(){
-    var table_rows = $j(".table-row");
-    var i;
-    for (i=0;i<table_rows.length;i++){
-        row = table_rows[i];
-            row_cells = $j(row).find(".build-result");
-            last_test = row_cells[0];
-            if (!JSON.parse($j(last_test).attr("data-result"))["isPassed"] && row_cells.length>1){
-                second_to_last = row_cells[1];
-                if (JSON.parse($j(second_to_last).attr("data-result"))["isPassed"]){
-                    var cell = $j(row).find(".icon-exclamation-sign")[0];
-                    $j(cell).css("display","inline-block");
-                }   
-            }
-    }
+function clearedFilter(rows) {
+    var levelsToShow = [0]; // stack to keep track of hierarchy
+
+    // Ensure that every node is expanded, that was expanded before or by the user when filtering.
+    $j(rows).each(function(index, row) {
+        var rowLevel = parseInt($j(row).attr("hierarchyLevel"));
+
+        // Remove all generations that happen after the current one, since these are not relevant anymore,
+        // when we are at a (great*)uncle.
+        while (levelsToShow[levelsToShow.length - 1] > rowLevel) {
+            levelsToShow.pop();
+        }
+
+        if ($j(row).find(".icon-minus-sign").length > 0) {
+            // also show children of this node
+            levelsToShow.push(rowLevel + 1);
+            $j(row).show();
+        } else if (levelsToShow[levelsToShow.length - 1] == rowLevel) {
+            $j(row).show();
+        } else {
+            $j(row).hide();
+        }
+    });
+}
+
+function applyFilter(rows, filter) {
+    $j(rows).each(function(index, row) {
+        var testCell = $j(row).find(".row-heading")[0];
+        var rowText = $j(testCell).text().toLowerCase();
+        if (rowText.indexOf(filter) == -1) {
+            $j(row).hide();
+        }
+        else {
+            $j(row).show();
+        }
+    });
 }
 
 function searchTests(){
-    var table = $j(".table")[0];
-    var rows = $j(table).find(".table-row");
-    $j.each(rows, function(index, row){
-        var searchStr = $j("#filter").val().toLowerCase();
-
-        // If user has removed the filter text, revert to showing the most-high level packages
-        if (searchStr == ""){
-            if ($j(row).attr("parentname") == "base"){
-                $j(row).css("display", "table-row");
-            }
-            else {
-                $j(row).css("display", "none");
-            }
-        }
-        // Filter tests by searchStr
-        else {  
-
-            var testCell = $j(row).find(".row-heading")[0];
-            var rowText = $j(testCell).text().toLowerCase();
-            if (rowText.indexOf(searchStr) == -1 ){
-                $j(row).css("display", "none");
-            }
-            else {
-                $j(row).css("display", "table-row");
-            }
-        }   
-    });
-
-    // If user has removed the filter text, 
-    // but expanded some options during/before the search, 
-    //they should remain expanded after the search
-
-    var rows_to_expand = $j(table).find(".icon-minus-sign").parent().parent();  // expanded rows
-    var searchStr = $j("#filter").val().toLowerCase();
-    if (searchStr == "") {
-        $j.each($j(rows_to_expand), function(index,row){
-            // for every expanded test, all ancestor packages need to be expanded as well
-            var parentclass = $j(row).attr("parentclass");
-            var parent = $j("." + parentclass);
-            var ancestor_arr = [];
-            while (parentclass!="base" && $j(parent).find(".icon-plus-sign").length>0){
-                ancestor_arr.push(parent);
-                var parentclass = $j(parent).attr("parentclass");
-                parent = $j("." + parentclass);
-            }
-            // Expand ancestors in top-down manner
-            $j.each($j(ancestor_arr).get().reverse(),function(index, row){
-                $j(row).find(".icon-plus-sign")[0].click();
-            });
-
-            // Make sure that it has been clicked
-            if ($j(row).find(".icon-minus-sign").length!=0){
-                $j(row).find(".icon-minus-sign")[0].click();
-            }
-
-            $j(row).find(".icon-plus-sign")[0].click();
-            
-            // Make sure that it has been clicked
-            if ($j(row).find(".icon-plus-sign")[0]){
-                $j(row).find(".icon-plus-sign")[0].click();
-            }
-            
-        });
+    var rows = $j(".table .table-row");
+    var filter = $j("#filter").val().toLowerCase();
+    if (filter == "") {
+        clearedFilter(rows);
+    } else {
+        applyFilter(rows, filter);
     }
 }
 
 function reset(){
     reevaluateChartData = true;
     $j(".table").html("")
-	treeMarkup = "";
     resetCharts();
 }
 
@@ -100,12 +62,10 @@ function populateTemplate(){
     $j("#table-loading").show();
     remoteAction.getTreeResult(getUserConfig(),$j.proxy(function(t) {
         var itemsResponse = t.responseObject();
-        treeMarkup = analyzerTemplate(itemsResponse);
-        $j(".table").html(treeMarkup);
+        $j(".table").html(analyzerTemplate(itemsResponse));
         addEvents();
         generateCharts();
         $j("#table-loading").hide();
-        hideConfigMethods();
     },this));
 }
 
@@ -124,106 +84,205 @@ function getUserConfig(){
     return userConfig;
 }
 
-function collapseAll(){
-    reevaluateChartData = true;
-    $j(".table").html("")
-    $j(".table").html(treeMarkup);
-    addEvents();
+function changeToExpandedState(node) {
+    if ($j(node).hasClass('icon-plus-sign')) {
+        $j(node).removeClass('icon-plus-sign');
+        $j(node).addClass('icon-minus-sign');
+        $j(node).attr('title', 'Hide Children');
+        return true;
+    } else {
+        return false;
+    }
 }
 
-function expandAll(){
+function changeToCollapsedState(node) {
+    if ($j(node).hasClass('icon-minus-sign')) {
+        $j(node).removeClass('icon-minus-sign');
+        $j(node).addClass('icon-plus-sign');
+        $j(node).attr('title', 'Show Children');
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function collapseAll(){
     reevaluateChartData = true;
-	collapseAll();
-	$j(".table .table-row .icon").each(function(){
-		$j(this).click();
-	});
-	
+    $j(".table .icon-minus-sign").each(function() {
+        changeToCollapsedState($j(this));
+    });
+    $j(".table .table-row").each(function (index, element) {
+        var elementLevel = parseInt($j(element).attr("hierarchyLevel"));
+        if (elementLevel == 0) {
+            $j(element).show();
+        } else {
+            $j(element).hide();
+        }
+    });
+}
+
+function expandAll() {
+    reevaluateChartData = true;
+    $j(".table .icon-plus-sign").each(function() {
+        changeToExpandedState($j(this));
+    });
+    $j(".table .table-row").show();
+}
+
+function getDescendants(parentRow, level) {
+    var parentLevel = parseInt($(parentRow).attr("hierarchyLevel"));
+    var descendantLevel = parentLevel + level;
+    var done = false;
+
+    return $j(parentRow).nextAll().filter(function(index, element) {
+        if (done) {
+          return false;
+        }
+
+        var elementLevel = parseInt($j(element).attr("hierarchyLevel"));
+        if (parentLevel >= elementLevel) {
+          // not a descendant, done
+          done = true;
+          return false;
+        } else if (level == -1 || elementLevel <= descendantLevel) {
+          return true;
+        } else {
+          // a descendant, but not in the scope of level
+          return false;
+        }
+    });
+}
+
+function getAllDescendants(parentRow) {
+    return getDescendants(parentRow, -1);
+}
+
+function getAllAncestors(parentRow) {
+    var result = [];
+
+    var parentLevel = parseInt($(parentRow).attr("hierarchyLevel"));
+    var nextAncestorLevel = parentLevel - 1;
+
+    var done = parentLevel < 0; // might not have any ancestors
+    return $j(parentRow).prevAll().filter(function (index, element) {
+        if (done) {
+            return false;
+        }
+
+        var elementLevel = parseInt($j(element).attr("hierarchyLevel"));
+        if (elementLevel === nextAncestorLevel) {
+            nextAncestorLevel -= 1;
+            if (nextAncestorLevel < 0) {
+                // last ancestors found
+                done = true;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    });
+}
+
+function getSiblings(row) {
+    var level = parseInt($j(row).attr("hierarchyLevel"));
+
+    var done = false;
+    var isSibling = function(index, element) {
+        if (done) {
+            return false;
+        }
+
+        var elementLevel = parseInt($j(element).attr("hierarchyLevel"));
+        if (elementLevel == level) {
+            return true;
+        } else if (elementLevel < level) {
+            // at a parent or uncle, so cannot be a sibling
+            done = true;
+            return false;
+        } else {
+            // another descendant that is not a sibling
+            return false;
+        }
+    };
+
+    var previousSiblings = $j(row).prevAll().filter(isSibling);
+
+    done = false;
+    var followingSiblings = $j(row).nextAll().filter(isSibling);
+
+    return $(previousSiblings).add(followingSiblings);
 }
 
 function addEvents() {
 
     var toggleHandler = function (node) {
-        var parent = $j(node).parent().parent(".table-row").attr("parentclass");
-        var nodeName = $j(node).parent().parent(".table-row").attr("name");
-        var childLocator = "[parentclass='" + parent + "-" + nodeName + "']";
-        var childNodeClass = (parent + "." + nodeName).replace(/\./g, "-").replace(/\s/g, "-");
-        if ($j(node).hasClass('icon-plus-sign')) {
-            $j(node).removeClass('icon-plus-sign');
-            $j(node).addClass('icon-minus-sign');
-            $j(childLocator).show();
-        } else {
-            $j(node).removeClass('icon-minus-sign');
-            $j(node).addClass('icon-plus-sign');
-            $j(childLocator).hide();
-            hideChilds($j(childLocator));
-        }
-    };
+        var row = $j(node).parent().parent(".table-row");
+        if (changeToExpandedState(node)) {
+            $j(getDescendants(row, 1)).show();
 
-    var hideChilds = function (childs) {
-        childs.each(function () {
-            var parent = $j(this).parent().parent(".table-row").attr("parentclass");
-            var nodeName = $j(this).parent().parent(".table-row").attr("name");
-            var childLocator = "[parentclass='" + parent + "-" + nodeName + "']";
-
-            if ($j(this).find('.icon').hasClass('icon-minus-sign')) {
-                $j(this).find('.icon').removeClass('icon-minus-sign');
-                $j(this).find('.icon').addClass('icon-plus-sign');
+            // When a filter is applied you can look at nodes currently not visible in the hierarchy,
+            // thus you have to ensure that the ancestors' state is updated correctly, so that all display
+            // the minus sign.
+            // This keeps the invariant that to expand a child its parent has to be expanded too.
+            var filter = $j("#filter").val();
+            if (filter != "") {
+                $j(getAllAncestors(row)).each(function (index, element) {
+                    changeToExpandedState($j(element).find('.icon-plus-sign'));
+                });
             }
-            var childElements = $j(childLocator);
-            childElements.hide();
-            hideChilds(childElements);
-        });
-
+        } else if (changeToCollapsedState(node)) {
+            $j(getAllDescendants(row)).hide().each(function (index, element) {
+                changeToCollapsedState($j(element).find('.icon-minus-sign'));
+            });
+        }
     };
 
     $j(".table .table-row .icon").click(function () {
         toggleHandler(this);
     });
     checkBoxEvents();
-    newFailingTests();
 }
 
 function checkBoxEvents() {
     var table = $j(".table")[0];
     $j(table).find("input[type='checkbox']").change(function () {
         reevaluateChartData = true;
-        if (this.checked) {
-            checkChildren(this, true);
-            checkParent(this);
-        } else {
-            checkChildren(this, false);
-            checkParent(this);
-        }
+
+        var row = $j(this).parent().parent(".table-row");
+        var check = this.checked;
+        checkChildren(row, check);
+        checkParent(row, check);
+
         generateCharts();
     });
 }
 
-function checkChildren(node, checked) {
-    var parent = $j(node).attr("parentclass");
-    var nodeName = $j(node).attr("result-name");
-    var childLocator = "[parentclass='" + parent + "-" + nodeName + "']";
-    var childElements = $j(childLocator);
-    childElements.find("input[type='checkbox']").prop("checked", checked);
-    childElements.each(function () {
-        checkChildren(this, checked)
-    });
+function checkChildren(row, checked) {
+    $j(getAllDescendants(row)).find("input[type='checkbox']").prop("checked", checked);
 }
 
-function checkParent(node) {
-    var parent = $j(node).attr("parentclass");
-    var childLocator = "[parentclass='" + parent + "']";
-    var childElements = $j(childLocator);
-    var childCheckBoxes = childElements.find("input[type='checkbox']");
-    var selectParent = true;
-    childCheckBoxes.each(function () {
-        if ($j(this).prop("checked") != true) {
-            selectParent = false;
-        }
-    });
-    var parentCheckBox = $j("." + parent).find("input[type='checkbox']");
-    parentCheckBox.prop("checked", selectParent);
-    if ((parentCheckBox.size() > 0) && ($j(parentCheckBox).attr("parentclass") != 'base')) {
-        checkParent(parentCheckBox);
+function areAllSiblingsChecked(row) {
+    var siblings = getSiblings(row);
+    return $(siblings).find("input:checked").length == siblings.length;
+}
+
+function checkParent(row, checked) {
+    var ancestors = getAllAncestors(row);
+    var ancestorsLength = ancestors.length;
+
+    if (checked) {
+        var child = row;
+        $j(ancestors).each(function (index, element) {
+            if (areAllSiblingsChecked(child)) {
+                $j(element).find("input[type='checkbox']").prop("checked", checked);
+                child = element;
+            } else {
+                return false;
+            }
+        });
+    } else {
+        $j(ancestors).find("input[type='checkbox']").prop("checked", checked);
     }
 }
 

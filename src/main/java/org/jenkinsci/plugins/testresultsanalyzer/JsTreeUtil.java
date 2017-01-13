@@ -1,9 +1,12 @@
 package org.jenkinsci.plugins.testresultsanalyzer;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
+import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
+import org.jenkinsci.plugins.testresultsanalyzer.result.info.Info;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 
 import net.sf.json.JSONArray;
@@ -11,7 +14,7 @@ import net.sf.json.JSONObject;
 
 public class JsTreeUtil {
 
-    public JSONObject getJsTree(List<Integer> builds, ResultInfo resultInfo, UserConfig userConfig) {
+    public JSONObject getJsTree(List<Integer> builds, ResultInfo resultInfo, boolean hideConfigMethods) {
         JSONObject tree = new JSONObject();
 
         JSONArray buildJson = new JSONArray();
@@ -19,57 +22,67 @@ public class JsTreeUtil {
             buildJson.add(buildNumber.toString());
         }
         tree.put("builds", buildJson);
-        JSONObject packageResults = resultInfo.getJsonObject(userConfig);
-        JSONArray results = new JSONArray();
-        for (Object packageName : packageResults.keySet()) {
 
-            JSONObject packageJson = packageResults.getJSONObject((String) packageName);
-            results.add(createJson(builds, packageJson));
+        JSONArray results = new JSONArray();
+        for (Map.Entry<String, ? extends Info> entry : resultInfo.getPackageResults().entrySet()) {
+            results.add(createJson(builds, entry.getValue(), hideConfigMethods));
         }
         tree.put("results", results);
+
         return tree;
     }
 
-    private JSONObject getBaseJson() {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("text", "");
-        jsonObject.put("buildResults", new JSONArray());
-        return jsonObject;
-    }
+    private JSONObject createJson(List<Integer> builds, Info info, boolean hideConfigMethods) {
+        JSONObject baseJson = new JSONObject();
 
-    private JSONObject createJson(List<Integer> builds, JSONObject dataJson) {
-        JSONObject baseJson = getBaseJson();
-        baseJson.put("text", dataJson.get("name"));
-        baseJson.put("type", dataJson.get("type"));
-        baseJson.put("buildStatuses", dataJson.get("buildStatuses"));
-        JSONObject packageBuilds = dataJson.getJSONObject("builds");
-        JSONArray treeDataJson = new JSONArray();
-        for (Integer buildNumber : builds) {
-            JSONObject build = new JSONObject();
-            if (packageBuilds.containsKey(buildNumber.toString())) {
-                JSONObject buildResult = packageBuilds.getJSONObject(buildNumber.toString());
-                //String status = buildResult.getString("status");
-                buildResult.put("buildNumber", buildNumber.toString());
-                build = buildResult;
-            } else {
-                build.put("status", "N/A");
-                build.put("buildNumber", buildNumber.toString());
-            }
-            treeDataJson.add(build);
-        }
-        baseJson.put("buildResults", treeDataJson);
-
-        if (dataJson.containsKey("children")) {
-            JSONArray childrens = new JSONArray();
-            JSONObject childrenJson = dataJson.getJSONObject("children");
-            @SuppressWarnings("unchecked")
-            Set<String> childeSet = (Set<String>) childrenJson.keySet();
-            for (String childName : childeSet) {
-                childrens.add(createJson(builds, childrenJson.getJSONObject(childName)));
-            }
-            baseJson.put("children", childrens);
-        }
+        baseJson.put("text", info.getName());
+        baseJson.put("buildResults", getBuilds(builds, info));
+        baseJson.put("children", getChildren(builds, info, hideConfigMethods));
 
         return baseJson;
+    }
+
+    private JSONArray getBuilds(List<Integer> builds, Info info) {
+        JSONArray treeDataJson = new JSONArray();
+        for (Integer buildNumber : builds) {
+            treeDataJson.add(getBuild(buildNumber, info));
+        }
+        return treeDataJson;
+    }
+
+    private JSONArray getChildren(List<Integer> builds, Info info, boolean hideConfigMethods) {
+        Map<String, ? extends Info> childrenInfo = info.getChildren();
+        if (childrenInfo == null)
+            return new JSONArray();
+
+        JSONArray children = new JSONArray();
+        for (Map.Entry<String, ? extends Info> entry : childrenInfo.entrySet()) {
+            if (!hideConfigMethods || !entry.getValue().isConfig()) {
+                children.add(createJson(builds, entry.getValue(), hideConfigMethods));
+            }
+        }
+
+        return children;
+    }
+
+    private JSONObject getBuild(Integer buildNumber, Info info) {
+        JSONObject json = new JSONObject();
+        json.put("buildNumber", buildNumber.toString());
+
+        ResultData result = info.getBuildResult(buildNumber);
+        if (result == null) {
+            json.put("status", "N/A");
+        } else {
+            json.put("totalTests", result.getTotalTests());
+            json.put("totalFailed", result.getTotalFailed());
+            json.put("totalPassed", result.getTotalPassed());
+            json.put("totalSkipped", result.getTotalSkipped());
+            json.put("totalTimeTaken", result.getTotalTimeTaken());
+            json.put("status", result.getStatus());
+            json.put("url", result.getUrl());
+        }
+
+
+        return json;
     }
 }
