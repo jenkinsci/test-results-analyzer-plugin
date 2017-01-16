@@ -4,23 +4,6 @@ var worstTestsMarkup = "";
 var reevaluateChartData = true;
 var displayValues = false;
 
-function newFailingTests(){
-    var table_rows = $j(".table-row");
-    var i;
-    for (i=0;i<table_rows.length;i++){
-        row = table_rows[i];
-            row_cells = $j(row).find(".build-result");
-            last_test = row_cells[0];
-            if (!JSON.parse($j(last_test).attr("data-result"))["isPassed"] && row_cells.length>1){
-                second_to_last = row_cells[1];
-                if (JSON.parse($j(second_to_last).attr("data-result"))["isPassed"]){
-                    var cell = $j(row).find(".icon-exclamation-sign")[0];
-                    $j(cell).css("display","inline-block");
-                }   
-            }
-    }
-}
-
 function searchTests(){
     var table = $j(".test-history-table")[0];
     var rows = $j(table).find(".table-row");
@@ -104,6 +87,7 @@ function populateTemplate(){
     remoteAction.getTreeResult(getUserConfig(),$j.proxy(function(t) {
         var itemsResponse = t.responseObject();
         treeMarkup = analyzerTemplate(itemsResponse);
+        window.data = itemsResponse;
         $j(".test-history-table").html(treeMarkup);
         var worstTests = getWorstTests(itemsResponse);
         worstTestsMarkup = analyzerWorstTestsTemplate(worstTests);
@@ -162,10 +146,12 @@ function addEvents() {
         if ($j(node).hasClass('icon-plus-sign')) {
             $j(node).removeClass('icon-plus-sign');
             $j(node).addClass('icon-minus-sign');
+            $j(node).attr('title', 'Hide Children');
             $j(childLocator).show();
-        } else {
+        } else if ($j(node).hasClass('icon-minus-sign')) {
             $j(node).removeClass('icon-minus-sign');
             $j(node).addClass('icon-plus-sign');
+            $j(node).attr('title', 'Show Children');
             $j(childLocator).hide();
             hideChilds($j(childLocator));
         }
@@ -177,9 +163,11 @@ function addEvents() {
             var nodeName = $j(this).parent().parent(".table-row").attr("name");
             var childLocator = "[parentclass='" + parent + "-" + nodeName + "']";
 
-            if ($j(this).find('.icon').hasClass('icon-minus-sign')) {
-                $j(this).find('.icon').removeClass('icon-minus-sign');
-                $j(this).find('.icon').addClass('icon-plus-sign');
+            var icon = $j(this).find('.icon');
+            if (icon.hasClass('icon-minus-sign')) {
+                icon.removeClass('icon-minus-sign');
+                icon.addClass('icon-plus-sign');
+                icon.attr('title', 'Show Children');
             }
             var childElements = $j(childLocator);
             childElements.hide();
@@ -192,7 +180,6 @@ function addEvents() {
         toggleHandler(this);
     });
     checkBoxEvents();
-    newFailingTests();
 }
 
 function checkBoxEvents() {
@@ -264,7 +251,8 @@ function findChildren(hash, path = '') {
       findChildren(value, path);
     } else if ( index == 'buildResults' ) {
       $j.each(value, function(index1, buildResult) {
-        if (buildResult.status == 'FAILED') {
+        // if totalTests is equal to 1 then it should be at the lowest level of the itemsResponse hash
+        if ((buildResult.status == 'FAILED') && (buildResult.totalTests == '1')) {
           if ( worstTests[path] === undefined ) { worstTests[path] = [] }
           worstTests[path].push({buildNumber: buildResult.buildNumber, buildUrl: buildResult.url});
         }
