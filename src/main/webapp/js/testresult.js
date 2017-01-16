@@ -87,7 +87,6 @@ function populateTemplate(){
     remoteAction.getTreeResult(getUserConfig(),$j.proxy(function(t) {
         var itemsResponse = t.responseObject();
         treeMarkup = analyzerTemplate(itemsResponse);
-        window.data = itemsResponse;
         $j(".test-history-table").html(treeMarkup);
         var worstTests = getWorstTests(itemsResponse);
         worstTestsMarkup = analyzerWorstTestsTemplate(worstTests);
