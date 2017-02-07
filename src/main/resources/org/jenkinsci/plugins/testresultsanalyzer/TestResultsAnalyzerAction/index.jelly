@@ -88,10 +88,16 @@ Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Cl
 </div>
 <br/>
 <div id="tree">
-    <div id="table-loading" style="display: none;">
-        <img src="${resURL}/plugin/test-results-analyzer/images/loading2.gif"/>
-    </div>
-   <div class="table">
+   <div id="table-loading" style="display: none;">
+       <img src="${resURL}/plugin/test-results-analyzer/images/loading2.gif"/>
+   </div>
+
+   <div class="test-history-table table">
+
+   </div>
+   <br/>
+
+   <div class="worst-tests-table">
 
    </div>
 </div>

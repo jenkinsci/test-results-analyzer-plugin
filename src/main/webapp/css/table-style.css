@@ -73,14 +73,15 @@
 		background-position: -144px -120px;
 	}
 	
-	.table {
-
-	}
 	.table-cell .name{
 		display: inline-block;
 	}
 
 	.table-row {
+		display: table-row;
+	}
+
+	.worst-tests-table-row {
 		display: table-row;
 	}
 

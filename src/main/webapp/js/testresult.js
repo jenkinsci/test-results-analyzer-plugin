@@ -1,10 +1,11 @@
 var colTemplate = "{'cellClass':'col1','value':'build20','header':'20','title':'20'}";
 var treeMarkup = "";
+var worstTestsMarkup = "";
 var reevaluateChartData = true;
 var displayValues = false;
 
 function searchTests(){
-    var table = $j(".table")[0];
+    var table = $j(".test-history-table")[0];
     var rows = $j(table).find(".table-row");
     $j.each(rows, function(index, row){
         var searchStr = $j("#filter").val().toLowerCase();
@@ -72,8 +73,10 @@ function searchTests(){
 
 function reset(){
     reevaluateChartData = true;
-    $j(".table").html("")
+    $j(".test-history-table").html("")
+    $j(".worst-tests-table").html("")
 	treeMarkup = "";
+	worstTestsMarkup = "";
     resetCharts();
 }
 
@@ -84,11 +87,18 @@ function populateTemplate(){
     remoteAction.getTreeResult(getUserConfig(),$j.proxy(function(t) {
         var itemsResponse = t.responseObject();
         treeMarkup = analyzerTemplate(itemsResponse);
-        $j(".table").html(treeMarkup);
+        $j(".test-history-table").html(treeMarkup);
+        var worstTests = getWorstTests(itemsResponse);
+        worstTestsMarkup = analyzerWorstTestsTemplate(worstTests);
+        $j(".worst-tests-table").html(worstTestsMarkup);
         addEvents();
         generateCharts();
         $j("#table-loading").hide();
-        hideConfigMethods();
+
+        // Can this ever be defined?
+        if (typeof hideConfigMethods !== "undefined") {
+          hideConfigMethods();
+        }
     },this));
 }
 
@@ -109,15 +119,17 @@ function getUserConfig(){
 
 function collapseAll(){
     reevaluateChartData = true;
-    $j(".table").html("")
-    $j(".table").html(treeMarkup);
+    $j(".test-history-table").html("")
+    $j(".test-history-table").html(treeMarkup);
+    $j(".worst-tests-table").html("");
+    $j(".worst-tests-table").html(worstTestsMarkup);
     addEvents();
 }
 
 function expandAll(){
     reevaluateChartData = true;
 	collapseAll();
-	$j(".table .table-row .icon").each(function(){
+	$j(".test-history-table .table-row .icon").each(function(){
 		$j(this).click();
 	});
 	
@@ -163,14 +175,14 @@ function addEvents() {
 
     };
 
-    $j(".table .table-row .icon").click(function () {
+    $j(".test-history-table .table-row .icon").click(function () {
         toggleHandler(this);
     });
     checkBoxEvents();
 }
 
 function checkBoxEvents() {
-    var table = $j(".table")[0];
+    var table = $j(".test-history-table")[0];
     $j(table).find("input[type='checkbox']").change(function () {
         reevaluateChartData = true;
         if (this.checked) {
@@ -215,4 +227,39 @@ function checkParent(node) {
 
 function resetAdvancedOptions(){
     $j("#show-build-durations").prop('checked', false);
+}
+
+function getWorstTests(itemsResponse, range = 10) {
+  worstTests = {}
+  findChildren(itemsResponse);
+  worstTests = $j.map(worstTests, function(v,k) { return {k, v}});
+  worstTests.sort(function (a,b) { return compareInteger(b.v.length, a.v.length)});
+  return worstTests.slice(0, range);
+}
+
+function compareInteger(integer1, integer2) {
+  if (parseInt(integer1) > parseInt(integer2)) return 1;
+  else if (parseInt(integer1) < parseInt(integer2)) return -1;
+  else return 0;
+}
+
+function findChildren(hash, path = '') {
+  if ( hash.text != undefined ) { path += (path == '') ? hash.text : '.' + hash.text }
+  $j.each(hash, function( index, value ) {
+    if ( index == 'children' && value.length > 0 ) {
+      findChildren(value, path);
+    } else if ( index == 'buildResults' ) {
+      $j.each(value, function(index1, buildResult) {
+        // if totalTests is equal to 1 then it should be at the lowest level of the itemsResponse hash
+        if ((buildResult.status == 'FAILED') && (buildResult.totalTests == '1')) {
+          if ( worstTests[path] === undefined ) { worstTests[path] = [] }
+          worstTests[path].push({buildNumber: buildResult.buildNumber, buildUrl: buildResult.url});
+        }
+      });
+    } else if ( $j.type(value) == 'object' ) {
+      findChildren(value, path);
+    } else if ( $j.isArray(value) ) {
+      findChildren(value, path);
+    }
+  });
 }
