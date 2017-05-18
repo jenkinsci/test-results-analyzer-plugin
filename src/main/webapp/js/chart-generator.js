@@ -318,7 +318,7 @@ function getChartData(selectedRows, type) {
     if(selectedRows.size() > 0) {
         baseRows = selectedRows;
     } else {
-        baseRows = $j("[parentclass='base']");
+        baseRows = $j('[hierarchyLevel="0"]');
     }
 
     $j.each(baseRows, function(index, baseRow) {
@@ -368,17 +368,27 @@ function getChartData(selectedRows, type) {
 }
 
 function getSelectedRows(){
-    var checkedRows = $j("#tree").find(":checked");
-    var selectedRows = [];
+    var lastCheckedLevel = 2147483647; // large number, to avoid additional checks
+    return $j(".table .table-row").filter(function (index, element) {
+        var elementLevel = parseInt($j(element).attr("hierarchyLevel"));
 
-    checkedRows.each(function(){
-        var parentClass = $j(this).attr("parentclass");
-        var parent = $j("."+parentClass).find("input[type='checkbox']")
-        if($j.inArray(parent.get(0),checkedRows)<0) {
-            selectedRows.push($j(this).parent().parent());
+        if ($j(element).find("input:checked").length == 0) {
+            if (elementLevel >= lastCheckedLevel) {
+                // reset level to ensure that a selection in a different branch has no effect on this branch
+                lastCheckedLevel = 2147483647;
+            }
+            return false;
+        }
+
+        if (elementLevel <= lastCheckedLevel) {
+            lastCheckedLevel = elementLevel;
+            return true;
+        } else {
+            // Do not add element when an ancestor was already added.
+            // This avoids accounting for tests multiple times.
+            return false;
         }
     });
-    return selectedRows;
 }
 
 function getLineChartConfig(chartCategories, chartData){
