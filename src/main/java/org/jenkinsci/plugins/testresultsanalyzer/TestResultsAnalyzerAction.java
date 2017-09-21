@@ -135,7 +135,12 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 	}
 
 	public boolean isUpdated() {
-		int latestBuildNumber = project.getLastBuild().getNumber();
+		Run lastBuild = project.getLastBuild();
+		if (lastBuild == null) {
+			return false;
+		}
+
+		int latestBuildNumber = lastBuild.getNumber();
 		return !(builds.contains(latestBuildNumber));
 	}
 
@@ -193,6 +198,10 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
     @JavaScriptMethod
     public JSONObject getTreeResult(UserConfig userConfig) {
+		if (resultInfo == null) {
+			return new JSONObject();
+		}
+
         int noOfBuilds = getNoOfBuildRequired(userConfig.getNoOfBuildsNeeded());
         List<Integer> buildList = getBuildList(noOfBuilds);
 
