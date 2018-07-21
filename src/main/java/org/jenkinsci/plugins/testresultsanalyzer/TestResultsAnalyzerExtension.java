@@ -49,6 +49,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
         private static final String SKIPPED_REPRESENTATION = "SKIPPED";
         private static final String NA_REPRESENTATION = "N/A";
         private String noOfBuilds = "10";
+        private int noOfRunsToFetch = -1;
         private boolean showAllBuilds = false;
         private boolean showBuildTime = false;
         private boolean showLineGraph = true;
@@ -89,6 +90,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
         public boolean configure(StaplerRequest req, JSONObject formData) {
             try {
                 noOfBuilds = formData.getString("noOfBuilds");
+                noOfRunsToFetch = formData.getInt("noOfRunsToFetch");
                 showAllBuilds = formData.getBoolean("showAllBuilds");
                 showBuildTime = formData.getBoolean("showBuildTime");
                 hideConfigurationMethods = formData.getBoolean("hideConfigurationMethods");
@@ -135,7 +137,11 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
 
 		public String getNoOfBuilds() { return noOfBuilds; }
 
-		public boolean getShowAllBuilds() { return showAllBuilds; }
+        public int getNoOfRunsToFetch() {
+            return noOfRunsToFetch;
+        }
+
+        public boolean getShowAllBuilds() { return showAllBuilds; }
 
 		public boolean getShowLineGraph() { return showLineGraph; }
 
@@ -199,6 +205,14 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
             return naColor;
         }
 
+        public FormValidation doCheckNoOfRunsToFetch(@QueryParameter String noOfRunsToFetch){
+            return intValidation(noOfRunsToFetch);
+        }
+
+        public FormValidation doCheckNoOfBuilds(@QueryParameter String noOfBuilds){
+            return intValidation(noOfBuilds);
+        }
+
         public FormValidation doCheckPassedRepresentation(@QueryParameter String passedRepresentation){
             return valueValidation(passedRepresentation);
         }
@@ -213,6 +227,18 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
 
         public FormValidation doCheckNaRepresentation(@QueryParameter String naRepresentation){
             return valueValidation(naRepresentation);
+        }
+
+        private FormValidation intValidation(String value) {
+            if(value == "")
+                return FormValidation.error("Entered value should not be empty");
+
+            try {
+                Integer.valueOf(value);
+            } catch (NumberFormatException e) {
+                return FormValidation.error("Entered value is not a number. Please enter a valid number.");
+            }
+            return FormValidation.ok();
         }
 
         private FormValidation valueValidation(String value) {

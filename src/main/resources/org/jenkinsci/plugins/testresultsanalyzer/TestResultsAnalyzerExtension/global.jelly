@@ -1,6 +1,9 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 	<f:section title="${%Test Results Analyzer}">
-		<f:entry title="${%Number of Builds}">
+		<f:entry title="${%No. of Runs To Fetch Reports}" field="noOfRunsToFetch">
+    	<f:textbox name="noOfRunsToFetch" value="${descriptor.getNoOfBuildsForReports()}"/>
+    </f:entry>
+		<f:entry title="${%Number of Builds}" field="noOfBuilds">
 			<f:textbox name="noOfBuilds" value="${descriptor.getNoOfBuilds()}"/>
 		</f:entry>
 		<f:entry title="${%Show All Builds}">
