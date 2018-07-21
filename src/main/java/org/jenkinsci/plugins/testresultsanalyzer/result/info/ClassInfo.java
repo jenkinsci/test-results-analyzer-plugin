@@ -27,7 +27,7 @@ public class ClassInfo extends Info {
 	private void addTests(Integer buildNumber, TabulatedResult classResult, String url) {
 		for (TestResult testCaseResult : classResult.getChildren()) {
 
-			String testCaseName = testCaseResult.getName();
+			String testCaseName = testCaseResult.getDisplayName();
 			TestCaseInfo testCaseInfo;
 			if (tests.containsKey(testCaseName)) {
 				testCaseInfo = tests.get(testCaseName);
