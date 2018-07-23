@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
 <l:layout title="Test Result Graph">
 <st:include it="${it.project}" page="sidepanel.jelly" />
