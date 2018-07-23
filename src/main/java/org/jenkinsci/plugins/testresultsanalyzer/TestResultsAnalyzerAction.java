@@ -153,7 +153,12 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 		resultInfo = new ResultInfo();
 		builds = new ArrayList<Integer>();
 
-		RunList<Run> runs = project.getBuilds();
+		RunList<Run> runs = null;
+		if (getNoOfRunsToFetch() > 0) {
+		    runs = project.getBuilds().limit(getNoOfRunsToFetch());
+        } else {
+		    runs = project.getBuilds();
+        }
 		for (Run run : runs) {
 			if(run.isBuilding()) {
 				continue;
@@ -281,6 +286,10 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
 	public String getNoOfBuilds() {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getNoOfBuilds();
+	}
+
+	public int getNoOfRunsToFetch() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getNoOfRunsToFetch();
 	}
 
 	public boolean getShowAllBuilds() {
