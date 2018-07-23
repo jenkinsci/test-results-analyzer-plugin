@@ -14,12 +14,12 @@ import hudson.util.RunList;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.logging.Logger;
 
 import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.apache.log4j.Logger;
 import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
@@ -193,8 +193,10 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 		try {
 			TabulatedResult testResult = (TabulatedResult) result;
 			Collection<? extends TestResult> packageResults = testResult.getChildren();
+			Jenkins jenkins = Jenkins.getInstance();
+			String rootUrl = jenkins != null ? jenkins.getRootUrl() : "";
 			for (TestResult packageResult : packageResults) { // packageresult
-				resultInfo.addPackage(buildNumber, (TabulatedResult) packageResult, Jenkins.getInstance().getRootUrl() + run.getUrl());
+				resultInfo.addPackage(buildNumber, (TabulatedResult) packageResult, rootUrl + run.getUrl());
 			}
 		} catch (ClassCastException e) {
 			LOG.info("Got ClassCast exception while converting results to Tabulated Result from action: " + testAction.getClass().getName() + ". Ignoring as we only want test results for processing.");
@@ -221,12 +223,14 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 		int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
 		List<Integer> buildList = getBuildList(noOfBuilds);
 
-		String buildsString = "";
+		StringBuffer builder = new StringBuffer("");
         for (int i = 0; i < buildList.size(); i++) {
-            buildsString += ",\"" + Integer.toString(builds.get(i)) + "\"";
+            builder.append(",\"");
+            builder.append(Integer.toString(builds.get(i)));
+            builder.append("\"");
         }		
         String header = "\"Package\",\"Class\",\"Test\"";
-        header += buildsString;
+        header += builder.toString();
 
 		StringBuilder exportBuilder = new StringBuilder();
         exportBuilder.append(header + System.lineSeparator());
@@ -267,7 +271,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 		try {
 			resultStatus = ResultStatus.valueOf(status);
 		} catch (IllegalArgumentException e) {
-
+		    resultStatus = null;
 		}
 		if (resultStatus == null)
 			return status;

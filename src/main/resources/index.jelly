@@ -1,6 +1,7 @@
 <!--
   This view is used to render the installed plugins page.
 -->
+<?jelly escape-by-default='true'?>
 <div>
   This plugin shows history of test execution results in a tabular or graphical format.
 </div>

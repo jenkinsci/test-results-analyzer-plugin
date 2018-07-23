@@ -14,6 +14,7 @@ import hudson.model.Job;
 import hudson.util.FormValidation;
 import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -59,8 +60,8 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
         private String runTimeLowThreshold = "0.5";
         private String runTimeHighThreshold = "1.0";
 
-        private final String passFailString = "passfail";
-        private final String runtimeString = "runtime";
+        private static final String passFailString = "passfail";
+        private static final String runtimeString = "runtime";
         private boolean useCustomStatusNames;
         private String passedRepresentation = "PASSED";
         private String failedRepresentation = "FAILED";
@@ -230,7 +231,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
         }
 
         private FormValidation intValidation(String value) {
-            if(value == "")
+            if(StringUtils.isBlank(value))
                 return FormValidation.error("Entered value should not be empty");
 
             try {
@@ -242,7 +243,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
         }
 
         private FormValidation valueValidation(String value) {
-            if(value == "")
+            if(StringUtils.isBlank(value))
                 return FormValidation.error("Entered value should not be empty");
             Pattern regex = Pattern.compile("[<>{}*\\\"\'$&+,:;=?@#|]");
             Matcher matcher = regex.matcher(value);
@@ -268,7 +269,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
         }
 
         private FormValidation colorValidation(String value) {
-            if (value == "")
+            if (StringUtils.isBlank(value))
                 return FormValidation.error("Entered value should not be empty");
             final String HEX_PATTERN = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$";
             Pattern regex = Pattern.compile(HEX_PATTERN);

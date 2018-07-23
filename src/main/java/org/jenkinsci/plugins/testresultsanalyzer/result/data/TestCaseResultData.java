@@ -2,6 +2,7 @@ package org.jenkinsci.plugins.testresultsanalyzer.result.data;
 
 import hudson.tasks.test.TestResult;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class TestCaseResultData extends ResultData {
@@ -27,8 +28,7 @@ public class TestCaseResultData extends ResultData {
 					boolean isConfig = ((Boolean) configReturnValue);
 					setConfig(isConfig);
 				}
-			}
-			catch (Exception e) {
+			} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) { //NOSONAR
 				// fallback to non testng code
 				doTestNg = false;
 			}
