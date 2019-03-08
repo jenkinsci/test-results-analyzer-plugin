@@ -14,7 +14,9 @@ public abstract class ResultData {
 	private int totalSkipped;
 	private float totalTimeTaken;
 	private String status;
-    private String url;
+	private String url;
+	private String errorDetails;
+	private String errorStackTrace;
 
 	public String getName() {
 		return name;
@@ -80,30 +82,46 @@ public abstract class ResultData {
 		this.totalTimeTaken = totalTimeTaken;
 	}
 
-    public String getUrl() {
-        return url;
-    }
+	public String getUrl() {
+		return url;
+	}
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
+	public void setUrl(String url) {
+		this.url = url;
+	}
 
-    //Used for constructing mock object
+	public String getErrorDetails() {
+		return errorDetails;
+	}
+
+	public void setErrorDetails(String errorDetails) {
+		this.errorDetails = errorDetails;
+	}
+
+	public String getErrorStackTrace() {
+		return errorStackTrace;
+	}
+
+	public void setErrorStackTrace(String errorStackTrace) {
+		this.errorStackTrace = errorStackTrace;
+	}
+
+	// Used for constructing mock object
     public ResultData()
     {
 
-    }
+	}
 
-    public ResultData(TestObject result, String url) {
-        setName(result.getName());
-        setTotalTests(result.getTotalCount());
-        setTotalFailed(result.getFailCount());
-        setTotalPassed(result.getPassCount());
-        setTotalSkipped(result.getSkipCount());
-        setTotalTimeTaken(result.getDuration());
-        setUrl(url);
-        evaluateStatus();
-    }
+	public ResultData(TestObject result, String url) {
+		setName(result.getName());
+		setTotalTests(result.getTotalCount());
+		setTotalFailed(result.getFailCount());
+		setTotalPassed(result.getPassCount());
+		setTotalSkipped(result.getSkipCount());
+		setTotalTimeTaken(result.getDuration());
+		setUrl(url);
+		evaluateStatus();
+	}
 
 	protected void evaluateStatus() {
 		if (totalSkipped == totalTests) {

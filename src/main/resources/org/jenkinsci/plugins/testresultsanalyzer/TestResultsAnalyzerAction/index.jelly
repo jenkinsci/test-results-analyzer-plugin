@@ -2,7 +2,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout">
 <l:layout title="Test Result Graph">
 <st:include it="${it.project}" page="sidepanel.jelly" />
-<st:bind var="remoteAction" value="${it}"/> 
+<st:bind var="remoteAction" value="${it}"/>
 <l:main-panel>
 <link href="${resURL}/plugin/test-results-analyzer/css/table-style.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/jquery/js/jquery-1.11.1.min.js"></script>
@@ -12,6 +12,7 @@
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/json3-min.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highchart-exporting.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highchart-offline-exporting.js"></script>
+<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/fuzzyset.js"></script>
 
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/testresult.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/chart-generator.js"></script>
@@ -101,6 +102,10 @@ Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Cl
    <div class="worst-tests-table">
 
    </div>
+
+   <div class="most-exceptions-table">
+
+   </div>
 </div>
 <br/>
 <br/>
@@ -128,6 +133,7 @@ Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Cl
 <script>
 	var runtimeLowThreshold = "${it.runTimeLowThreshold}";
 	var runtimeHighThreshold = "${it.runTimeHighThreshold}";
+  var minScoreExceptionMessageEquality = "${it.minScoreExceptionMessageEquality}";
     var customStatuses = {
         'PASSED':'PASSED',
         'SKIPPED':'SKIPPED',
@@ -198,11 +204,11 @@ Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Cl
 	jQuery("#getbuildreport").click(function () {
 		populateTemplate();
 	});
-	
+
 	jQuery("#expandall").click(function () {
 		expandAll();
 	});
-	
+
 	jQuery("#collapseall").click(function () {
 		collapseAll();
 	});
@@ -220,7 +226,7 @@ Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Cl
 		element.setAttribute('download', filename);
 		element.style.display = 'none';
 		document.body.appendChild(element);
-		element.click();	
+		element.click();
 		document.body.removeChild(element);
 	}
 </script>

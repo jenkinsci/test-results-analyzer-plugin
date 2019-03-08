@@ -35,7 +35,28 @@ var worstTestsTableContent = '<div class="worst-tests-table-row">' +
     '\n' + '         <div class="table-cell row-heading">{{k}}</div>' +
     '\n' + '         <div class="table-cell build-result">{{v.length}}</div>' +
     '\n' + '         <div class="table-cell build-result">{{{buildLinks v}}}</div>' +
-    '</div>'
+    '</div>';
+
+var mostExceptionsTableContent = '<div class="most-exceptions-table-row" ' +
+                                       'hierarchyLevelMostExceptions="0"' +
+                                    '>' +
+    '\n' + ' <div class="name row-heading table-cell">' +
+    '{{#if v.length}}' +
+    '<span class="icon icon-plus-sign" title="Show Children"></span> ' +
+    '{{/if}}' +
+    '{{k}}</div>' +
+    '\n' + '         <div class="table-cell build-result">{{v.length}}</div>' +
+    '\n' + '         <div class="table-cell build-result">&nbsp;</div>' +
+    '</div>' +
+    '{{#each v}}\n' +
+    '\n' + '{{addHierarchyMostExceptions this ../hierarchyLevelMostExceptions}}' +
+    '\n' + '{{> mostExceptionsTableStackTraceTemplate this}}' +
+    '{{/each}}';
+var mostExceptionsTableStackTraceContent = '<div class="most-exceptions-table-row" hierarchyLevelMostExceptions="1" style="display:none">' +
+'\n' + '         <div class="table-cell row-heading" style="padding-left:{{addspaces 2}}em;"><pre>{{{this.buildResult.errorStackTrace}}}</pre></div>' +
+'\n' + '         <div class="table-cell build-result">&nbsp;</div>' +
+'\n' + '         <div class="table-cell build-result"><a href="{{this.buildResult.url}}">{{this.path}} ({{this.buildResult.buildNumber}})</a></div>' +
+'</div>';
 
 var tableBody = '<div class="heading">' +
     '\n' + '        <div class="table-cell">Chart</div> ' +
@@ -66,6 +87,22 @@ var worstTestsTableBody = '<h2 align="center">Top 10 Most Broken Tests</h2>' +
     '\n' + '<p>There are no failing tests</p>' +
     '\n' + '{{/if}}';
 
+var mostExceptionsTableBody = '<h2 align="center">Top 10 Most Occured Exceptions</h2>' +
+    '\n' + '{{#if this.length}}' +
+    '<div class=table>' +
+    '\n' + '<div class="heading">' +
+    '\n' + '        <div class="table-cell">Exception Message</div>' +
+    '\n' + '        <div class="table-cell">Times Failed</div>' +
+    '\n' + '        <div class="table-cell">Test</div>' +
+    '\n' + '      </div>' +
+    '{{#each this}}' +
+    '{{> mostExceptionsTableBodyTemplate}}' +
+    '\n' + '{{/each}}' +
+    '</div>' +
+    '\n' + '{{else}}' +
+    '\n' + '<p>There are no failing tests</p>' +
+    '\n' + '{{/if}}';
+
 function removeSpecialChars(name){
     var modName = "";
     //modName = name.split('.').join('_');
@@ -75,6 +112,8 @@ function removeSpecialChars(name){
 
 Handlebars.registerPartial("tableBodyTemplate", tableContent);
 Handlebars.registerPartial("worstTestsTableBodyTemplate", worstTestsTableContent);
+Handlebars.registerPartial("mostExceptionsTableBodyTemplate", mostExceptionsTableContent);
+Handlebars.registerPartial("mostExceptionsTableStackTraceTemplate", mostExceptionsTableStackTraceContent);
 
 Handlebars.registerHelper('JSON2string', function (object) {
     return JSON.stringify(object);
@@ -92,6 +131,7 @@ Handlebars.registerHelper('buildLinks', function (object) {
 Handlebars.registerHelper('addName', function (name) {
     return removeSpecialChars(name);
 });
+
 
 Handlebars.registerHelper('applyvalue', function (status, totalTimeTaken) {
     if (displayValues == true){
@@ -154,6 +194,12 @@ Handlebars.registerHelper('addHierarchy', function (context, parentHierarchy, op
     if (parentHierarchy == undefined)
         parentHierarchy = 0;
     context["hierarchyLevel"] = parentHierarchy + 1;
+});
+
+Handlebars.registerHelper('addHierarchyMostExceptions', function (context, parentHierarchy, options) {
+    if (parentHierarchy == undefined)
+        parentHierarchy = 0;
+    context["hierarchyLevelMostExceptions"] = parentHierarchy + 1;
 });
 
 Handlebars.registerHelper('failureIconWhenNecessary', function (buildResults) {
@@ -240,4 +286,5 @@ Handlebars.registerHelper('numberTransitions', function (buildResults) {
 });
 
 var analyzerTemplate = Handlebars.compile(tableBody),
-    analyzerWorstTestsTemplate = Handlebars.compile(worstTestsTableBody);
+    analyzerWorstTestsTemplate = Handlebars.compile(worstTestsTableBody),
+    analyzerMostExceptionsTemplate = Handlebars.compile(mostExceptionsTableBody);
