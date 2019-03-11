@@ -354,9 +354,7 @@ function findChildren(hash, path = '') {
 function getMostExceptions(itemsResponse, range = 10) {
     mostExceptions = {};
     mostExceptionsFuzzySet = FuzzySet();
-    console.time("getMostExceptions"); //TODO remove
     findMostExceptions(itemsResponse);
-    console.timeEnd("getMostExceptions"); //TODO remove
     mostExceptions = $j.map(mostExceptions, function(v,k) { return {k, v}});
     mostExceptions.sort(function (a,b) { return compareInteger(b.v.length, a.v.length)});
     return mostExceptions.slice(0, range);
