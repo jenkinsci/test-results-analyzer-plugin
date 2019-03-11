@@ -344,6 +344,10 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.getMinScoreExceptionMessageEquality();
 	}
 
+	public String getMaxStringSizeExceptionMessageEquality() {
+		return TestResultsAnalyzerExtension.DESCRIPTOR.getMaxStringSizeExceptionMessageEquality();
+	}
+
 	public boolean isUseCustomStatusNames() {
 		return TestResultsAnalyzerExtension.DESCRIPTOR.isUseCustomStatusNames();
 	}

@@ -82,6 +82,12 @@ var $j = jQuery.noConflict();
         <input id="minScoreExceptionMessageEquality" type="number" value="${it.minScoreExceptionMessageEquality}" min="0.1" step="0.1"/>
       </td>
     </tr>
+    <tr>
+      <td>Maxiumum string size to check for exception message equality:</td>
+      <td>
+        <input id="maxStringSizeExceptionMessageEquality" type="number" value="${it.maxStringSizeExceptionMessageEquality}" min="10" step="10"/>
+      </td>
+    </tr>
 	</table>
 	<div>
 		<button id="getbuildreport">Update</button>
@@ -140,6 +146,7 @@ Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Cl
 	var runtimeLowThreshold = "${it.runTimeLowThreshold}";
 	var runtimeHighThreshold = "${it.runTimeHighThreshold}";
   var minScoreExceptionMessageEquality = "${it.minScoreExceptionMessageEquality}";
+  var maxStringSizeExceptionMessageEquality = "${it.maxStringSizeExceptionMessageEquality}";
     var customStatuses = {
         'PASSED':'PASSED',
         'SKIPPED':'SKIPPED',

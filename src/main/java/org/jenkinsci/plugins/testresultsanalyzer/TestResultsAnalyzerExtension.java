@@ -62,6 +62,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
 		private String runTimeLowThreshold = "0.5";
 		private String runTimeHighThreshold = "1.0";
 		private String minScoreExceptionMessageEquality = "0.75";
+		private String maxStringSizeExceptionMessageEquality = "500";
 
 		private static final String passFailString = "passfail";
 		private static final String runtimeString = "runtime";
@@ -105,6 +106,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
 				runTimeLowThreshold = formData.getString("runTimeLowThreshold");
 				runTimeHighThreshold = formData.getString("runTimeHighThreshold");
 				minScoreExceptionMessageEquality = formData.getString("minScoreExceptionMessageEquality");
+				maxStringSizeExceptionMessageEquality = formData.getString("maxStringSizeExceptionMessageEquality");
 				chartDataType = formData.getString("chartDataType");
 				if (formData.containsKey("useCustomStatusNames")) {
 					JSONObject customData = formData.getJSONObject("useCustomStatusNames");
@@ -186,6 +188,10 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
 
 		public String getMinScoreExceptionMessageEquality() {
 			return minScoreExceptionMessageEquality;
+		}
+
+		public String getMaxStringSizeExceptionMessageEquality() {
+			return maxStringSizeExceptionMessageEquality;
 		}
 
 		public String getChartDataType() {

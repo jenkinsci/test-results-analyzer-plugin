@@ -40,6 +40,9 @@
     <f:entry title="${%Minimum score for exception message equality}">
       <f:textbox name="minScoreExceptionMessageEquality" value="${descriptor.getMinScoreExceptionMessageEquality()}" />
     </f:entry>
+    <f:entry title="${%Maxiumum string size to check for exception message equality}">
+      <f:textbox name="maxStringSizeExceptionMessageEquality" value="${descriptor.getMaxStringSizeExceptionMessageEquality()}" />
+    </f:entry>
 		<f:optionalBlock field="useCustomStatusNames" title="${%Use Custom Names for Passed/Failed/Skipped/NA status}" checked="${descriptor.useCustomStatusNames}">
             <f:entry title="${%Passed}" field="passedRepresentation">
                 <f:textbox name="passedRepresentation" value="${descriptor.passedRepresentation}"/>

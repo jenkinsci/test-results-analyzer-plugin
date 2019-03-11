@@ -354,7 +354,9 @@ function findChildren(hash, path = '') {
 function getMostExceptions(itemsResponse, range = 10) {
     mostExceptions = {};
     mostExceptionsFuzzySet = FuzzySet();
+    console.time("getMostExceptions"); //TODO remove
     findMostExceptions(itemsResponse);
+    console.timeEnd("getMostExceptions"); //TODO remove
     mostExceptions = $j.map(mostExceptions, function(v,k) { return {k, v}});
     mostExceptions.sort(function (a,b) { return compareInteger(b.v.length, a.v.length)});
     return mostExceptions.slice(0, range);
@@ -369,16 +371,21 @@ function findMostExceptions(hash, path = '') {
         $j.each(value, function(index1, buildResult) {
           // if totalTests is equal to 1 then it should be at the lowest level of the itemsResponse hash
           if ((buildResult.errorDetails && buildResult.errorDetails !== "") && (buildResult.totalTests == '1')) {
-              var fuzzyEntry = mostExceptionsFuzzySet.get(buildResult.errorDetails, null, parseFloat($j("#minScoreExceptionMessageEquality").val()) );
+              var errorDetailsEnd = parseInt($j("#maxStringSizeExceptionMessageEquality").val());
+              var shortenedDetails = buildResult.errorDetails;
+              if(errorDetailsEnd > -1 && buildResult.errorDetails.length >= errorDetailsEnd) {
+                  shortenedDetails = buildResult.errorDetails.substring(0,errorDetailsEnd);
+              }
+              var fuzzyEntry = mostExceptionsFuzzySet.get(shortenedDetails, null, parseFloat($j("#minScoreExceptionMessageEquality").val()) );
               if(!buildResult.errorStackTrace || buildResult.errorStackTrace === "") {
-                  buildResult.errorStackTrace = buildResult.errorDetails;
+    			  buildResult.errorStackTrace = shortenedDetails;
               }
               if(fuzzyEntry == null || (fuzzyEntry.length && fuzzyEntry.length === 0)) {
-                  if ( mostExceptions[buildResult.errorDetails] === undefined ) {
-                      mostExceptions[buildResult.errorDetails] = []
+                  if ( mostExceptions[shortenedDetails] === undefined ) {
+                      mostExceptions[shortenedDetails] = []
                   }
-                  mostExceptions[buildResult.errorDetails].push({path:path,buildResult:buildResult});
-                  mostExceptionsFuzzySet.add(buildResult.errorDetails);
+                  mostExceptions[shortenedDetails].push({path:path,buildResult:buildResult});
+                  mostExceptionsFuzzySet.add(shortenedDetails);
               }
               else  {
                   var fuzzyEntryErrorDetails = fuzzyEntry[0][1];
