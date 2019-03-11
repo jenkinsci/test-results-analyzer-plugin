@@ -76,6 +76,12 @@ var $j = jQuery.noConflict();
 				</select>
 			</td>
 		</tr>
+    <tr>
+      <td>Minimum score for exception message equality:</td>
+      <td>
+        <input id="minScoreExceptionMessageEquality" type="number" value="${it.minScoreExceptionMessageEquality}" min="0.1" step="0.1"/>
+      </td>
+    </tr>
 	</table>
 	<div>
 		<button id="getbuildreport">Update</button>

@@ -369,7 +369,7 @@ function findMostExceptions(hash, path = '') {
         $j.each(value, function(index1, buildResult) {
           // if totalTests is equal to 1 then it should be at the lowest level of the itemsResponse hash
           if ((buildResult.errorDetails && buildResult.errorDetails !== "") && (buildResult.totalTests == '1')) {
-              var fuzzyEntry = mostExceptionsFuzzySet.get(buildResult.errorDetails, null, parseFloat(minScoreExceptionMessageEquality) );
+              var fuzzyEntry = mostExceptionsFuzzySet.get(buildResult.errorDetails, null, parseFloat($j("#minScoreExceptionMessageEquality").val()) );
               if(!buildResult.errorStackTrace || buildResult.errorStackTrace === "") {
                   buildResult.errorStackTrace = buildResult.errorDetails;
               }
