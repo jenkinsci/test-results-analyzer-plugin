@@ -1,5 +1,5 @@
 	#tree  {
-		
+
 		border-collapse: collapse;
     }
 	.table {
@@ -23,7 +23,7 @@
         font-weight: bold;
         font-size: larger;
     }
-    
+
 	img {
 		margin-left: 10px;
 	}
@@ -32,7 +32,7 @@
     .table-cell.row-heading {
         text-align: left;
     }
-	
+
 	.even {
 		background: white;
 	}
@@ -60,7 +60,7 @@
 		display: inline-block;
         margin-left: 2px;
 	}
-	
+
 	.icon-plus-sign {
 		background-position: 0 -96px;
 	}
@@ -72,7 +72,7 @@
 	.icon-exclamation-sign {
 		background-position: -144px -120px;
 	}
-	
+
 	.table-cell .name{
 		display: inline-block;
 	}
@@ -85,6 +85,10 @@
 		display: table-row;
 	}
 
+	.most-exceptions-table-row {
+    display: table-row;
+  }
+
 	.table-cell{
 		display: table-cell;
 		padding: 10px;
@@ -95,7 +99,7 @@
 	.build-result{
 		font-size: 14px;
 	}
-    
+
 	.heading {
         font-weight: bold;
         border-bottom: 2px solid #6678b1;
@@ -113,7 +117,7 @@
 		border-top-left-radius: 5px;
 		#background-image: linear-gradient(rgb(100, 111, 127), rgb(74, 85, 100));
 	}
-	
+
 	.heading .table-cell {
 		text-align: center;
 		font-size: 14px;
@@ -142,4 +146,4 @@
     }
 
 
-	
+
