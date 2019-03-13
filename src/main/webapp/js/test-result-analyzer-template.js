@@ -53,7 +53,7 @@ var mostExceptionsTableContent = '<div class="most-exceptions-table-row" ' +
     '\n' + '{{> mostExceptionsTableStackTraceTemplate this}}' +
     '{{/each}}';
 var mostExceptionsTableStackTraceContent = '<div class="most-exceptions-table-row" hierarchyLevelMostExceptions="1" style="display:none">' +
-'\n' + '         <div class="table-cell row-heading" style="padding-left:{{addspaces 2}}em;"><pre>{{{this.buildResult.errorStackTrace}}}</pre></div>' +
+'\n' + '         <div class="table-cell row-heading" style="padding-left:{{addspaces 2}}em;"><pre>{{this.buildResult.errorStackTrace}}</pre></div>' +
 '\n' + '         <div class="table-cell build-result">&nbsp;</div>' +
 '\n' + '         <div class="table-cell build-result"><a href="{{this.buildResult.url}}">{{this.path}} ({{this.buildResult.buildNumber}})</a></div>' +
 '</div>';
