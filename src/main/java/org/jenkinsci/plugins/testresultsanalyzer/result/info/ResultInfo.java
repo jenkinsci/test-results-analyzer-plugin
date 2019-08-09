@@ -1,15 +1,18 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 
+import hudson.model.Run;
 import hudson.tasks.test.TabulatedResult;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 public class ResultInfo {
 
 	private Map<String, PackageInfo> packageResults = new TreeMap<String, PackageInfo>();
+	private final static Logger LOG = Logger.getLogger(ResultInfo.class.getName());
 
-	public void addPackage(Integer buildNumber, TabulatedResult packageResult, String url) {
+	public void addPackage(Integer buildNumber, String runName, TabulatedResult packageResult, String url) {
 		String packageName = packageResult.getName();
 		PackageInfo packageInfo;
 		if (packageResults.containsKey(packageName)) {
@@ -19,7 +22,7 @@ public class ResultInfo {
 			packageInfo = new PackageInfo();
 			packageInfo.setName(packageName);
 		}
-		packageInfo.putPackageResult(buildNumber, packageResult, url + getResultUrl(packageResult) +"/" + packageResult.getSafeName());
+		packageInfo.putPackageResult(buildNumber, runName, packageResult, url + getResultUrl(packageResult) +"/" + packageResult.getSafeName());
 		packageResults.put(packageName, packageInfo);
 	}
 

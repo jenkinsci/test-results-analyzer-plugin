@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.testresultsanalyzer;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
@@ -13,6 +14,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class JsTreeUtil {
+	private final static Logger LOG = Logger.getLogger(JsTreeUtil.class.getName());
 
     public JSONObject getJsTree(List<Integer> builds, ResultInfo resultInfo, boolean hideConfigMethods) {
         JSONObject tree = new JSONObject();
@@ -58,6 +60,7 @@ public class JsTreeUtil {
         JSONArray children = new JSONArray();
         for (Map.Entry<String, ? extends Info> entry : childrenInfo.entrySet()) {
             if (!hideConfigMethods || !entry.getValue().isConfig()) {
+
                 children.add(createJson(builds, entry.getValue(), hideConfigMethods));
             }
         }

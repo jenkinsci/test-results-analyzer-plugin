@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 
+import hudson.model.Run;
 import hudson.tasks.test.TabulatedResult;
 import hudson.tasks.test.TestResult;
 
@@ -12,19 +13,19 @@ public class ClassInfo extends Info {
 
 	private Map<String, TestCaseInfo> tests = new TreeMap<String, TestCaseInfo>();
 
-	public void putBuildClassResult(Integer buildNumber, TabulatedResult classResult, String url) {
+	public void putBuildClassResult(Integer buildNumber, String runName, TabulatedResult classResult, String url) {
 		ClassResultData classResultData = new ClassResultData(classResult, url);
 
-		addTests(buildNumber, classResult, url);
+		addTests(buildNumber, runName, classResult, url);
 		this.buildResults.put(buildNumber, classResultData);
 	}
 
 	public Map<String, TestCaseInfo> getTests() {
 		return tests;
 	}
-	
 
-	private void addTests(Integer buildNumber, TabulatedResult classResult, String url) {
+
+	private void addTests(Integer buildNumber, String runName, TabulatedResult classResult, String url) {
 		for (TestResult testCaseResult : classResult.getChildren()) {
 
 			String testCaseName = testCaseResult.getDisplayName();
@@ -37,7 +38,7 @@ public class ClassInfo extends Info {
 				testCaseInfo.setName(testCaseName);
 			}
 
-			testCaseInfo.putTestCaseResult(buildNumber, testCaseResult, url + "/" + testCaseResult.getSafeName());
+			testCaseInfo.putTestCaseResult(buildNumber, runName, testCaseResult, url + "/" + testCaseResult.getSafeName());
 			tests.put(testCaseName, testCaseInfo);
 		}
 	}
