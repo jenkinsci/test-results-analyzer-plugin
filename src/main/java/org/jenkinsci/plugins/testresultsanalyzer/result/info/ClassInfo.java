@@ -12,22 +12,22 @@ public class ClassInfo extends Info {
 
 	private Map<String, TestCaseInfo> tests = new TreeMap<String, TestCaseInfo>();
 
-	public void putBuildClassResult(Integer buildNumber, TabulatedResult classResult, String url) {
+	public void putBuildClassResult(Integer buildNumber, Integer runNumber, TabulatedResult classResult, String url) {
 		ClassResultData classResultData = new ClassResultData(classResult, url);
 
-		addTests(buildNumber, classResult, url);
+		addTests(buildNumber, runNumber, classResult, url);
 		this.buildResults.put(buildNumber, classResultData);
 	}
 
 	public Map<String, TestCaseInfo> getTests() {
 		return tests;
 	}
-	
 
-	private void addTests(Integer buildNumber, TabulatedResult classResult, String url) {
+
+	private void addTests(Integer buildNumber, Integer runNumber, TabulatedResult classResult, String url) {
 		for (TestResult testCaseResult : classResult.getChildren()) {
 
-			String testCaseName = testCaseResult.getDisplayName();
+			String testCaseName = String.format("%s: run #%d", testCaseResult.getDisplayName(), runNumber);
 			TestCaseInfo testCaseInfo;
 			if (tests.containsKey(testCaseName)) {
 				testCaseInfo = tests.get(testCaseName);
