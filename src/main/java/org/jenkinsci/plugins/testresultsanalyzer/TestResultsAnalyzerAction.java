@@ -193,7 +193,6 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 			return;
 		}
 
-		LOG.warning(String.format("DBG: bnum %d %s %s %s", buildNumber, run, testAction, result));
 
 		try {
 			TabulatedResult testResult = (TabulatedResult) result;
@@ -201,8 +200,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 			Jenkins jenkins = Jenkins.getInstance();
 			String rootUrl = jenkins != null ? jenkins.getRootUrl() : "";
 			for (TestResult packageResult : packageResults) { // packageresult
-				LOG.warning(String.format("DBG package %s %s", packageResult, rootUrl + run.getUrl()));
-				resultInfo.addPackage(buildNumber, run.number, (TabulatedResult) packageResult, rootUrl + run.getUrl());
+				resultInfo.addPackage(buildNumber, run.getDisplayName().replaceFirst("#(\\d*\\s)", "run:"), (TabulatedResult) packageResult, rootUrl + run.getUrl());
 			}
 		} catch (ClassCastException e) {
 			LOG.info("Got ClassCast exception while converting results to Tabulated Result from action: " + testAction.getClass().getName() + ". Ignoring as we only want test results for processing.");
