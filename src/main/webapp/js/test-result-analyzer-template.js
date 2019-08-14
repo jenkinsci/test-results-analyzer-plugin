@@ -23,7 +23,7 @@ var tableContent = '<div class="table-row" name = "{{addName text}}" ' +
     '\n' + '<div class="table-cell" title="Number of transitions from passed to failed and failed to passed.">{{numberTransitions buildResults}}</div> ' +
     '{{#each this.buildResults}}' +
     '\n' + '         <div class="table-cell build-result {{applystatus status}}" data-result=\'{{JSON2string this}}\' ' +
-                          'title="Build {{buildNumber}}"><a href="{{url}}">{{applyvalue status totalTimeTaken}}</a></div>' +
+                          'title="Build {{buildNumber}}"><a href="{{url}}">{{applyvalue status totalTimeTaken}}</a><br>{{statusString}}</div>' +
     '{{/each}}' +
     '\n' + '</div>' +
     '{{#each children}}\n' +

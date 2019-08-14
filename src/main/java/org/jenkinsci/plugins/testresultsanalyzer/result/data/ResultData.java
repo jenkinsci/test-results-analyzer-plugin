@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.data;
 
+import java.util.Collections;
+
 import hudson.tasks.test.TabulatedResult;
 import hudson.tasks.test.TestObject;
 
@@ -14,6 +16,7 @@ public abstract class ResultData {
 	private int totalSkipped;
 	private float totalTimeTaken;
 	private String status;
+	private String statusString;
     private String url;
 
 	public String getName() {
@@ -106,6 +109,9 @@ public abstract class ResultData {
     }
 
 	protected void evaluateStatus() {
+		statusString = "" + String.join("", Collections.nCopies(totalPassed, "."));
+		statusString = statusString + String.join("", Collections.nCopies(totalSkipped, "s"));
+		statusString = statusString + String.join("", Collections.nCopies(totalFailed, "F"));
 		if (totalSkipped == totalTests) {
 			status = "SKIPPED";
 		}
@@ -115,6 +121,10 @@ public abstract class ResultData {
 		else {
 			status = "FAILED";
 		}
+	}
+
+	public String getStatusString(){
+		return statusString;
 	}
 
 	public String getStatus() {

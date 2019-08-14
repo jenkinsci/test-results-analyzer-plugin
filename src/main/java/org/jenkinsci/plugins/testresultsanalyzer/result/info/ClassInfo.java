@@ -37,7 +37,6 @@ public class ClassInfo extends Info {
 				testCaseInfo = new TestCaseInfo();
 				testCaseInfo.setName(testCaseName);
 			}
-
 			testCaseInfo.putTestCaseResult(buildNumber, runName, testCaseResult, url + "/" + testCaseResult.getSafeName());
 			tests.put(testCaseName, testCaseInfo);
 		}

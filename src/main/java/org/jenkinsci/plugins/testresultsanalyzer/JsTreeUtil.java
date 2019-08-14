@@ -75,6 +75,7 @@ public class JsTreeUtil {
         ResultData result = info.getBuildResult(buildNumber);
         if (result == null) {
             json.put("status", "N/A");
+            json.put("statusString", "");
         } else {
             json.put("totalTests", result.getTotalTests());
             json.put("totalFailed", result.getTotalFailed());
@@ -82,6 +83,7 @@ public class JsTreeUtil {
             json.put("totalSkipped", result.getTotalSkipped());
             json.put("totalTimeTaken", result.getTotalTimeTaken());
             json.put("status", result.getStatus());
+            json.put("statusString", result.getStatusString());
             json.put("url", result.getUrl());
         }
 

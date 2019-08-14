@@ -12,8 +12,15 @@ public class TestCaseInfo extends Info {
 	private Map<String, RunInfo> runs = new TreeMap<String, RunInfo>();
 
 	public void putTestCaseResult(Integer buildNumber, String runName, TestResult testCaseResult, String url) {
-		TestCaseResultData testCaseResultData = new TestCaseResultData(testCaseResult, url);
-		setConfig(testCaseResultData.isConfig());
+		TestCaseResultData testCaseResultData;
+		if (this.buildResults.containsKey(buildNumber)) {
+			testCaseResultData = (TestCaseResultData) this.buildResults.get(buildNumber);
+			testCaseResultData.update(testCaseResult);
+		}
+		else {
+			testCaseResultData = new TestCaseResultData(testCaseResult, url);
+			setConfig(testCaseResultData.isConfig());
+		}
 		addRun(buildNumber, runName, testCaseResult, url);
 		this.buildResults.put(buildNumber, testCaseResultData);
 	}
