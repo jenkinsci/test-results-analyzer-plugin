@@ -1,7 +1,5 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.data;
 
-import java.util.Collections;
-
 import hudson.tasks.test.TabulatedResult;
 import hudson.tasks.test.TestObject;
 
@@ -106,12 +104,18 @@ public abstract class ResultData {
         setTotalTimeTaken(result.getDuration());
         setUrl(url);
         evaluateStatus();
-    }
+	}
+
+	public void update(TestObject testResult) {
+		setTotalTests(getTotalTests() + testResult.getTotalCount());
+		setTotalFailed(getTotalFailed() + testResult.getFailCount());
+		setTotalPassed(getTotalPassed() + testResult.getPassCount());
+		setTotalSkipped(getTotalSkipped() + testResult.getSkipCount());
+		evaluateStatus();
+	}
 
 	protected void evaluateStatus() {
-		statusString = "" + String.join("", Collections.nCopies(totalPassed, "."));
-		statusString = statusString + String.join("", Collections.nCopies(totalSkipped, "s"));
-		statusString = statusString + String.join("", Collections.nCopies(totalFailed, "F"));
+		statusString = String.format("F(%d)S(%d)P(%d)", totalFailed, totalSkipped, totalPassed);
 		if (totalSkipped == totalTests) {
 			status = "SKIPPED";
 		}

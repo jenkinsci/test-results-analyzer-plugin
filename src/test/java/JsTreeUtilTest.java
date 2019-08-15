@@ -10,7 +10,6 @@ import static org.hamcrest.CoreMatchers.is;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Collections;
 
 public class JsTreeUtilTest {
 
@@ -134,10 +133,7 @@ public class JsTreeUtilTest {
     private static JSONObject buildLeaf(int passed, int failed, int skipped, String status, String url, Integer buildNumber) {
         JSONObject result = new JSONObject();
 
-        String 	statusString;
-		statusString = "" + String.join("", Collections.nCopies(passed, "."));
-		statusString = statusString + String.join("", Collections.nCopies(skipped, "s"));
-		statusString = statusString + String.join("", Collections.nCopies(failed, "F"));
+		String statusString = String.format("F(%d)S(%d)P(%d)", failed, skipped, passed);
 
         result.put("buildNumber", buildNumber.toString());
         result.put("totalTests", passed + failed + skipped);

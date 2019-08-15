@@ -44,12 +44,4 @@ public class TestCaseResultData extends ResultData {
 		evaluateStatus();
 	}
 
-	public void update(TestResult testResult) {
-		setTotalTests(getTotalTests() + testResult.getTotalCount());
-		setTotalFailed(getTotalFailed() + testResult.getFailCount());
-		setTotalPassed(getTotalPassed() + testResult.getPassCount());
-		setTotalSkipped(getTotalSkipped() + testResult.getSkipCount());
-		evaluateStatus();
-	}
-
 }

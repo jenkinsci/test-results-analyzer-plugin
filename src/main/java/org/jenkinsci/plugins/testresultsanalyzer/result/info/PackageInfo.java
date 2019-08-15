@@ -17,7 +17,14 @@ public class PackageInfo extends Info {
 	private final static Logger LOG = Logger.getLogger(PackageInfo.class.getName());
 
 	public void putPackageResult(Integer buildNumber, String runName, TabulatedResult packageResult, String url) {
-		PackageResultData packageResultData = new PackageResultData(packageResult, url);
+		PackageResultData packageResultData;
+		if (this.buildResults.containsKey(buildNumber)) {
+			packageResultData = (PackageResultData) this.buildResults.get(buildNumber);
+			packageResultData.update(packageResult);
+		}
+		else {
+			packageResultData = new PackageResultData(packageResult, url);
+		}
 
 		addClasses(buildNumber, runName, packageResult, url);
 		this.buildResults.put(buildNumber, packageResultData);

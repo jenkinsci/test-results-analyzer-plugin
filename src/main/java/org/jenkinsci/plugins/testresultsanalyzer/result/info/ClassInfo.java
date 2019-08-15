@@ -14,7 +14,14 @@ public class ClassInfo extends Info {
 	private Map<String, TestCaseInfo> tests = new TreeMap<String, TestCaseInfo>();
 
 	public void putBuildClassResult(Integer buildNumber, String runName, TabulatedResult classResult, String url) {
-		ClassResultData classResultData = new ClassResultData(classResult, url);
+		ClassResultData classResultData;
+		if (this.buildResults.containsKey(buildNumber)) {
+			classResultData = (ClassResultData) this.buildResults.get(buildNumber);
+			classResultData.update(classResult);
+		}
+		else {
+			classResultData = new ClassResultData(classResult, url);
+		}
 
 		addTests(buildNumber, runName, classResult, url);
 		this.buildResults.put(buildNumber, classResultData);
