@@ -18,8 +18,12 @@ import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
+import java.util.logging.Logger;
+
 @Extension
 public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> implements Describable<TestResultsAnalyzerExtension> {
+
+    private final static Logger LOG = Logger.getLogger(TestResultsAnalyzerExtension.class.getName());
 
     @Override
     public @Nonnull Collection<? extends Action> createFor(@Nonnull Job target) {
@@ -139,7 +143,8 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
 		public String getNoOfBuilds() { return noOfBuilds; }
 
         public int getNoOfRunsToFetch() {
-            return noOfRunsToFetch;
+            LOG.warning("DBG: "+String.valueOf(noOfRunsToFetch));
+            return Integer.parseInt(noOfBuilds);
         }
 
         public boolean getShowAllBuilds() { return showAllBuilds; }
