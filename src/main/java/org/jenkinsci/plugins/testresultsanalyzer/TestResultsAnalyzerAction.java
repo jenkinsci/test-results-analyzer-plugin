@@ -194,7 +194,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 			TabulatedResult testResult = (TabulatedResult) result;
 			Collection<? extends TestResult> packageResults = testResult.getChildren();
 			Jenkins jenkins = Jenkins.getInstance();
-			String rootUrl = jenkins != null ? jenkins.getRootUrl() : "";
+			String rootUrl = jenkins.getRootUrl();
 			for (TestResult packageResult : packageResults) { // packageresult
 				resultInfo.addPackage(buildNumber, (TabulatedResult) packageResult, rootUrl + run.getUrl());
 			}

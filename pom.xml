@@ -3,14 +3,14 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>2.11</version>
+		<version>3.50</version>
 	</parent>
 
 	<artifactId>test-results-analyzer</artifactId>
 	<version>0.3.6-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 	<name>Test Results Analyzer Plugin</name>
-	<url>http://wiki.jenkins-ci.org/display/JENKINS/Test+Results+Analyzer+Plugin</url>
+	<url>https://wiki.jenkins-ci.org/display/JENKINS/Test+Results+Analyzer+Plugin</url>
 	<developers>
 		<developer>
 			<id>menonvarun</id>
@@ -21,22 +21,15 @@
 
 	<properties>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-		<jenkins.version>1.625.3</jenkins.version>
-		<!-- Java Level to use. Java 7 required when using core >= 1.612 -->
+		<jenkins.version>2.60.3</jenkins.version>
+		<!-- Java Level to use. Java 8 required when using core >= 2.54 -->
 		<java.level>8</java.level>
-		<!-- Jenkins Test Harness version you use to test the plugin. -->
-		<!-- For Jenkins version >= 1.580.1 use JTH 2.x or higher. -->
-		<jenkins-test-harness.version>2.13</jenkins-test-harness.version>
-		<!-- Other properties you may want to use:
-             ~ hpi-plugin.version: The HPI Maven Plugin version used by the plugin..
-             ~ stapler-plugin.version: The Stapler Maven plugin version required by the plugin.
-        -->
 	</properties>
 
 	<licenses>
 		<license>
 			<name>Apache 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
 		</license>
 	</licenses>
 	<scm>
