@@ -1,5 +1,4 @@
 import hudson.tasks.test.TestObject;
-import hudson.tasks.test.TestResult;
 
 public class FakeClassResult extends FakeTabulatedResult {
 

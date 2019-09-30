@@ -2,9 +2,7 @@ package org.jenkinsci.plugins.testresultsanalyzer;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.Info;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
