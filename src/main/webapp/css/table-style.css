@@ -141,5 +141,10 @@
         margin-top: 10%;
     }
 
+    .show-after-loading {
+        display: none;
+    }
 
-	
+    #brokencount {
+        width: 3.5em;
+    }

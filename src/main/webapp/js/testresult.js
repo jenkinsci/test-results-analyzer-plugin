@@ -50,11 +50,26 @@ function searchTests(){
     }
 }
 
+function showBroken() {
+    var count = $j("#brokencount").val();
+    if (!isNaN(count)) {
+        populateWorstTests(parseInt(count));
+    }
+}
+
 function reset(){
     reevaluateChartData = true;
     $j(".test-history-table").html("");
     $j(".worst-tests-table").html("");
     resetCharts();
+}
+
+function populateWorstTests(count) {
+    var items = populateWorstTests.items;
+    var worstTests = getWorstTests(items, count);
+    $j(".worst-tests-table").html(
+        analyzerWorstTestsTemplate(worstTests)
+    );
 }
 
 function populateTemplate(){
@@ -66,10 +81,10 @@ function populateTemplate(){
         $j(".test-history-table").html(
             analyzerTemplate(itemsResponse)
         );
-        var worstTests = getWorstTests(itemsResponse);
-        $j(".worst-tests-table").html(
-            analyzerWorstTestsTemplate(worstTests)
-        );
+        $j(".show-after-loading").show();
+        /* Set the function's static variable */
+        populateWorstTests.items = itemsResponse;
+        populateWorstTests(20);
         addEvents();
         generateCharts();
         $j("#table-loading").hide();

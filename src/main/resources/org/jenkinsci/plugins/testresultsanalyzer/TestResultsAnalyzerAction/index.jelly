@@ -98,6 +98,9 @@ Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Cl
    </div>
    <br/>
 
+   <div class="show-after-loading">
+       Show <input id="brokencount" type="text" value="20" onkeyup="showBroken()" /> broken tests
+   </div>
    <div class="worst-tests-table">
 
    </div>
