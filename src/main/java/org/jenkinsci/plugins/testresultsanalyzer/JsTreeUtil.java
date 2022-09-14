@@ -3,6 +3,7 @@ package org.jenkinsci.plugins.testresultsanalyzer;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
@@ -13,6 +14,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class JsTreeUtil {
+	private final static Logger LOG = Logger.getLogger(JsTreeUtil.class.getName());
 
     public JSONObject getJsTree(List<Integer> builds, ResultInfo resultInfo, boolean hideConfigMethods) {
         JSONObject tree = new JSONObject();
@@ -58,6 +60,7 @@ public class JsTreeUtil {
         JSONArray children = new JSONArray();
         for (Map.Entry<String, ? extends Info> entry : childrenInfo.entrySet()) {
             if (!hideConfigMethods || !entry.getValue().isConfig()) {
+
                 children.add(createJson(builds, entry.getValue(), hideConfigMethods));
             }
         }
@@ -72,6 +75,7 @@ public class JsTreeUtil {
         ResultData result = info.getBuildResult(buildNumber);
         if (result == null) {
             json.put("status", "N/A");
+            json.put("statusString", "");
         } else {
             json.put("totalTests", result.getTotalTests());
             json.put("totalFailed", result.getTotalFailed());
@@ -79,6 +83,7 @@ public class JsTreeUtil {
             json.put("totalSkipped", result.getTotalSkipped());
             json.put("totalTimeTaken", result.getTotalTimeTaken());
             json.put("status", result.getStatus());
+            json.put("statusString", result.getStatusString());
             json.put("url", result.getUrl());
         }
 

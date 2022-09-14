@@ -43,7 +43,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
 	/**
 	 * The display name for the action.
-	 * 
+	 *
 	 * @return the name as String
 	 */
 	public final String getDisplayName() {
@@ -52,7 +52,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
 	/**
 	 * The icon for this action.
-	 * 
+	 *
 	 * @return the icon file as String
 	 */
 	public final String getIconFileName() {
@@ -61,7 +61,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
 	/**
 	 * The url for this action.
-	 * 
+	 *
 	 * @return the url as String
 	 */
 	public String getUrlName() {
@@ -70,7 +70,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
 	/**
 	 * Search url for this action.
-	 * 
+	 *
 	 * @return the url as String
 	 */
 	public String getSearchUrl() {
@@ -79,7 +79,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
 	/**
 	 * Checks if the user has CONFIGURE permission.
-	 * 
+	 *
 	 * @return true - user has permission, false - no permission.
 	 */
 	private boolean hasPermission() {
@@ -169,6 +169,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
 			List<AbstractTestResultAction> testActions = run.getActions(AbstractTestResultAction.class);
 			for (AbstractTestResultAction testAction : testActions) {
+				LOG.warning("DBG: " + testAction);
 				if (AggregatedTestResultAction.class.isInstance(testAction)) {
 					addTestResults(buildNumber, (AggregatedTestResultAction) testAction);
 				} else {
@@ -180,7 +181,9 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
 	private void addTestResults(int buildNumber, AggregatedTestResultAction testAction) {
 		List<AggregatedTestResultAction.ChildReport> childReports = testAction.getChildReports();
+		LOG.warning("DBG: reports size: "+String.valueOf(childReports.size()));
 		for (AggregatedTestResultAction.ChildReport childReport : childReports) {
+			LOG.warning("DBG: "+childReport);
 			addTestResult(buildNumber, childReport.run, testAction, childReport.result);
 		}
 	}
@@ -190,13 +193,14 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 			return;
 		}
 
+
 		try {
 			TabulatedResult testResult = (TabulatedResult) result;
 			Collection<? extends TestResult> packageResults = testResult.getChildren();
 			Jenkins jenkins = Jenkins.getInstance();
 			String rootUrl = jenkins != null ? jenkins.getRootUrl() : "";
 			for (TestResult packageResult : packageResults) { // packageresult
-				resultInfo.addPackage(buildNumber, (TabulatedResult) packageResult, rootUrl + run.getUrl());
+				resultInfo.addPackage(buildNumber, run.getDisplayName().replaceFirst("#(\\d*\\s)", "run:"), (TabulatedResult) packageResult, rootUrl + run.getUrl());
 			}
 		} catch (ClassCastException e) {
 			LOG.info("Got ClassCast exception while converting results to Tabulated Result from action: " + testAction.getClass().getName() + ". Ignoring as we only want test results for processing.");
@@ -215,7 +219,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         JsTreeUtil jsTreeUtils = new JsTreeUtil();
 		return jsTreeUtils.getJsTree(buildList, resultInfo, userConfig.isHideConfigMethods());
     }
-	
+
 	@JavaScriptMethod
     public String getExportCSV(String timeBased, String noOfBuildsNeeded) {
 		boolean isTimeBased = Boolean.parseBoolean(timeBased);
@@ -228,7 +232,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
             builder.append(",\"");
             builder.append(Integer.toString(builds.get(i)));
             builder.append("\"");
-        }		
+        }
         String header = "\"Package\",\"Class\",\"Test\"";
         header += builder.toString();
 

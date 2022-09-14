@@ -14,6 +14,7 @@ public abstract class ResultData {
 	private int totalSkipped;
 	private float totalTimeTaken;
 	private String status;
+	private String statusString;
     private String url;
 
 	public String getName() {
@@ -103,9 +104,18 @@ public abstract class ResultData {
         setTotalTimeTaken(result.getDuration());
         setUrl(url);
         evaluateStatus();
-    }
+	}
+
+	public void update(TestObject testResult) {
+		setTotalTests(getTotalTests() + testResult.getTotalCount());
+		setTotalFailed(getTotalFailed() + testResult.getFailCount());
+		setTotalPassed(getTotalPassed() + testResult.getPassCount());
+		setTotalSkipped(getTotalSkipped() + testResult.getSkipCount());
+		evaluateStatus();
+	}
 
 	protected void evaluateStatus() {
+		statusString = String.format("F(%d)S(%d)P(%d)", totalFailed, totalSkipped, totalPassed);
 		if (totalSkipped == totalTests) {
 			status = "SKIPPED";
 		}
@@ -115,6 +125,10 @@ public abstract class ResultData {
 		else {
 			status = "FAILED";
 		}
+	}
+
+	public String getStatusString(){
+		return statusString;
 	}
 
 	public String getStatus() {
