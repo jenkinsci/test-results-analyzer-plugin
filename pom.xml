@@ -10,7 +10,7 @@
 	<version>0.3.6-SNAPSHOT</version>
 	<packaging>hpi</packaging>
 	<name>Test Results Analyzer Plugin</name>
-	<url>http://wiki.jenkins-ci.org/display/JENKINS/Test+Results+Analyzer+Plugin</url>
+	<url>https://github.com/jenkinsci/test-results-analyzer-plugin</url>
 	<developers>
 		<developer>
 			<id>menonvarun</id>
