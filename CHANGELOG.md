@@ -1,6 +1,15 @@
 ## Change Log
 
-##### Version 0.3.5
+##### Version 0.4.0
+
+-   Require Jenkins 2.332.4 or newer ([PR-55](https://github.com/jenkinsci/test-results-analyzer-plugin/pull/55)).
+    Thanks to [@i-dipanshu](https://github.com/i-dipanshu)
+-   Migrate documentation to GitHub  ([PR-57](https://github.com/jenkinsci/test-results-analyzer-plugin/pull/57).
+    Thanks to [@i-dipanshu](https://github.com/i-dipanshu)
+	-   Update parent pom to 4.48 & more ([PR-53](https://github.com/jenkinsci/test-results-analyzer-plugin/pull/53), [PR-54](https://github.com/jenkinsci/test-results-analyzer-plugin/pull/54), [PR-56](https://github.com/jenkinsci/test-results-analyzer-plugin/pull/56)).
+    Thanks to [@i-dipanshu](https://github.com/i-dipanshu)
+
+###### Version 0.3.5
 
 -   Allow users to configure how many builds to be fetched by plugin for
     reporting purpose. As of now this is applicable for all the jobs.
@@ -67,7 +76,7 @@
 -   Added support for setting custom status names in tabular report in
     Global config.
 -   Added support for setting custom status colors in tabular report in
-    Global Config. 
+    Global Config.
 
 ##### Version 0.2.3
 
