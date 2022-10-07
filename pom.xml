@@ -21,7 +21,7 @@
 
 	<properties>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-		<jenkins.version>2.235.1</jenkins.version>
+		<jenkins.version>2.332.4</jenkins.version>
 		<!-- Jenkins Test Harness version you use to test the plugin. -->
 		<!-- For Jenkins version >= 1.580.1 use JTH 2.x or higher. -->
 		<!-- <jenkins-test-harness.version>2.13</jenkins-test-harness.version> -->
@@ -39,17 +39,28 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:ssh://git@github.com:jenkinsci/test-results-analyzer-plugin.git</connection>
+		<connection>scm:git:https://github.com/jenkinsci/test-results-analyzer-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:jenkinsci/test-results-analyzer-plugin.git</developerConnection>
 		<url>https://github.com/jenkinsci/test-results-analyzer-plugin.git</url>
 	  <tag>HEAD</tag>
   </scm>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-2.346.x</artifactId>
+        <version>1607.va_c1576527071</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>junit</artifactId>
-            <version>1.47</version>
         </dependency>
     </dependencies>
 	<!-- get every artifact through repo.jenkins-ci.org, which proxies all the
