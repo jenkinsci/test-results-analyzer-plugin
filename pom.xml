@@ -30,6 +30,10 @@
              ~ hpi-plugin.version: The HPI Maven Plugin version used by the plugin..
              ~ stapler-plugin.version: The Stapler Maven plugin version required by the plugin.
         -->
+		<!-- SpotBugs is a program which uses static analysis to look for bugs in Java code -->
+		<!-- Plugin maintenance can be improved by increasing the depth of spotbugs analysis. -->
+		<spotbugs.effort>Max</spotbugs.effort>
+		<spotbugs.threshold>Low</spotbugs.threshold>
 	</properties>
 
 	<licenses>
