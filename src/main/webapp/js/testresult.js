@@ -54,6 +54,7 @@ function reset(){
     reevaluateChartData = true;
     $j(".test-history-table").html("");
     $j(".worst-tests-table").html("");
+    $j(".most-exceptions-table").html("");
     resetCharts();
 }
 
@@ -69,6 +70,10 @@ function populateTemplate(){
         var worstTests = getWorstTests(itemsResponse);
         $j(".worst-tests-table").html(
             analyzerWorstTestsTemplate(worstTests)
+        );
+        var mostExceptions = getMostExceptions(itemsResponse);
+        $j(".most-exceptions-table").html(
+            analyzerMostExceptionsTemplate(mostExceptions)
         );
         addEvents();
         generateCharts();
@@ -136,8 +141,8 @@ function expandAll() {
     $j(".test-history-table .table-row").show();
 }
 
-function getDescendants(parentRow, level) {
-    var parentLevel = parseInt($(parentRow).attr("hierarchyLevel"));
+function getDescendants(parentRow, level, attributeHierarchyLevel = "hierarchyLevel") {
+    var parentLevel = parseInt($(parentRow).attr(attributeHierarchyLevel));
     var descendantLevel = parentLevel + level;
     var done = false;
 
@@ -146,7 +151,7 @@ function getDescendants(parentRow, level) {
           return false;
         }
 
-        var elementLevel = parseInt($j(element).attr("hierarchyLevel"));
+        var elementLevel = parseInt($j(element).attr(attributeHierarchyLevel));
         if (parentLevel >= elementLevel) {
           // not a descendant, done
           done = true;
@@ -160,8 +165,8 @@ function getDescendants(parentRow, level) {
     });
 }
 
-function getAllDescendants(parentRow) {
-    return getDescendants(parentRow, -1);
+function getAllDescendants(parentRow, attributeHierarchyLevel = "hierarchyLevel") {
+    return getDescendants(parentRow, -1, attributeHierarchyLevel);
 }
 
 function getAllAncestors(parentRow) {
@@ -248,7 +253,21 @@ function addEvents() {
     $j(".test-history-table .table-row .icon").click(function () {
         toggleHandler(this);
     });
+
     checkBoxEvents();
+
+    var toggleHandlerMostException = function (node) {
+        var row = $j(node).parent().parent(".most-exceptions-table-row");
+        if (changeToExpandedState(node)) {
+            $j(getAllDescendants(row, 'hierarchyLevelMostExceptions')).show();
+        } else if (changeToCollapsedState(node)) {
+            $j(getAllDescendants(row, 'hierarchyLevelMostExceptions')).hide();
+        }
+    };
+
+    $j(".most-exceptions-table .most-exceptions-table-row .icon").click(function () {
+        toggleHandlerMostException(this);
+    });
 }
 
 function checkBoxEvents() {
@@ -331,3 +350,52 @@ function findChildren(hash, path = '') {
     }
   });
 }
+
+function getMostExceptions(itemsResponse, range = 10) {
+    mostExceptions = {};
+    mostExceptionsFuzzySet = FuzzySet();
+    findMostExceptions(itemsResponse);
+    mostExceptions = $j.map(mostExceptions, function(v,k) { return {k, v}});
+    mostExceptions.sort(function (a,b) { return compareInteger(b.v.length, a.v.length)});
+    return mostExceptions.slice(0, range);
+}
+
+function findMostExceptions(hash, path = '') {
+    if ( hash.text != undefined ) { path += (path == '') ? hash.text : '.' + hash.text }
+    $j.each(hash, function( index, value ) {
+      if ( index == 'children' && value.length > 0 ) {
+        findMostExceptions(value, path);
+      } else if ( index == 'buildResults' ) {
+        $j.each(value, function(index1, buildResult) {
+          // if totalTests is equal to 1 then it should be at the lowest level of the itemsResponse hash
+          if ((buildResult.errorDetails && buildResult.errorDetails !== "") && (buildResult.totalTests == '1')) {
+              var errorDetailsEnd = parseInt($j("#maxStringSizeExceptionMessageEquality").val());
+              var shortenedDetails = buildResult.errorDetails;
+              if(errorDetailsEnd > -1 && buildResult.errorDetails.length >= errorDetailsEnd) {
+                  shortenedDetails = buildResult.errorDetails.substring(0,errorDetailsEnd);
+              }
+              var fuzzyEntry = mostExceptionsFuzzySet.get(shortenedDetails, null, parseFloat($j("#minScoreExceptionMessageEquality").val()) );
+              if(!buildResult.errorStackTrace || buildResult.errorStackTrace === "") {
+    			  buildResult.errorStackTrace = shortenedDetails;
+              }
+              if(fuzzyEntry == null || (fuzzyEntry.length && fuzzyEntry.length === 0)) {
+                  if ( mostExceptions[shortenedDetails] === undefined ) {
+                      mostExceptions[shortenedDetails] = []
+                  }
+                  mostExceptions[shortenedDetails].push({path:path,buildResult:buildResult});
+                  mostExceptionsFuzzySet.add(shortenedDetails);
+              }
+              else  {
+                  var fuzzyEntryErrorDetails = fuzzyEntry[0][1];
+                  mostExceptions[fuzzyEntryErrorDetails].push({path:path,buildResult:buildResult});
+              }
+          }
+        });
+      } else if ( $j.type(value) == 'object' ) {
+        findMostExceptions(value, path);
+      } else if ( $j.isArray(value) ) {
+        findMostExceptions(value, path);
+      }
+    });
+}
+
