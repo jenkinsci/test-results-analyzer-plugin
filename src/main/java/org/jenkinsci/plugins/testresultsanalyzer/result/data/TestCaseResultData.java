@@ -2,8 +2,11 @@ package org.jenkinsci.plugins.testresultsanalyzer.result.data;
 
 import hudson.tasks.test.TestResult;
 
+import java.util.Locale;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 
 public class TestCaseResultData extends ResultData {
 
@@ -15,7 +18,7 @@ public class TestCaseResultData extends ResultData {
 				Method statusMethod = testResult.getClass().getMethod("getStatus");
 				Object statusReturnValue = statusMethod.invoke(testResult);
 				if (statusReturnValue instanceof String) {
-					String status = ((String) statusReturnValue).toLowerCase();
+					String status = ((String) statusReturnValue).toLowerCase(Locale.ENGLISH);
 
 					setTotalTests(1);
 					setTotalFailed(status.startsWith("fail") ? 1 : 0);
