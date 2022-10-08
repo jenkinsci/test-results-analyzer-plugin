@@ -7,6 +7,8 @@ updates:
   open-pull-requests-limit: 10
   target-branch: master
   reviewers:
-  - <insert-maintainers-here-one-per-line>
+  - MarkEWaite
+  - gounthar
+  - jmMeessen
   labels:
   - skip-changelog
