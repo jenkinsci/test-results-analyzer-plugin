@@ -1,4 +1,4 @@
-## [Test Results Analyzer](https://plugins.jenkins.io/test-results-analyzer/)
+# [Test Results Analyzer](https://plugins.jenkins.io/test-results-analyzer/)
 
 - A plugin that shows history of test execution results in a tabular format.
 - The results are shown in a tree grid hierarchy and user has the provision to drill-down to test-method level to see the execution status of the respective set across multiple builds.
