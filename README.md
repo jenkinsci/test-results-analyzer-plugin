@@ -1,4 +1,4 @@
-## test-results-analyzer
+# [Test Results Analyzer](https://plugins.jenkins.io/test-results-analyzer/)
 
 - A plugin that shows history of test execution results in a tabular format.
 - The results are shown in a tree grid hierarchy and user has the provision to drill-down to test-method level to see the execution status of the respective set across multiple builds.
@@ -37,16 +37,16 @@ execution as it gives us a clear picture of the execution. The said
 plugin also supports generation of Graphs for the test execution from
 0.2.0 version onwards.
 
-# Following charts are available 
+### Following charts are available 
 
-## Line Charts
+### Line Charts
  
 ![](docs/images/line-chart-2.1.png)  
 
-##  Pie Charts
+###  Pie Charts
 ![](docs/images/pie-chart-2.1.png)  
 
-## Bar Charts
+### Bar Charts
 ![](docs/images/bar-chart-2.1.png)  
 
 **Note**: **If you click on any point on the line chart it will generate
@@ -59,3 +59,8 @@ a pie chart for said build/point.**
 
 ## License
 [**Apache-2.0 license**](https://www.apache.org/licenses/LICENSE-2.0)
+
+
+## Report an Issue
+Please report issues and enhancements through the
+[Jenkins issue tracker](https://www.jenkins.io/participate/report-issue/redirect/#19327).
