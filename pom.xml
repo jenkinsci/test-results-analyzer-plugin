@@ -7,7 +7,7 @@
 	</parent>
 
 	<artifactId>test-results-analyzer</artifactId>
-	<version>0.4.1-SNAPSHOT</version>
+	<version>${revision}${changelist}</version>
 	<packaging>hpi</packaging>
 	<name>Test Results Analyzer Plugin</name>
 	<url>https://github.com/jenkinsci/test-results-analyzer-plugin</url>
@@ -20,6 +20,9 @@
 	</developers>
 
 	<properties>
+		<revision>0.4.1</revision>
+		<changelist>-SNAPSHOT</changelist>
+		<gitHubRepo>jenkinsci/test-results-analyzer-plugin</gitHubRepo>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
 		<jenkins.version>2.332.4</jenkins.version>
 		<!-- Jenkins Test Harness version you use to test the plugin. -->
@@ -43,10 +46,10 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:https://github.com/jenkinsci/test-results-analyzer-plugin.git</connection>
-		<developerConnection>scm:git:git@github.com:jenkinsci/test-results-analyzer-plugin.git</developerConnection>
-		<url>https://github.com/jenkinsci/test-results-analyzer-plugin.git</url>
-	  <tag>HEAD</tag>
+		<connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
+		<developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+		<url>https://github.com/${gitHubRepo}.git</url>
+	  <tag>${scmTag}</tag>
   </scm>
 
   <dependencyManagement>
