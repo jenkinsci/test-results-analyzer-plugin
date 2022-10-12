@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class ResultStatusTest {
+class ResultStatusTest {
     @Test
     void testGetValue() {
         assertEquals("PASSED", ResultStatus.PASSED.getValue());
