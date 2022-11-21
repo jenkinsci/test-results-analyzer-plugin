@@ -36,7 +36,6 @@
 		<!-- SpotBugs is a program which uses static analysis to look for bugs in Java code -->
 		<!-- Plugin maintenance can be improved by increasing the depth of spotbugs analysis. -->
 		<spotbugs.effort>Max</spotbugs.effort>
-		<spotbugs.failOnError>true</spotbugs.failOnError>
 		<spotbugs.threshold>Low</spotbugs.threshold>
 	</properties>
 
