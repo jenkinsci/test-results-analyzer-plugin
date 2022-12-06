@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>4.51</version>
+		<version>4.52</version>
 	</parent>
 
 	<artifactId>test-results-analyzer</artifactId>
@@ -24,15 +24,7 @@
 		<changelist>-SNAPSHOT</changelist>
 		<gitHubRepo>jenkinsci/test-results-analyzer-plugin</gitHubRepo>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-		<jenkins.version>2.346.3</jenkins.version>
-		<!-- Jenkins Test Harness version you use to test the plugin. -->
-		<!-- For Jenkins version >= 1.580.1 use JTH 2.x or higher. -->
-		<!-- <jenkins-test-harness.version>2.13</jenkins-test-harness.version> -->
-		<!-- Do not need to mention specifically as maintained by parent dependencies, here used : 2.71 -->
-		<!-- Other properties you may want to use:
-             ~ hpi-plugin.version: The HPI Maven Plugin version used by the plugin..
-             ~ stapler-plugin.version: The Stapler Maven plugin version required by the plugin.
-        -->
+		<jenkins.version>2.361.1</jenkins.version>
 		<!-- SpotBugs is a program which uses static analysis to look for bugs in Java code -->
 		<!-- Plugin maintenance can be improved by increasing the depth of spotbugs analysis. -->
 		<spotbugs.effort>Max</spotbugs.effort>
@@ -56,7 +48,7 @@
 		<dependencies>
 			<dependency>
 				<groupId>io.jenkins.tools.bom</groupId>
-				<artifactId>bom-2.346.x</artifactId>
+				<artifactId>bom-2.361.x</artifactId>
 				<version>1723.vcb_9fee52c9fc</version>
 				<type>pom</type>
 				<scope>import</scope>
