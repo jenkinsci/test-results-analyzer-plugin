@@ -24,7 +24,7 @@
 		<changelist>-SNAPSHOT</changelist>
 		<gitHubRepo>jenkinsci/test-results-analyzer-plugin</gitHubRepo>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-		<jenkins.version>2.346.3</jenkins.version>
+               <jenkins.version>2.361.4</jenkins.version>
 		<!-- Jenkins Test Harness version you use to test the plugin. -->
 		<!-- For Jenkins version >= 1.580.1 use JTH 2.x or higher. -->
 		<!-- <jenkins-test-harness.version>2.13</jenkins-test-harness.version> -->
@@ -56,7 +56,7 @@
 		<dependencies>
 			<dependency>
 				<groupId>io.jenkins.tools.bom</groupId>
-				<artifactId>bom-2.346.x</artifactId>
+                                <artifactId>bom-2.361.x</artifactId>
 				<version>1723.vcb_9fee52c9fc</version>
 				<type>pom</type>
 				<scope>import</scope>
