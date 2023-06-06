@@ -11,8 +11,8 @@ import org.jvnet.hudson.test.*;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
 import static org.junit.Assert.*;
-import com.gargoylesoftware.htmlunit.html.*; 
-import com.gargoylesoftware.htmlunit.*;
+import org.htmlunit.html.*; 
+import org.htmlunit.*;
 
 //TODO:Ignoring the test as they are failing and needs time to debug and fix
 @Ignore
