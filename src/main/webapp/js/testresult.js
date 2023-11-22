@@ -137,7 +137,7 @@ function expandAll() {
 }
 
 function getDescendants(parentRow, level) {
-    var parentLevel = parseInt($(parentRow).attr("hierarchyLevel"));
+    var parentLevel = parseInt(parentRow.attr("hierarchyLevel"));
     var descendantLevel = parentLevel + level;
     var done = false;
 
@@ -167,7 +167,7 @@ function getAllDescendants(parentRow) {
 function getAllAncestors(parentRow) {
     var result = [];
 
-    var parentLevel = parseInt($(parentRow).attr("hierarchyLevel"));
+    var parentLevel = parseInt(parentRow.attr("hierarchyLevel"));
     var nextAncestorLevel = parentLevel - 1;
 
     var done = parentLevel < 0; // might not have any ancestors
@@ -218,7 +218,7 @@ function getSiblings(row) {
     done = false;
     var followingSiblings = $j(row).nextAll().filter(isSibling);
 
-    return $(previousSiblings).add(followingSiblings);
+    return previousSiblings.add(followingSiblings);
 }
 
 function addEvents() {
@@ -271,7 +271,7 @@ function checkChildren(row, checked) {
 
 function areAllSiblingsChecked(row) {
     var siblings = getSiblings(row);
-    return $(siblings).find("input:checked").length == siblings.length;
+    return siblings.find("input:checked").length == siblings.length;
 }
 
 function checkParent(row, checked) {
