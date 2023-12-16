@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.jvnet.hudson.test.*;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import org.htmlunit.html.*; 
 import org.htmlunit.*;
 

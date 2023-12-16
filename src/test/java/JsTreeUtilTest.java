@@ -2,10 +2,10 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.testresultsanalyzer.JsTreeUtil;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
-import org.junit.Assert;
 import org.junit.Test;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -147,11 +147,11 @@ public class JsTreeUtilTest {
     }
 
     private static void assertEquals(String expected, JSONObject actual) {
-        Assert.assertThat(actual.toString(), is(equalTo(expected)));
+        assertThat(actual.toString(), is(equalTo(expected)));
     }
 
     private static void assertEquals(JSONObject expected, JSONObject actual) {
-        Assert.assertThat(actual.toString(2), is(equalTo(expected.toString(2))));
+        assertThat(actual.toString(2), is(equalTo(expected.toString(2))));
     }
 
     private static JSONArray jsonArray(Object... objects) {
