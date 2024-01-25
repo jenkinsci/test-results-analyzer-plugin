@@ -26,6 +26,7 @@ public class FakeTestMethod extends TestResult {
     public String getDisplayName() {
         return name;
     }
+
     @Override
     public String getName() {
         return name;

@@ -1,80 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.jenkins-ci.plugins</groupId>
-		<artifactId>plugin</artifactId>
-		<version>4.76</version>
-	</parent>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.jenkins-ci.plugins</groupId>
+    <artifactId>plugin</artifactId>
+    <version>4.76</version>
+  </parent>
 
-	<artifactId>test-results-analyzer</artifactId>
-	<version>${revision}${changelist}</version>
-	<packaging>hpi</packaging>
-	<name>Test Results Analyzer Plugin</name>
-	<url>https://github.com/jenkinsci/test-results-analyzer-plugin</url>
-	<developers>
-		<developer>
-			<id>menonvarun</id>
-			<name>Varun Menon</name>
-			<email>mr.varun.menon@gmail.com</email>
-		</developer>
-	</developers>
+  <artifactId>test-results-analyzer</artifactId>
+  <version>${revision}${changelist}</version>
+  <packaging>hpi</packaging>
+  <name>Test Results Analyzer Plugin</name>
+  <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
 
-	<properties>
-		<revision>0.4.2</revision>
-		<changelist>-SNAPSHOT</changelist>
-		<gitHubRepo>jenkinsci/test-results-analyzer-plugin</gitHubRepo>
-		<!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-		<jenkins.version>2.361.4</jenkins.version>
-		<!-- SpotBugs is a program which uses static analysis to look for bugs in Java code -->
-		<!-- Plugin maintenance can be improved by increasing the depth of spotbugs analysis. -->
-		<spotbugs.effort>Max</spotbugs.effort>
-		<spotbugs.threshold>Low</spotbugs.threshold>
-	</properties>
+  <licenses>
+    <license>
+      <name>Apache 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>menonvarun</id>
+      <name>Varun Menon</name>
+      <email>mr.varun.menon@gmail.com</email>
+    </developer>
+    <developer>
+      <id>mPokornyETM</id>
+      <name>Martin Pokorny</name>
+      <email>martin.pokorny@etm.at</email>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
+    <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+    <tag>${scmTag}</tag>
+    <url>https://github.com/${gitHubRepo}.git</url>
+  </scm>
 
-	<licenses>
-		<license>
-			<name>Apache 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-		</license>
-	</licenses>
-	<scm>
-		<connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
-		<developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
-		<url>https://github.com/${gitHubRepo}.git</url>
-		<tag>${scmTag}</tag>
-	</scm>
+  <properties>
+    <revision>0.4.2</revision>
+    <changelist>-SNAPSHOT</changelist>
+    <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
+    <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
+    <jenkins.version>2.361.4</jenkins.version>
+    <!-- SpotBugs is a program which uses static analysis to look for bugs in Java code -->
+    <!-- Plugin maintenance can be improved by increasing the depth of spotbugs analysis. -->
+    <spotbugs.effort>Max</spotbugs.effort>
+    <spotbugs.threshold>Low</spotbugs.threshold>
+    <spotless.check.skip>false</spotless.check.skip>
+  </properties>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>io.jenkins.tools.bom</groupId>
-				<artifactId>bom-2.361.x</artifactId>
-				<version>2102.v854b_fec19c92</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-2.361.x</artifactId>
+        <version>2102.v854b_fec19c92</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.jenkins-ci.plugins</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
-	</dependencies>
-	<!-- get every artifact through repo.jenkins-ci.org, which proxies all the
+  <dependencies>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+  </dependencies>
+  <!-- get every artifact through repo.jenkins-ci.org, which proxies all the
 		artifacts that we need -->
-	<repositories>
-		<repository>
-			<id>repo.jenkins-ci.org</id>
-			<url>https://repo.jenkins-ci.org/public/</url>
-		</repository>
-	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<id>repo.jenkins-ci.org</id>
-			<url>https://repo.jenkins-ci.org/public/</url>
-		</pluginRepository>
-	</pluginRepositories>
+  <repositories>
+    <repository>
+      <id>repo.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/public/</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>repo.jenkins-ci.org</id>
+      <url>https://repo.jenkins-ci.org/public/</url>
+    </pluginRepository>
+  </pluginRepositories>
 
 </project>

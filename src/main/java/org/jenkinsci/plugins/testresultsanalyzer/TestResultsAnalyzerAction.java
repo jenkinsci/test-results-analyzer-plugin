@@ -1,264 +1,262 @@
 package org.jenkinsci.plugins.testresultsanalyzer;
 
 import hudson.model.Action;
+import hudson.model.Actionable;
 import hudson.model.Item;
 import hudson.model.Job;
-import hudson.model.Actionable;
 import hudson.model.Run;
+import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.AggregatedTestResultAction;
 import hudson.tasks.test.TabulatedResult;
-import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.TestResult;
 import hudson.util.RunList;
-
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.logging.Logger;
-
 import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
-import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ClassInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.PackageInfo;
+import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.TestCaseInfo;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
 public class TestResultsAnalyzerAction extends Actionable implements Action {
 
-	@SuppressWarnings("rawtypes")
-	Job project;
-	private List<Integer> builds = new ArrayList<Integer>();
-	private final static Logger LOG = Logger.getLogger(TestResultsAnalyzerAction.class.getName());
+    @SuppressWarnings("rawtypes")
+    Job project;
 
-	ResultInfo resultInfo;
+    private List<Integer> builds = new ArrayList<Integer>();
+    private static final Logger LOG = Logger.getLogger(TestResultsAnalyzerAction.class.getName());
 
-	public TestResultsAnalyzerAction(@SuppressWarnings("rawtypes") Job project) {
-		this.project = project;
-	}
+    ResultInfo resultInfo;
 
-	/**
-	 * The display name for the action.
-	 * 
-	 * @return the name as String
-	 */
-	public final String getDisplayName() {
-		return this.hasPermission() ? Constants.NAME : null;
-	}
+    public TestResultsAnalyzerAction(@SuppressWarnings("rawtypes") Job project) {
+        this.project = project;
+    }
 
-	/**
-	 * The icon for this action.
-	 * 
-	 * @return the icon file as String
-	 */
-	public final String getIconFileName() {
-		return this.hasPermission() ? Constants.ICONFILENAME : null;
-	}
+    /**
+     * The display name for the action.
+     *
+     * @return the name as String
+     */
+    public final String getDisplayName() {
+        return this.hasPermission() ? Constants.NAME : null;
+    }
 
-	/**
-	 * The url for this action.
-	 * 
-	 * @return the url as String
-	 */
-	public String getUrlName() {
-		return this.hasPermission() ? Constants.URL : null;
-	}
+    /**
+     * The icon for this action.
+     *
+     * @return the icon file as String
+     */
+    public final String getIconFileName() {
+        return this.hasPermission() ? Constants.ICONFILENAME : null;
+    }
 
-	/**
-	 * Search url for this action.
-	 * 
-	 * @return the url as String
-	 */
-	public String getSearchUrl() {
-		return this.hasPermission() ? Constants.URL : null;
-	}
+    /**
+     * The url for this action.
+     *
+     * @return the url as String
+     */
+    public String getUrlName() {
+        return this.hasPermission() ? Constants.URL : null;
+    }
 
-	/**
-	 * Checks if the user has CONFIGURE permission.
-	 * 
-	 * @return true - user has permission, false - no permission.
-	 */
-	private boolean hasPermission() {
-		return project.hasPermission(Item.READ);
-	}
+    /**
+     * Search url for this action.
+     *
+     * @return the url as String
+     */
+    public String getSearchUrl() {
+        return this.hasPermission() ? Constants.URL : null;
+    }
 
-	@SuppressWarnings("rawtypes")
-	public Job getProject() {
-		return this.project;
-	}
+    /**
+     * Checks if the user has CONFIGURE permission.
+     *
+     * @return true - user has permission, false - no permission.
+     */
+    private boolean hasPermission() {
+        return project.hasPermission(Item.READ);
+    }
 
-	@JavaScriptMethod
-	public JSONArray getNoOfBuilds(String noOfbuildsNeeded) {
-		JSONArray jsonArray;
-		int noOfBuilds = getNoOfBuildRequired(noOfbuildsNeeded);
+    @SuppressWarnings("rawtypes")
+    public Job getProject() {
+        return this.project;
+    }
 
-		jsonArray = getBuildsArray(getBuildList(noOfBuilds));
+    @JavaScriptMethod
+    public JSONArray getNoOfBuilds(String noOfbuildsNeeded) {
+        JSONArray jsonArray;
+        int noOfBuilds = getNoOfBuildRequired(noOfbuildsNeeded);
 
-		return jsonArray;
-	}
+        jsonArray = getBuildsArray(getBuildList(noOfBuilds));
 
-	private JSONArray getBuildsArray(List<Integer> buildList) {
-		JSONArray jsonArray = new JSONArray();
-		for (Integer build : buildList) {
-			jsonArray.add(build);
-		}
-		return jsonArray;
-	}
+        return jsonArray;
+    }
 
-	private List<Integer> getBuildList(int noOfBuilds) {
-		if ((noOfBuilds <= 0) || (noOfBuilds >= builds.size())) {
-			return builds;
-		}
-
-		List<Integer> buildList = new ArrayList<Integer>();
-
-		for(int i = 0; i < noOfBuilds; i++) {
-			buildList.add(builds.get(i));
-		}
-
-		return buildList;
-	}
-
-	private int getNoOfBuildRequired(String noOfbuildsNeeded) {
-		int noOfBuilds;
-		try {
-			noOfBuilds = Integer.parseInt(noOfbuildsNeeded);
-		}
-		catch (NumberFormatException e) {
-			noOfBuilds = -1;
-		}
-		return noOfBuilds;
-	}
-
-	public boolean isUpdated() {
-		Run lastBuild = project.getLastBuild();
-		if (lastBuild == null) {
-			return false;
-		}
-
-		int latestBuildNumber = lastBuild.getNumber();
-		return !(builds.contains(latestBuildNumber));
-	}
-
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	public void getJsonLoadData() {
-		if (!isUpdated()) {
-			return;
-		}
-
-		resultInfo = new ResultInfo();
-		builds = new ArrayList<Integer>();
-
-		RunList<Run> runs = null;
-		if (getNoOfRunsToFetch() > 0) {
-		    runs = project.getBuilds().limit(getNoOfRunsToFetch());
-        } else {
-		    runs = project.getBuilds();
+    private JSONArray getBuildsArray(List<Integer> buildList) {
+        JSONArray jsonArray = new JSONArray();
+        for (Integer build : buildList) {
+            jsonArray.add(build);
         }
-		for (Run run : runs) {
-			if(run.isBuilding()) {
-				continue;
-			}
+        return jsonArray;
+    }
 
-			int buildNumber = run.getNumber();
-			builds.add(buildNumber);
+    private List<Integer> getBuildList(int noOfBuilds) {
+        if ((noOfBuilds <= 0) || (noOfBuilds >= builds.size())) {
+            return builds;
+        }
 
-			List<AbstractTestResultAction> testActions = run.getActions(AbstractTestResultAction.class);
-			for (AbstractTestResultAction testAction : testActions) {
-				if (AggregatedTestResultAction.class.isInstance(testAction)) {
-					addTestResults(buildNumber, (AggregatedTestResultAction) testAction);
-				} else {
-					addTestResult(buildNumber, run, testAction, testAction.getResult());
-				}
-			}
-		}
-	}
+        List<Integer> buildList = new ArrayList<Integer>();
 
-	private void addTestResults(int buildNumber, AggregatedTestResultAction testAction) {
-		List<AggregatedTestResultAction.ChildReport> childReports = testAction.getChildReports();
-		for (AggregatedTestResultAction.ChildReport childReport : childReports) {
-			addTestResult(buildNumber, childReport.run, testAction, childReport.result);
-		}
-	}
+        for (int i = 0; i < noOfBuilds; i++) {
+            buildList.add(builds.get(i));
+        }
 
-	private void addTestResult(int buildNumber, Run run, AbstractTestResultAction testAction, Object result) {
-		if (run == null || result == null) {
-			return;
-		}
+        return buildList;
+    }
 
-		try {
-			TabulatedResult testResult = (TabulatedResult) result;
-			Collection<? extends TestResult> packageResults = testResult.getChildren();
-			Jenkins jenkins = Jenkins.getInstance();
-			String rootUrl = jenkins != null ? jenkins.getRootUrl() : "";
-			for (TestResult packageResult : packageResults) { // packageresult
-				resultInfo.addPackage(buildNumber, (TabulatedResult) packageResult, rootUrl + run.getUrl());
-			}
-		} catch (ClassCastException e) {
-			LOG.info("Got ClassCast exception while converting results to Tabulated Result from action: " + testAction.getClass().getName() + ". Ignoring as we only want test results for processing.");
-		}
-	}
+    private int getNoOfBuildRequired(String noOfbuildsNeeded) {
+        int noOfBuilds;
+        try {
+            noOfBuilds = Integer.parseInt(noOfbuildsNeeded);
+        } catch (NumberFormatException e) {
+            noOfBuilds = -1;
+        }
+        return noOfBuilds;
+    }
+
+    public boolean isUpdated() {
+        Run lastBuild = project.getLastBuild();
+        if (lastBuild == null) {
+            return false;
+        }
+
+        int latestBuildNumber = lastBuild.getNumber();
+        return !(builds.contains(latestBuildNumber));
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void getJsonLoadData() {
+        if (!isUpdated()) {
+            return;
+        }
+
+        resultInfo = new ResultInfo();
+        builds = new ArrayList<Integer>();
+
+        RunList<Run> runs = null;
+        if (getNoOfRunsToFetch() > 0) {
+            runs = project.getBuilds().limit(getNoOfRunsToFetch());
+        } else {
+            runs = project.getBuilds();
+        }
+        for (Run run : runs) {
+            if (run.isBuilding()) {
+                continue;
+            }
+
+            int buildNumber = run.getNumber();
+            builds.add(buildNumber);
+
+            List<AbstractTestResultAction> testActions = run.getActions(AbstractTestResultAction.class);
+            for (AbstractTestResultAction testAction : testActions) {
+                if (AggregatedTestResultAction.class.isInstance(testAction)) {
+                    addTestResults(buildNumber, (AggregatedTestResultAction) testAction);
+                } else {
+                    addTestResult(buildNumber, run, testAction, testAction.getResult());
+                }
+            }
+        }
+    }
+
+    private void addTestResults(int buildNumber, AggregatedTestResultAction testAction) {
+        List<AggregatedTestResultAction.ChildReport> childReports = testAction.getChildReports();
+        for (AggregatedTestResultAction.ChildReport childReport : childReports) {
+            addTestResult(buildNumber, childReport.run, testAction, childReport.result);
+        }
+    }
+
+    private void addTestResult(int buildNumber, Run run, AbstractTestResultAction testAction, Object result) {
+        if (run == null || result == null) {
+            return;
+        }
+
+        try {
+            TabulatedResult testResult = (TabulatedResult) result;
+            Collection<? extends TestResult> packageResults = testResult.getChildren();
+            Jenkins jenkins = Jenkins.getInstance();
+            String rootUrl = jenkins != null ? jenkins.getRootUrl() : "";
+            for (TestResult packageResult : packageResults) { // packageresult
+                resultInfo.addPackage(buildNumber, (TabulatedResult) packageResult, rootUrl + run.getUrl());
+            }
+        } catch (ClassCastException e) {
+            LOG.info("Got ClassCast exception while converting results to Tabulated Result from action: "
+                    + testAction.getClass().getName() + ". Ignoring as we only want test results for processing.");
+        }
+    }
 
     @JavaScriptMethod
     public JSONObject getTreeResult(UserConfig userConfig) {
-		if (resultInfo == null) {
-			return new JSONObject();
-		}
+        if (resultInfo == null) {
+            return new JSONObject();
+        }
 
         int noOfBuilds = getNoOfBuildRequired(userConfig.getNoOfBuildsNeeded());
         List<Integer> buildList = getBuildList(noOfBuilds);
 
         JsTreeUtil jsTreeUtils = new JsTreeUtil();
-		return jsTreeUtils.getJsTree(buildList, resultInfo, userConfig.isHideConfigMethods());
+        return jsTreeUtils.getJsTree(buildList, resultInfo, userConfig.isHideConfigMethods());
     }
-	
-	@JavaScriptMethod
-    public String getExportCSV(String timeBased, String noOfBuildsNeeded) {
-		boolean isTimeBased = Boolean.parseBoolean(timeBased);
-        Map<String, PackageInfo> packageResults = resultInfo.getPackageResults();
-		int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
-		List<Integer> buildList = getBuildList(noOfBuilds);
 
-		StringBuffer builder = new StringBuffer("");
+    @JavaScriptMethod
+    public String getExportCSV(String timeBased, String noOfBuildsNeeded) {
+        boolean isTimeBased = Boolean.parseBoolean(timeBased);
+        Map<String, PackageInfo> packageResults = resultInfo.getPackageResults();
+        int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
+        List<Integer> buildList = getBuildList(noOfBuilds);
+
+        StringBuffer builder = new StringBuffer("");
         for (int i = 0; i < buildList.size(); i++) {
             builder.append(",\"");
             builder.append(Integer.toString(builds.get(i)));
             builder.append("\"");
-        }		
+        }
         String header = "\"Package\",\"Class\",\"Test\"";
         header += builder.toString();
 
-		StringBuilder exportBuilder = new StringBuilder();
+        StringBuilder exportBuilder = new StringBuilder();
         exportBuilder.append(header + System.lineSeparator());
-		DecimalFormat decimalFormat = new DecimalFormat("#.###");
-		decimalFormat.setRoundingMode(RoundingMode.CEILING);
+        DecimalFormat decimalFormat = new DecimalFormat("#.###");
+        decimalFormat.setRoundingMode(RoundingMode.CEILING);
         for (PackageInfo pInfo : packageResults.values()) {
             String packageName = pInfo.getName();
-            //loop the classes
+            // loop the classes
             for (ClassInfo cInfo : pInfo.getClasses().values()) {
                 String className = cInfo.getName();
-                //loop the tests
+                // loop the tests
                 for (TestCaseInfo tInfo : cInfo.getTests().values()) {
                     String testName = tInfo.getName();
-                    exportBuilder.append("\""+ packageName + "\",\"" + className + "\",\"" + testName+"\"");
-					Map<Integer, ResultData> buildPackageResults = tInfo.getBuildPackageResults();
-					for (int i = 0; i < buildList.size(); i++) {
-						Integer buildNumber = buildList.get(i);
-						String data = getCustomStatus("NA");
-						if(buildPackageResults.containsKey(buildNumber)) {
-							ResultData buildResult = buildPackageResults.get(buildNumber);
-							if(!isTimeBased) {
-								data = getCustomStatus(buildResult.getStatus());
-							} else {
-								data = decimalFormat.format(buildResult.getTotalTimeTaken());
-							}
-						}
-						exportBuilder.append(",\"" + data + "\"");
-					}
+                    exportBuilder.append("\"" + packageName + "\",\"" + className + "\",\"" + testName + "\"");
+                    Map<Integer, ResultData> buildPackageResults = tInfo.getBuildPackageResults();
+                    for (int i = 0; i < buildList.size(); i++) {
+                        Integer buildNumber = buildList.get(i);
+                        String data = getCustomStatus("NA");
+                        if (buildPackageResults.containsKey(buildNumber)) {
+                            ResultData buildResult = buildPackageResults.get(buildNumber);
+                            if (!isTimeBased) {
+                                data = getCustomStatus(buildResult.getStatus());
+                            } else {
+                                data = decimalFormat.format(buildResult.getTotalTimeTaken());
+                            }
+                        }
+                        exportBuilder.append(",\"" + data + "\"");
+                    }
                     exportBuilder.append(System.lineSeparator());
                 }
             }
@@ -266,91 +264,90 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         return exportBuilder.toString();
     }
 
-	private String getCustomStatus(String status) {
-		ResultStatus resultStatus = null;
-		try {
-			resultStatus = ResultStatus.valueOf(status);
-		} catch (IllegalArgumentException e) {
-		    resultStatus = null;
-		}
-		if (resultStatus == null)
-			return status;
-		switch (resultStatus) {
-			case PASSED:
-				return getPassedRepresentation();
-			case FAILED:
-				return getFailedRepresentation();
-			case SKIPPED:
-				return getSkippedRepresentation();
-			case NA:
-				return getNaRepresentation();
-		}
-		return status;
-	}
+    private String getCustomStatus(String status) {
+        ResultStatus resultStatus = null;
+        try {
+            resultStatus = ResultStatus.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            resultStatus = null;
+        }
+        if (resultStatus == null) return status;
+        switch (resultStatus) {
+            case PASSED:
+                return getPassedRepresentation();
+            case FAILED:
+                return getFailedRepresentation();
+            case SKIPPED:
+                return getSkippedRepresentation();
+            case NA:
+                return getNaRepresentation();
+        }
+        return status;
+    }
 
-	public String getNoOfBuilds() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getNoOfBuilds();
-	}
+    public String getNoOfBuilds() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getNoOfBuilds();
+    }
 
-	public int getNoOfRunsToFetch() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getNoOfRunsToFetch();
-	}
+    public int getNoOfRunsToFetch() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getNoOfRunsToFetch();
+    }
 
-	public boolean getShowAllBuilds() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowAllBuilds();
-	}
+    public boolean getShowAllBuilds() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getShowAllBuilds();
+    }
 
-	public boolean getShowLineGraph() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowLineGraph();
-	}
+    public boolean getShowLineGraph() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getShowLineGraph();
+    }
 
-	public boolean getShowBarGraph() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowBarGraph();
-	}
+    public boolean getShowBarGraph() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getShowBarGraph();
+    }
 
-	public boolean getShowPieGraph() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowPieGraph();
-	}
+    public boolean getShowPieGraph() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getShowPieGraph();
+    }
 
-	public boolean getShowBuildTime() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getShowBuildTime();
-	}
+    public boolean getShowBuildTime() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getShowBuildTime();
+    }
 
-	public boolean getHideConfigurationMethods() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getHideConfigurationMethods();
-	}
+    public boolean getHideConfigurationMethods() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getHideConfigurationMethods();
+    }
 
-	public String getChartDataType() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getChartDataType();
-	}
+    public String getChartDataType() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getChartDataType();
+    }
 
-	public String getRunTimeLowThreshold() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getRunTimeLowThreshold();
-	}
+    public String getRunTimeLowThreshold() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getRunTimeLowThreshold();
+    }
 
-	public String getRunTimeHighThreshold() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getRunTimeHighThreshold();
-	}
+    public String getRunTimeHighThreshold() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getRunTimeHighThreshold();
+    }
 
-	public boolean isUseCustomStatusNames() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.isUseCustomStatusNames();
-	}
+    public boolean isUseCustomStatusNames() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.isUseCustomStatusNames();
+    }
 
-	public String getPassedRepresentation() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedRepresentation();
-	}
+    public String getPassedRepresentation() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedRepresentation();
+    }
 
-	public String getFailedRepresentation() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getFailedRepresentation();
-	}
+    public String getFailedRepresentation() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getFailedRepresentation();
+    }
 
-	public String getSkippedRepresentation() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getSkippedRepresentation();
-	}
+    public String getSkippedRepresentation() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getSkippedRepresentation();
+    }
 
-	public String getNaRepresentation() {
-		return TestResultsAnalyzerExtension.DESCRIPTOR.getNaRepresentation();
-	}
+    public String getNaRepresentation() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getNaRepresentation();
+    }
 
     public String getPassedColor() {
         return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedColor();
