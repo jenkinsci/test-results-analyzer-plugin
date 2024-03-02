@@ -1,11 +1,10 @@
 import hudson.tasks.test.TabulatedResult;
 import hudson.tasks.test.TestObject;
 import hudson.tasks.test.TestResult;
-import org.kohsuke.stapler.export.Exported;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.kohsuke.stapler.export.Exported;
 
 public class FakeTabulatedResult extends TabulatedResult {
     private TestObject parent;

@@ -2,15 +2,11 @@ package org.jenkinsci.plugins.testresultsanalyzer;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.Info;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 public class JsTreeUtil {
 
@@ -24,7 +20,8 @@ public class JsTreeUtil {
         tree.put("builds", buildJson);
 
         JSONArray results = new JSONArray();
-        for (Map.Entry<String, ? extends Info> entry : resultInfo.getPackageResults().entrySet()) {
+        for (Map.Entry<String, ? extends Info> entry :
+                resultInfo.getPackageResults().entrySet()) {
             results.add(createJson(builds, entry.getValue(), hideConfigMethods));
         }
         tree.put("results", results);
@@ -52,8 +49,7 @@ public class JsTreeUtil {
 
     private JSONArray getChildren(List<Integer> builds, Info info, boolean hideConfigMethods) {
         Map<String, ? extends Info> childrenInfo = info.getChildren();
-        if (childrenInfo == null)
-            return new JSONArray();
+        if (childrenInfo == null) return new JSONArray();
 
         JSONArray children = new JSONArray();
         for (Map.Entry<String, ? extends Info> entry : childrenInfo.entrySet()) {
@@ -81,7 +77,6 @@ public class JsTreeUtil {
             json.put("status", result.getStatus());
             json.put("url", result.getUrl());
         }
-
 
         return json;
     }
