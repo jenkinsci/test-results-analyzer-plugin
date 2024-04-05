@@ -1,6 +1,3 @@
-import hudson.tasks.junit.TestResult;
-import hudson.tasks.test.TestObject;
-
 import java.util.HashMap;
 import java.util.Map;
 

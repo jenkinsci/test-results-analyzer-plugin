@@ -1,8 +1,3 @@
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.testresultsanalyzer.JsTreeUtil;
-import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
-import org.junit.Test;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -10,6 +5,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.jenkinsci.plugins.testresultsanalyzer.JsTreeUtil;
+import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
+import org.junit.Test;
 
 public class JsTreeUtilTest {
 
@@ -36,8 +36,7 @@ public class JsTreeUtilTest {
         List<Integer> builds = Arrays.asList(9, 7);
         ResultInfo results = new ResultInfo();
 
-        FakePackageResult packageFoo = new FakePackageResult("pn")
-                .addTest("Class1", "method1", TestStatus.Pass);
+        FakePackageResult packageFoo = new FakePackageResult("pn").addTest("Class1", "method1", TestStatus.Pass);
         results.addPackage(7, packageFoo, "someUrl/");
 
         JSONObject method1Result = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn/Class1/method1", 7);
@@ -122,7 +121,8 @@ public class JsTreeUtilTest {
         return result;
     }
 
-    private static JSONObject buildLeaf(int passed, int failed, int skipped, String status, String url, Integer buildNumber) {
+    private static JSONObject buildLeaf(
+            int passed, int failed, int skipped, String status, String url, Integer buildNumber) {
         JSONObject result = new JSONObject();
 
         result.put("buildNumber", buildNumber.toString());
@@ -167,5 +167,4 @@ public class JsTreeUtilTest {
     private static JSONArray jsonArray() {
         return new JSONArray();
     }
-
 }

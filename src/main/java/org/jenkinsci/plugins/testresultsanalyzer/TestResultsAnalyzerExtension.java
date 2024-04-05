@@ -1,17 +1,16 @@
 package org.jenkinsci.plugins.testresultsanalyzer;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
-
 import hudson.Extension;
 import hudson.model.Action;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Job;
 import hudson.util.FormValidation;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -19,7 +18,8 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 @Extension
-public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> implements Describable<TestResultsAnalyzerExtension> {
+public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
+        implements Describable<TestResultsAnalyzerExtension> {
 
     @Override
     public @Nonnull Collection<? extends Action> createFor(@Nonnull Job target) {
@@ -31,7 +31,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
         return Job.class;
     }
 
-    //based on DiskUsageProjectActionFactory
+    // based on DiskUsageProjectActionFactory
     @Extension
     public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
@@ -74,11 +74,11 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
         private String skippedColor = SKIP_STATUS_COLOR;
         private String naColor = NA_STATUS_COLOR;
 
-        //true = Show Test Runtimes in Charts instead of Passes and Failures
+        // true = Show Test Runtimes in Charts instead of Passes and Failures
         private String chartDataType = passFailString;
 
         public DescriptorImpl() {
-            //jenkins actually will edit your program's memory and set variables
+            // jenkins actually will edit your program's memory and set variables
             load();
         }
 
@@ -129,42 +129,64 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
                     skippedColor = SKIP_STATUS_COLOR;
                     naColor = NA_STATUS_COLOR;
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             save();
             return true;
         }
 
-		public String getNoOfBuilds() { return noOfBuilds; }
+        public String getNoOfBuilds() {
+            return noOfBuilds;
+        }
 
         public int getNoOfRunsToFetch() {
             return noOfRunsToFetch;
         }
 
-        public boolean getShowAllBuilds() { return showAllBuilds; }
+        public boolean getShowAllBuilds() {
+            return showAllBuilds;
+        }
 
-		public boolean getShowLineGraph() { return showLineGraph; }
+        public boolean getShowLineGraph() {
+            return showLineGraph;
+        }
 
-		public boolean getShowBarGraph() { return showBarGraph; }
+        public boolean getShowBarGraph() {
+            return showBarGraph;
+        }
 
-		public boolean getShowPieGraph() { return showPieGraph; }
+        public boolean getShowPieGraph() {
+            return showPieGraph;
+        }
 
-		public boolean getHideConfigurationMethods() {
-			return hideConfigurationMethods;
-		}
+        public boolean getHideConfigurationMethods() {
+            return hideConfigurationMethods;
+        }
 
-        public boolean getShowBuildTime() { return showBuildTime; }
+        public boolean getShowBuildTime() {
+            return showBuildTime;
+        }
 
-		public String getRunTimeLowThreshold() { return runTimeLowThreshold; }
+        public String getRunTimeLowThreshold() {
+            return runTimeLowThreshold;
+        }
 
-        public String getRunTimeHighThreshold() { return runTimeHighThreshold; }
+        public String getRunTimeHighThreshold() {
+            return runTimeHighThreshold;
+        }
 
-        public String getChartDataType() { return chartDataType; }
+        public String getChartDataType() {
+            return chartDataType;
+        }
 
-        public String getPassFailString() { return passFailString; }
+        public String getPassFailString() {
+            return passFailString;
+        }
 
-        public String getRuntimeString() { return runtimeString; }
+        public String getRuntimeString() {
+            return runtimeString;
+        }
 
         public String getPassedRepresentation() {
             return passedRepresentation;
@@ -206,33 +228,32 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
             return naColor;
         }
 
-        public FormValidation doCheckNoOfRunsToFetch(@QueryParameter String noOfRunsToFetch){
+        public FormValidation doCheckNoOfRunsToFetch(@QueryParameter String noOfRunsToFetch) {
             return intValidation(noOfRunsToFetch);
         }
 
-        public FormValidation doCheckNoOfBuilds(@QueryParameter String noOfBuilds){
+        public FormValidation doCheckNoOfBuilds(@QueryParameter String noOfBuilds) {
             return intValidation(noOfBuilds);
         }
 
-        public FormValidation doCheckPassedRepresentation(@QueryParameter String passedRepresentation){
+        public FormValidation doCheckPassedRepresentation(@QueryParameter String passedRepresentation) {
             return valueValidation(passedRepresentation);
         }
 
-        public FormValidation doCheckFailedRepresentation(@QueryParameter String failedRepresentation){
+        public FormValidation doCheckFailedRepresentation(@QueryParameter String failedRepresentation) {
             return valueValidation(failedRepresentation);
         }
 
-        public FormValidation doCheckSkippedRepresentation(@QueryParameter String skippedRepresentation){
+        public FormValidation doCheckSkippedRepresentation(@QueryParameter String skippedRepresentation) {
             return valueValidation(skippedRepresentation);
         }
 
-        public FormValidation doCheckNaRepresentation(@QueryParameter String naRepresentation){
+        public FormValidation doCheckNaRepresentation(@QueryParameter String naRepresentation) {
             return valueValidation(naRepresentation);
         }
 
         private FormValidation intValidation(String value) {
-            if(StringUtils.isBlank(value))
-                return FormValidation.error("Entered value should not be empty");
+            if (StringUtils.isBlank(value)) return FormValidation.error("Entered value should not be empty");
 
             try {
                 Integer.valueOf(value);
@@ -243,12 +264,10 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
         }
 
         private FormValidation valueValidation(String value) {
-            if(StringUtils.isBlank(value))
-                return FormValidation.error("Entered value should not be empty");
+            if (StringUtils.isBlank(value)) return FormValidation.error("Entered value should not be empty");
             Pattern regex = Pattern.compile("[<>{}*\\\"\'$&+,:;=?@#|]");
             Matcher matcher = regex.matcher(value);
-            if(matcher.find())
-                return FormValidation.error("Entered value should not have special characters.");
+            if (matcher.find()) return FormValidation.error("Entered value should not have special characters.");
             return FormValidation.ok();
         }
 
@@ -269,13 +288,11 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job> im
         }
 
         private FormValidation colorValidation(String value) {
-            if (StringUtils.isBlank(value))
-                return FormValidation.error("Entered value should not be empty");
+            if (StringUtils.isBlank(value)) return FormValidation.error("Entered value should not be empty");
             final String HEX_PATTERN = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$";
             Pattern regex = Pattern.compile(HEX_PATTERN);
             Matcher matcher = regex.matcher(value);
-            if (!matcher.matches())
-                return FormValidation.error("Entered value should be a valid HEX Color");
+            if (!matcher.matches()) return FormValidation.error("Entered value should be a valid HEX Color");
             return FormValidation.ok();
         }
     }
