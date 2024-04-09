@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.testresultsanalyzer;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.Action;
 import hudson.model.Describable;
@@ -10,7 +11,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
