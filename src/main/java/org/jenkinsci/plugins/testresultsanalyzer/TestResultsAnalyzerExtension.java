@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.testresultsanalyzer;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.Action;
 import hudson.model.Describable;
@@ -10,7 +11,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -22,7 +22,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         implements Describable<TestResultsAnalyzerExtension> {
 
     @Override
-    public @Nonnull Collection<? extends Action> createFor(@Nonnull Job target) {
+    public @NonNull Collection<? extends Action> createFor(@NonNull Job target) {
         return Collections.singleton(new TestResultsAnalyzerAction(target));
     }
 
