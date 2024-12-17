@@ -1,5 +1,8 @@
 var $j = jQuery.noConflict();
 
+const analyzerTemplate = window.testResultAnalyzerTemplates['table-body'];
+const analyzerWorstTestsTemplate = window.testResultAnalyzerTemplates['worst-tests-table-body'];
+
 var colTemplate = "{'cellClass':'col1','value':'build20','header':'20','title':'20'}";
 var reevaluateChartData = true;
 var displayValues = false;
@@ -355,11 +358,11 @@ function generateCharts() {
     window.dispatchEvent(new Event('resize'));
 }
 
-function setCustomStatuses(){
-    customStatuses['PASSED'] = "${it.passedRepresentation}";
-    customStatuses['SKIPPED'] = "${it.skippedRepresentation}";
-    customStatuses['FAILED'] = "${it.failedRepresentation}";
-    customStatuses['N/A'] = "${it.naRepresentation}";
+function setCustomStatuses(holder){
+    customStatuses['PASSED'] = holder.dataset.passedRepresentation;
+    customStatuses['SKIPPED'] = holder.dataset.skippedRepresentation;
+    customStatuses['FAILED'] = holder.dataset.failedRepresentation;
+    customStatuses['N/A'] = holder.dataset.naRepresentation;
 }
 
 function download(filename, text) {
@@ -396,7 +399,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         jQuery("#chartDataType").val("passfail");
     }
-    setCustomStatuses();
+    setCustomStatuses(document.querySelector(".tre-custom-status-holder"));
     populateTemplate();
 
     jQuery("#settingsmenubutton").click(function () {

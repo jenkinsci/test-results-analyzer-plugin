@@ -7,15 +7,13 @@
 <link href="${resURL}/plugin/test-results-analyzer/css/table-style.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/jquery/js/jquery-1.11.1.min.js"></script>
 
-<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/handlebars-v2.0.0.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highcharts.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/json3-min.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highchart-exporting.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highchart-offline-exporting.js"></script>
-
+<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/templates-bundle.js"/>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/testresult.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/chart-generator.js"></script>
-<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/test-result-analyzer-template.js"></script>
 
 <style type="text/css">
     .failed {
@@ -124,6 +122,9 @@ Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Cl
 	<span class="tre-chart-data" data-run-time-low-threshold="${it.runTimeLowThreshold}" data-run-time-high-threshold="${it.runTimeHighThreshold}"
 				data-show-all-builds="${it.showAllBuilds}" data-show-build-time="${it.showBuildTime}" data-hide-configuration-methods="${it.hideConfigurationMethods}"
 				data-show-line-graph="${it.showLineGraph}" data-show-bar-graph="${it.showBarGraph}" data-show-pie-graph="${it.showPieGraph}"/>
+	<span class="tre-custom-status-holder" data-passed-representation="${it.passedRepresentation}"
+				data-failed-representation="${it.failedRepresentation}" data-skipped-representation="${it.skippedRepresentation}"
+				data-na-representation="${it.naRepresentation}"/>
   </l:main-panel>
   </l:layout>
 </j:jelly>
