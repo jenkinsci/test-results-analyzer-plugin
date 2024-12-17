@@ -107,7 +107,7 @@ function generateRuntimePieChart(inputData) {
     var lowThreshold = parseFloat(runtimeLowThreshold);
     var highThreshold = parseFloat(runtimeHighThreshold);
 
-    runtimeArray.each(function (time) {
+    runtimeArray.forEach(function (time) {
         if (time < lowThreshold) {
             fast++;
         } else if (time >= highThreshold) {

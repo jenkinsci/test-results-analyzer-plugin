@@ -1,0 +1,16 @@
+{
+  "name": "test-results-analyzer-plugin",
+  "scripts": {
+    "mvnbuild": "npm run build",
+    "mvntest": "npm run test",
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development --watch",
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "devDependencies": {
+    "handlebars": "^4.7.8",
+    "handlebars-loader": "^1.7.3",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^5.1.4"
+  }
+}
