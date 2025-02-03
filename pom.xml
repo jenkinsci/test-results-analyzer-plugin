@@ -45,7 +45,7 @@
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
     <jenkins.baseline>2.479</jenkins.baseline>
-    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
+    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
     <!-- SpotBugs is a program which uses static analysis to look for bugs in Java code -->
     <!-- Plugin maintenance can be improved by increasing the depth of spotbugs analysis. -->
     <spotbugs.effort>Max</spotbugs.effort>
@@ -57,7 +57,7 @@
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.479.x</artifactId>
+        <artifactId>bom-${jenkins.baseline}.x</artifactId>
         <version>3706.v3c62589d89e6</version>
         <type>pom</type>
         <scope>import</scope>
