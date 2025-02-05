@@ -4,7 +4,8 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.88</version>
+    <version>5.6</version>
+    <relativePath />
   </parent>
 
   <artifactId>test-results-analyzer</artifactId>
@@ -43,8 +44,8 @@
     <changelist>-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     <!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
-    <jenkins.baseline>2.440</jenkins.baseline>
-    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
+    <jenkins.baseline>2.479</jenkins.baseline>
+    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
     <!-- SpotBugs is a program which uses static analysis to look for bugs in Java code -->
     <!-- Plugin maintenance can be improved by increasing the depth of spotbugs analysis. -->
     <spotbugs.effort>Max</spotbugs.effort>
@@ -57,7 +58,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>3435.v238d66a_043fb_</version>
+        <version>4051.v78dce3ce8b_d6</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -68,10 +69,11 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>junit</artifactId>
+      <!-- Version is managed by the BOM, so no need to specify it -->
     </dependency>
   </dependencies>
-  <!-- get every artifact through repo.jenkins-ci.org, which proxies all the
-		artifacts that we need -->
+
+  <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->
   <repositories>
     <repository>
       <id>repo.jenkins-ci.org</id>
@@ -84,5 +86,4 @@
       <url>https://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
-
 </project>
