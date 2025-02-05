@@ -15,7 +15,7 @@ import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 @Extension
 public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
@@ -88,7 +88,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         }
 
         @Override
-        public boolean configure(StaplerRequest req, JSONObject formData) {
+        public boolean configure(StaplerRequest2 req, JSONObject formData) {
             try {
                 noOfBuilds = formData.getString("noOfBuilds");
                 noOfRunsToFetch = formData.getInt("noOfRunsToFetch");
