@@ -1,6 +1,19 @@
+var $j = jQuery.noConflict();
+
+const analyzerTemplate = window.testResultAnalyzerTemplates['table-body'];
+const analyzerWorstTestsTemplate = window.testResultAnalyzerTemplates['worst-tests-table-body'];
+
 var colTemplate = "{'cellClass':'col1','value':'build20','header':'20','title':'20'}";
 var reevaluateChartData = true;
 var displayValues = false;
+var runtimeLowThreshold = "${it.runTimeLowThreshold}";
+var runtimeHighThreshold = "${it.runTimeHighThreshold}";
+var customStatuses = {
+    'PASSED':'PASSED',
+    'SKIPPED':'SKIPPED',
+    'FAILED':'FAILED',
+    'N/A':'N/A'
+}
 
 function clearedFilter(rows) {
     var levelsToShow = [0]; // stack to keep track of hierarchy
@@ -298,36 +311,135 @@ function resetAdvancedOptions(){
 }
 
 function getWorstTests(itemsResponse, range = 10) {
-  worstTests = {}
-  findChildren(itemsResponse);
-  worstTests = $j.map(worstTests, function(v,k) { return {k, v}});
-  worstTests.sort(function (a,b) { return compareInteger(b.v.length, a.v.length)});
-  return worstTests.slice(0, range);
+    worstTests = {}
+    findChildren(itemsResponse);
+    worstTests = $j.map(worstTests, function(v,k) { return {k, v}});
+    worstTests.sort(function (a,b) { return compareInteger(b.v.length, a.v.length)});
+    return worstTests.slice(0, range);
 }
 
 function compareInteger(integer1, integer2) {
-  if (parseInt(integer1) > parseInt(integer2)) return 1;
-  else if (parseInt(integer1) < parseInt(integer2)) return -1;
-  else return 0;
+    if (parseInt(integer1) > parseInt(integer2)) return 1;
+    else if (parseInt(integer1) < parseInt(integer2)) return -1;
+    else return 0;
 }
 
 function findChildren(hash, path = '') {
-  if ( hash.text != undefined ) { path += (path == '') ? hash.text : '.' + hash.text }
-  $j.each(hash, function( index, value ) {
-    if ( index == 'children' && value.length > 0 ) {
-      findChildren(value, path);
-    } else if ( index == 'buildResults' ) {
-      $j.each(value, function(index1, buildResult) {
-        // if totalTests is equal to 1 then it should be at the lowest level of the itemsResponse hash
-        if ((buildResult.status == 'FAILED') && (buildResult.totalTests == '1')) {
-          if ( worstTests[path] === undefined ) { worstTests[path] = [] }
-          worstTests[path].push({buildNumber: buildResult.buildNumber, buildUrl: buildResult.url});
+    if ( hash.text != undefined ) { path += (path == '') ? hash.text : '.' + hash.text }
+    $j.each(hash, function( index, value ) {
+        if ( index == 'children' && value.length > 0 ) {
+            findChildren(value, path);
+        } else if ( index == 'buildResults' ) {
+            $j.each(value, function(index1, buildResult) {
+                // if totalTests is equal to 1 then it should be at the lowest level of the itemsResponse hash
+                if ((buildResult.status == 'FAILED') && (buildResult.totalTests == '1')) {
+                    if ( worstTests[path] === undefined ) { worstTests[path] = [] }
+                    worstTests[path].push({buildNumber: buildResult.buildNumber, buildUrl: buildResult.url});
+                }
+            });
+        } else if ( $j.type(value) == 'object' ) {
+            findChildren(value, path);
+        } else if ( $j.isArray(value) ) {
+            findChildren(value, path);
         }
-      });
-    } else if ( $j.type(value) == 'object' ) {
-      findChildren(value, path);
-    } else if ( $j.isArray(value) ) {
-      findChildren(value, path);
-    }
-  });
+    });
 }
+
+function generateCharts() {
+    var chartType = {
+        type: jQuery("#chartDataType").val(),
+        line: jQuery('#linegraph').is(':checked'),
+        bar: jQuery('#bargraph').is(':checked'),
+        pie: jQuery('#piegraph').is(':checked')
+    }
+    generateChart(chartType);
+
+    //fixes Jenkins issue where page content is not correctly placed until the window is resized
+    window.dispatchEvent(new Event('resize'));
+}
+
+function setCustomStatuses(holder){
+    customStatuses['PASSED'] = holder.dataset.passedRepresentation;
+    customStatuses['SKIPPED'] = holder.dataset.skippedRepresentation;
+    customStatuses['FAILED'] = holder.dataset.failedRepresentation;
+    customStatuses['N/A'] = holder.dataset.naRepresentation;
+}
+
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelector("#filter").addEventListener("keyup", searchTests);
+    const chartData = document.querySelector(".tre-chart-data").dataset;
+    const showAllBuilds = chartData.showAllBuilds === "true";
+    const showBuildTime = chartData.showBuildTime === "true";
+    const hideConfigurationMethods = chartData.hideConfigurationMethods === "true";
+    const showLineGraph = chartData.showLineGraph === "true";
+    const showBarGraph = chartData.showBarGraph === "true";
+    const showPieGraph = chartData.showPieGraph === "true";
+
+    jQuery("#allnoofbuilds")[0].checked = showAllBuilds;
+    jQuery("#show-build-durations")[0].checked = showBuildTime;
+    jQuery("#hide-config-methods")[0].checked = hideConfigurationMethods;
+    jQuery("#linegraph")[0].checked = showLineGraph;
+    jQuery("#bargraph")[0].checked = showBarGraph;
+    jQuery("#piegraph")[0].checked = showPieGraph;
+    jQuery("#noofbuilds").attr('disabled', showAllBuilds);
+
+    if ("${it.chartDataType}" === "runtime") {
+        jQuery("#chartDataType").val("runtime");
+        jQuery("#bargraph").attr('disabled', true);
+    } else {
+        jQuery("#chartDataType").val("passfail");
+    }
+    setCustomStatuses(document.querySelector(".tre-custom-status-holder"));
+    populateTemplate();
+
+    jQuery("#settingsmenubutton").click(function () {
+        jQuery("#settingsmenu").slideToggle(400, function () {
+            //fixes Jenkins issue where page content is not correctly placed until the window is resized
+            window.dispatchEvent(new Event('resize'));
+        });
+
+        //fixes Jenkins issue where page content is not correctly placed until the window is resized
+        window.dispatchEvent(new Event('resize'));
+    });
+
+    jQuery("#allnoofbuilds").change(function () {
+        jQuery("#noofbuilds").attr('disabled', this.checked);
+    });
+
+    jQuery("#chartDataType").change(function (e) {
+        jQuery("#bargraph").attr('disabled', e.target.value == "runtime");
+    });
+
+    jQuery("#downloadCSV").click(function () {
+        var noOfBuilds = "-1";
+
+        if (!jQuery("#allnoofbuilds").is(":checked")) {
+            noOfBuilds = jQuery("#noofbuilds").val();
+        }
+        remoteAction.getExportCSV(displayValues, noOfBuilds, function(t) {
+            download("Test Results.csv", t.responseObject());
+        })
+    });
+
+    jQuery("#getbuildreport").click(function () {
+        populateTemplate();
+    });
+
+    jQuery("#expandall").click(function () {
+        expandAll();
+    });
+
+    jQuery("#collapseall").click(function () {
+        collapseAll();
+    });
+});
