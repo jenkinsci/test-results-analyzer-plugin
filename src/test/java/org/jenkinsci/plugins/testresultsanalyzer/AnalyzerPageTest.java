@@ -1,23 +1,28 @@
-package org.jenkinsci.plugins.testresultanalyzer;
+package org.jenkinsci.plugins.testresultsanalyzer;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import hudson.model.*;
 import org.htmlunit.*;
 import org.htmlunit.html.*;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.*;
-import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-// TODO:Ignoring the test as they are failing and needs time to debug and fix
-@Ignore
-public class AnalyzerPageTest {
+@Disabled("Ignoring the test as they are failing and need time to debug and fix")
+@WithJenkins
+class AnalyzerPageTest {
 
-    @Rule
-    public JenkinsRule jenkinsRule = new JenkinsRule();
+    private JenkinsRule jenkinsRule;
+
+    @BeforeEach
+    void setUp(JenkinsRule jenkinsRule) {
+        this.jenkinsRule = jenkinsRule;
+    }
 
     private HtmlPage setupFreeStyle() throws Exception {
         FreeStyleProject project = jenkinsRule.createFreeStyleProject();
@@ -30,7 +35,7 @@ public class AnalyzerPageTest {
     }
 
     @Test
-    public void newFailuresTest_noBuild() throws Exception {
+    void newFailuresTest_noBuild() throws Exception {
         HtmlPage job = setupFreeStyle();
         String javaScriptCommand = "var Obj =   {\"" + "builds\":[],"
                 + "\"results\":[]"
@@ -43,14 +48,14 @@ public class AnalyzerPageTest {
             DomElement exclamation_mark =
                     (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]")
                             .get(0);
-            assertTrue("The table has an new failure exclamation mark element even though there are no buils.", false);
+            fail("The table has an new failure exclamation mark element even though there are no buils.");
         } catch (Exception e) {
             assertTrue(true);
         }
     }
 
     @Test
-    public void newFailuresTest_twoBuilds_trueCase() throws Exception {
+    void newFailuresTest_twoBuilds_trueCase() throws Exception {
         HtmlPage job = setupFreeStyle();
         String javaScriptCommand = "var Obj = {\"" + "builds\":[\"2\",\"1\"],"
                 + "\"results\":[{"
@@ -98,7 +103,7 @@ public class AnalyzerPageTest {
     }
 
     @Test
-    public void newFailuresTest_twoBuilds_falseCase() throws Exception {
+    void newFailuresTest_twoBuilds_falseCase() throws Exception {
         HtmlPage job = setupFreeStyle();
         String javaScriptCommand = "var Obj =   {\"" + "builds\":[\"2\",\"1\"],"
                 + "\"results\": [{"
@@ -146,7 +151,7 @@ public class AnalyzerPageTest {
     }
 
     @Test
-    public void newFailuresTest_oneBuild_buildFailure() throws Exception {
+    void newFailuresTest_oneBuild_buildFailure() throws Exception {
         HtmlPage job = setupFreeStyle();
         String javaScriptCommand = "var Obj =   {\"" + "builds\":[\"1\"],"
                 + "\"results\":   [{"
@@ -182,7 +187,7 @@ public class AnalyzerPageTest {
     }
 
     @Test
-    public void newFailuresTest_oneBuild_buildSuccess() throws Exception {
+    void newFailuresTest_oneBuild_buildSuccess() throws Exception {
         HtmlPage job = setupFreeStyle();
         String javaScriptCommand = "var Obj =   {\"" + "builds\":[\"1\"],"
                 + "\"results\":   [{"
@@ -218,7 +223,7 @@ public class AnalyzerPageTest {
     }
 
     @Test
-    public void newFailuresTest_multipleBuilds_trueCase() throws Exception {
+    void newFailuresTest_multipleBuilds_trueCase() throws Exception {
         HtmlPage job = setupFreeStyle();
         String javaScriptCommand = "var Obj =   {\"" + "builds\":[\"3\",\"2\",\"1\"],"
                 + "\"results\":   [{"
@@ -278,7 +283,7 @@ public class AnalyzerPageTest {
     }
 
     @Test
-    public void newFailuresTest_multipleBuilds_falseCase() throws Exception {
+    void newFailuresTest_multipleBuilds_falseCase() throws Exception {
         HtmlPage job = setupFreeStyle();
         String javaScriptCommand = "var Obj =   {" + "\"builds\":[\"3\",\"2\",\"1\"],"
                 + "\"results\":   [{"
@@ -338,7 +343,7 @@ public class AnalyzerPageTest {
     }
 
     @Test
-    public void newFailuresTest_multipleTests_multipleBuilds() throws Exception {
+    void newFailuresTest_multipleTests_multipleBuilds() throws Exception {
         HtmlPage job = setupFreeStyle();
         String javaScriptCommand = "var Obj =   {" + "\"builds\":[\"3\",\"2\",\"1\"],"
                 + "\"results\":   [{"
@@ -451,7 +456,7 @@ public class AnalyzerPageTest {
         assertTrue(cs512_exclamation_mark.getAttribute("style").contains("inline-block"));
     }
 
-    String singleTest_populateTable_javascript = "var Obj =   {" + "\"builds\":[\"2\",\"1\"],"
+    final String singleTest_populateTable_javascript = "var Obj =   {" + "\"builds\":[\"2\",\"1\"],"
             + "\"results\":   [{"
             + "\"buildResults\":  [{"
             + "\"buildNumber\":\"2\","
@@ -493,7 +498,7 @@ public class AnalyzerPageTest {
     /* TESTS for searchTests() */
 
     @Test
-    public void searchTest_matchExists() throws Exception {
+    void searchTest_matchExists() throws Exception {
         HtmlPage job = setupFreeStyle();
         String javaScriptCommand =
                 singleTest_populateTable_javascript + "$j(\"#filter\").val(\"illinois\");searchTests();";
@@ -504,7 +509,7 @@ public class AnalyzerPageTest {
     }
 
     @Test
-    public void searchTest_noMatch() throws Exception {
+    void searchTest_noMatch() throws Exception {
         HtmlPage job = setupFreeStyle();
         String javaScriptCommand = singleTest_populateTable_javascript + "$j(\"#filter\").val(\"was\");searchTests();";
         ScriptResult result = job.executeJavaScript(javaScriptCommand);
@@ -514,7 +519,7 @@ public class AnalyzerPageTest {
     }
 
     @Test
-    public void searchTest_emptyFilter() throws Exception {
+    void searchTest_emptyFilter() throws Exception {
         HtmlPage job = setupFreeStyle();
         String javaScriptCommand = singleTest_populateTable_javascript + "$j(\"#filter\").val(\"\");searchTests();";
         ScriptResult result = job.executeJavaScript(javaScriptCommand);

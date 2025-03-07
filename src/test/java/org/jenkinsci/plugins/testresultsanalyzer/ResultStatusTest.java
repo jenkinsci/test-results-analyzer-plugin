@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 class ResultStatusTest {
+
     @Test
     void testGetValue() {
         assertEquals("PASSED", ResultStatus.PASSED.getValue());

@@ -1,13 +1,15 @@
+package org.jenkinsci.plugins.testresultsanalyzer.result;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class FakePackageResult extends FakeTabulatedResult {
-    private Map<String, FakeClassResult> classResults;
+    private final Map<String, FakeClassResult> classResults;
 
     public FakePackageResult(String packageName) {
         super(null, packageName);
 
-        classResults = new HashMap<String, FakeClassResult>();
+        classResults = new HashMap<>();
     }
 
     public FakePackageResult addTest(String className, String testMethod, TestStatus testStatus) {
