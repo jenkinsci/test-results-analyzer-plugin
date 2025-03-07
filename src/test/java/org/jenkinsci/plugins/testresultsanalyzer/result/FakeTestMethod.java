@@ -1,10 +1,12 @@
+package org.jenkinsci.plugins.testresultsanalyzer.result;
+
 import hudson.tasks.test.TestObject;
 import hudson.tasks.test.TestResult;
 
 public class FakeTestMethod extends TestResult {
-    private TestObject parent;
-    private String name;
-    private TestStatus status;
+    private final TestObject parent;
+    private final String name;
+    private final TestStatus status;
 
     public FakeTestMethod(TestObject parent, String name, TestStatus status) {
         this.parent = parent;

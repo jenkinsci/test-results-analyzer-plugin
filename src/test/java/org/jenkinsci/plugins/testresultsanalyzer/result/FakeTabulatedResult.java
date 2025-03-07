@@ -1,3 +1,5 @@
+package org.jenkinsci.plugins.testresultsanalyzer.result;
+
 import hudson.tasks.test.TabulatedResult;
 import hudson.tasks.test.TestObject;
 import hudson.tasks.test.TestResult;
@@ -7,14 +9,14 @@ import java.util.List;
 import org.kohsuke.stapler.export.Exported;
 
 public class FakeTabulatedResult extends TabulatedResult {
-    private TestObject parent;
-    private String name;
-    private List<TestResult> tests;
+    private final TestObject parent;
+    private final String name;
+    private final List<TestResult> tests;
 
     public FakeTabulatedResult(TestObject parent, String name) {
         this.parent = parent;
         this.name = name;
-        this.tests = new ArrayList<TestResult>();
+        this.tests = new ArrayList<>();
     }
 
     @Override
@@ -47,6 +49,7 @@ public class FakeTabulatedResult extends TabulatedResult {
         return name;
     }
 
+    @Override
     @Exported
     public int getPassCount() {
         int passCount = 0;

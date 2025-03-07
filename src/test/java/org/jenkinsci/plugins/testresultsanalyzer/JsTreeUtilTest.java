@@ -1,3 +1,5 @@
+package org.jenkinsci.plugins.testresultsanalyzer;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -7,15 +9,16 @@ import java.util.Arrays;
 import java.util.List;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.testresultsanalyzer.JsTreeUtil;
+import org.jenkinsci.plugins.testresultsanalyzer.result.FakePackageResult;
+import org.jenkinsci.plugins.testresultsanalyzer.result.TestStatus;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class JsTreeUtilTest {
+class JsTreeUtilTest {
 
     @Test
-    public void noRequiredBuildsAndNoTestCases() {
-        List<Integer> builds = new ArrayList<Integer>();
+    void noRequiredBuildsAndNoTestCases() {
+        List<Integer> builds = new ArrayList<>();
         ResultInfo results = new ResultInfo();
 
         JSONObject expected = buildRoot(jsonArray(), jsonArray());
@@ -23,7 +26,7 @@ public class JsTreeUtilTest {
     }
 
     @Test
-    public void requiresBuildsButHasNoTestCases() {
+    void requiresBuildsButHasNoTestCases() {
         List<Integer> builds = Arrays.asList(9, 7, 6);
         ResultInfo results = new ResultInfo();
 
@@ -32,7 +35,7 @@ public class JsTreeUtilTest {
     }
 
     @Test
-    public void requiresBuildsButHasJustOneTestCase() {
+    void requiresBuildsButHasJustOneTestCase() {
         List<Integer> builds = Arrays.asList(9, 7);
         ResultInfo results = new ResultInfo();
 
@@ -53,8 +56,8 @@ public class JsTreeUtilTest {
     }
 
     @Test
-    public void onePassedAndSkippedTestLeadsToPassed() {
-        List<Integer> builds = Arrays.asList(1);
+    void onePassedAndSkippedTestLeadsToPassed() {
+        List<Integer> builds = List.of(1);
         ResultInfo results = new ResultInfo();
 
         FakePackageResult packageFoo = new FakePackageResult("pn")
@@ -78,8 +81,8 @@ public class JsTreeUtilTest {
     }
 
     @Test
-    public void onePassedAndFailedTestLeadsToFailed() {
-        List<Integer> builds = Arrays.asList(1);
+    void onePassedAndFailedTestLeadsToFailed() {
+        List<Integer> builds = List.of(1);
         ResultInfo results = new ResultInfo();
 
         FakePackageResult packageFoo = new FakePackageResult("pn")
@@ -146,10 +149,6 @@ public class JsTreeUtilTest {
         return result;
     }
 
-    private static void assertEquals(String expected, JSONObject actual) {
-        assertThat(actual.toString(), is(equalTo(expected)));
-    }
-
     private static void assertEquals(JSONObject expected, JSONObject actual) {
         assertThat(actual.toString(2), is(equalTo(expected.toString(2))));
     }
@@ -157,9 +156,7 @@ public class JsTreeUtilTest {
     private static JSONArray jsonArray(Object... objects) {
         JSONArray result = new JSONArray();
 
-        for (Object object : objects) {
-            result.add(object);
-        }
+        result.addAll(Arrays.asList(objects));
 
         return result;
     }

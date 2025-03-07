@@ -1,3 +1,5 @@
+package org.jenkinsci.plugins.testresultsanalyzer.result;
+
 import hudson.tasks.test.TestObject;
 
 public class FakeClassResult extends FakeTabulatedResult {
