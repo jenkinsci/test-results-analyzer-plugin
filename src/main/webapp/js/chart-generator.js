@@ -86,7 +86,7 @@ function generateRuntimeLineChart() {
         if (chartResult.hasOwnProperty(key)) {
             var buildResult = chartResult[key];
             chartCategories.push(key);
-            chartData["Runtime"].push(Math.round(eval(buildResult["Runtime"]) * 1000) / 1000);
+            chartData["Runtime"].push(Math.round(buildResult["Runtime"] * 1000) / 1000);
         }
     }
     $j(function () {
@@ -107,7 +107,7 @@ function generateRuntimePieChart(inputData) {
     var lowThreshold = parseFloat(runtimeLowThreshold);
     var highThreshold = parseFloat(runtimeHighThreshold);
 
-    runtimeArray.each(function (time) {
+    runtimeArray.forEach(function (time) {
         if (time < lowThreshold) {
             fast++;
         } else if (time >= highThreshold) {
