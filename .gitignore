@@ -5,3 +5,8 @@ target
 .idea
 *.iml
 work
+
+# handlebars compiled templates
+src/main/webapp/js/templates-bundle.js
+node_modules
+node
