@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>test-results-analyzer</artifactId>
-  <version>${revision}${changelist}</version>
+  <version>${changelist}</version>
   <packaging>hpi</packaging>
   <name>Test Results Analyzer Plugin</name>
   <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
@@ -28,8 +28,7 @@
   </scm>
 
   <properties>
-    <revision>0.4.2</revision>
-    <changelist>-SNAPSHOT</changelist>
+    <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
     <jenkins.baseline>2.479</jenkins.baseline>
