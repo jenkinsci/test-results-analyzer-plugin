@@ -11,8 +11,8 @@ test-case, test-class or a test-package has failed you may need to go to
 each and every build report and check for the result.
 
 This process is very cumbersome and may take a lot of time to get the
-report. The said plugin solves the said issue by showing the build
-result history of test-class, test-class and test-package in a tabular
+report. This plugin solves the issue by showing the build
+result history of test-class and test-package in a tabular
 tree format. The plugin can be used enabling the "Publish junit results"
 or "Publish TestNG results"(in case of TestNG) feature of Jenkins.
 
