@@ -1,0 +1,34 @@
+<div class="table-row" name="{{addName text}}"
+    {{#if hierarchyLevel}}
+     hierarchyLevel="{{hierarchyLevel}}" style="display:none"
+    {{else}}
+     hierarchyLevel="0"
+    {{/if}}>
+    <div class="table-cell"><input type="checkbox"/></div>
+    <div class="name row-heading table-cell"
+        {{#if hierarchyLevel}}
+         style="padding-left:{{addspaces hierarchyLevel}}em;"
+        {{/if}}>
+        {{#if children}}
+            <span class="icon icon-plus-sign" title="Show Children"></span>
+        {{/if}}
+        <span class="{{failureIconWhenNecessary buildResults}}" title="New Failure"></span>
+        &nbsp;{{text}}</span>
+
+    </div>
+
+    <div class="table-cell" title="Builds (Tests)">{{percentPassed buildResults}}</div>
+
+    <div class="table-cell"
+         title="Number of transitions from passed to failed and failed to passed.">{{numberTransitions
+            buildResults}}</div>
+    {{#each this.buildResults}}
+
+        <div class="table-cell build-result {{applystatus status}}" data-result="{{JSON2string this}}"
+             title="Build {{buildNumber}}"><a href="{{url}}">{{applyvalue status totalTimeTaken}}</a></div>
+    {{/each}}
+</div>
+{{#each children}}
+{{addHierarchy this ../hierarchyLevel}}
+{{> table-content this}}
+{{/each}}
