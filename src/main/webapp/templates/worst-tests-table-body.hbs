@@ -1,0 +1,15 @@
+<h2 align="center">Top 10 Most Broken Tests</h2>
+{{#if this.length}}
+    <div class=table>
+        <div class="heading">
+            <div class="table-cell">Test Name</div>
+            <div class="table-cell">Times Failed</div>
+            <div class="table-cell">Recent Failed Builds</div>
+        </div>
+        {{#each this}}
+            {{> worst-tests-table-content}}
+        {{/each}}
+    </div>
+{{else}}
+    <p>There are no failing tests</p>
+{{/if}}
