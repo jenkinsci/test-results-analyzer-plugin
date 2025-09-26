@@ -7,19 +7,14 @@
 <link href="${resURL}/plugin/test-results-analyzer/css/table-style.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/jquery/js/jquery-1.11.1.min.js"></script>
 
-<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/handlebars-v2.0.0.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highcharts.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/json3-min.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highchart-exporting.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/highchart-offline-exporting.js"></script>
-
+<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/templates-bundle.js"/>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/testresult.js"></script>
 <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/chart-generator.js"></script>
-<script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/test-result-analyzer-template.js"></script>
-<script>
 
-var $j = jQuery.noConflict();
-</script>
 <style type="text/css">
     .failed {
         background-color: ${it.failedColor};
@@ -81,7 +76,7 @@ var $j = jQuery.noConflict();
 	</div>
 </div>
 <button id="downloadCSV" >Download Test (CSV)</button>
-Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Class/Package" onkeyup="searchTests()"/>
+Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Class/Package"/>
 
 <div class="extrabuttons">
 	<button id="expandall">Expand All</button>
@@ -124,106 +119,12 @@ Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Cl
 <div id="builddetail">
 
 </div>
-
-<script>
-	var runtimeLowThreshold = "${it.runTimeLowThreshold}";
-	var runtimeHighThreshold = "${it.runTimeHighThreshold}";
-    var customStatuses = {
-        'PASSED':'PASSED',
-        'SKIPPED':'SKIPPED',
-        'FAILED':'FAILED',
-        'N/A':'N/A'
-    }
-	function generateCharts() {
-		var chartType = {
-			type: jQuery("#chartDataType").val(),
-			line: jQuery('#linegraph').is(':checked'),
-			bar: jQuery('#bargraph').is(':checked'),
-			pie: jQuery('#piegraph').is(':checked')
-		}
-		generateChart(chartType);
-
-		//fixes Jenkins issue where page content is not correctly placed until the window is resized
-		window.dispatchEvent(new Event('resize'));
-	}
-
-	jQuery(document).ready(function () {
-		jQuery("#allnoofbuilds")[0].checked = ${it.showAllBuilds};
-		jQuery("#show-build-durations")[0].checked = ${it.showBuildTime};
-		jQuery("#hide-config-methods")[0].checked = ${it.hideConfigurationMethods};
-		jQuery("#linegraph")[0].checked = ${it.showLineGraph};
-		jQuery("#bargraph")[0].checked = ${it.showBarGraph};
-		jQuery("#piegraph")[0].checked = ${it.showPieGraph};
-		jQuery("#noofbuilds").attr('disabled', ${it.showAllBuilds});
-
-		if ("${it.chartDataType}" === "runtime") {
-			jQuery("#chartDataType").val("runtime");
-			jQuery("#bargraph").attr('disabled', true);
-		} else {
-			jQuery("#chartDataType").val("passfail");
-		}
-		setCustomStatuses();
-		populateTemplate();
-	});
-
-	jQuery("#settingsmenubutton").click(function () {
-		jQuery("#settingsmenu").slideToggle(400, function () {
-			//fixes Jenkins issue where page content is not correctly placed until the window is resized
-			window.dispatchEvent(new Event('resize'));
-		});
-
-		//fixes Jenkins issue where page content is not correctly placed until the window is resized
-		window.dispatchEvent(new Event('resize'));
-	});
-
-	jQuery("#allnoofbuilds").change(function () {
-		jQuery("#noofbuilds").attr('disabled', this.checked);
-	});
-
-	jQuery("#chartDataType").change(function (e) {
-		jQuery("#bargraph").attr('disabled', e.target.value == "runtime");
-	});
-
-	jQuery("#downloadCSV").click(function () {
-	    var noOfBuilds = "-1";
-
-        if (!jQuery("#allnoofbuilds").is(":checked")) {
-            noOfBuilds = jQuery("#noofbuilds").val();
-        }
-        remoteAction.getExportCSV(displayValues, noOfBuilds, function(t) {
-            download("Test Results.csv", t.responseObject());
-        })
-    });
-
-	jQuery("#getbuildreport").click(function () {
-		populateTemplate();
-	});
-	
-	jQuery("#expandall").click(function () {
-		expandAll();
-	});
-	
-	jQuery("#collapseall").click(function () {
-		collapseAll();
-	});
-
-    function setCustomStatuses(){
-        customStatuses['PASSED'] = "${it.passedRepresentation}";
-        customStatuses['SKIPPED'] = "${it.skippedRepresentation}";
-        customStatuses['FAILED'] = "${it.failedRepresentation}";
-        customStatuses['N/A'] = "${it.naRepresentation}";
-    }
-
-	function download(filename, text) {
-		var element = document.createElement('a');
-		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-		element.setAttribute('download', filename);
-		element.style.display = 'none';
-		document.body.appendChild(element);
-		element.click();	
-		document.body.removeChild(element);
-	}
-</script>
+	<span class="tre-chart-data" data-run-time-low-threshold="${it.runTimeLowThreshold}" data-run-time-high-threshold="${it.runTimeHighThreshold}"
+				data-show-all-builds="${it.showAllBuilds}" data-show-build-time="${it.showBuildTime}" data-hide-configuration-methods="${it.hideConfigurationMethods}"
+				data-show-line-graph="${it.showLineGraph}" data-show-bar-graph="${it.showBarGraph}" data-show-pie-graph="${it.showPieGraph}"/>
+	<span class="tre-custom-status-holder" data-passed-representation="${it.passedRepresentation}"
+				data-failed-representation="${it.failedRepresentation}" data-skipped-representation="${it.skippedRepresentation}"
+				data-na-representation="${it.naRepresentation}"/>
   </l:main-panel>
   </l:layout>
 </j:jelly>
