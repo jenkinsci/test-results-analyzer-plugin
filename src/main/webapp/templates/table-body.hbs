@@ -1,0 +1,12 @@
+<div class="heading">
+    <div class="table-cell">Chart</div>
+    <div class="table-cell">Package/Class/Testmethod</div>
+    <div class="table-cell">Passed</div>
+    <div class="table-cell" title="Number of transitions from passed to failed and failed to passed.">Transitions</div>
+    {{#each builds}}
+        <div class="table-cell" title="Build {{this}}">{{this}}</div>
+    {{/each}}
+</div>
+{{#each results}}
+    {{> table-content}}
+{{/each}}
