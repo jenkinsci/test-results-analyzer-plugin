@@ -10,7 +10,8 @@ import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 
 public class JsTreeUtil {
 
-    public JSONObject getJsTree(List<Integer> builds, ResultInfo resultInfo, boolean hideConfigMethods) {
+    public JSONObject getJsTree(
+            List<Integer> builds, ResultInfo resultInfo, boolean hideConfigMethods, int hideNATestsThreshold) {
         JSONObject tree = new JSONObject();
 
         JSONArray buildJson = new JSONArray();
@@ -22,19 +23,33 @@ public class JsTreeUtil {
         JSONArray results = new JSONArray();
         for (Map.Entry<String, ? extends Info> entry :
                 resultInfo.getPackageResults().entrySet()) {
-            results.add(createJson(builds, entry.getValue(), hideConfigMethods));
+            JSONObject node = createJson(builds, entry.getValue(), hideConfigMethods, hideNATestsThreshold);
+            if (node != null) {
+                results.add(node);
+            }
         }
         tree.put("results", results);
 
         return tree;
     }
 
-    private JSONObject createJson(List<Integer> builds, Info info, boolean hideConfigMethods) {
+    private JSONObject createJson(List<Integer> builds, Info info, boolean hideConfigMethods, int hideNATestsThreshold) {
+        JSONArray children = getChildren(builds, info, hideConfigMethods, hideNATestsThreshold);
+        boolean leafNode = isLeafNode(info);
+
+        if (leafNode && shouldHideForNAThreshold(builds, info, hideNATestsThreshold)) {
+            return null;
+        }
+
+        if (!leafNode && children.isEmpty()) {
+            return null;
+        }
+
         JSONObject baseJson = new JSONObject();
 
         baseJson.put("text", info.getName());
         baseJson.put("buildResults", getBuilds(builds, info));
-        baseJson.put("children", getChildren(builds, info, hideConfigMethods));
+        baseJson.put("children", children);
 
         return baseJson;
     }
@@ -47,18 +62,40 @@ public class JsTreeUtil {
         return treeDataJson;
     }
 
-    private JSONArray getChildren(List<Integer> builds, Info info, boolean hideConfigMethods) {
+    private JSONArray getChildren(List<Integer> builds, Info info, boolean hideConfigMethods, int hideNATestsThreshold) {
         Map<String, ? extends Info> childrenInfo = info.getChildren();
         if (childrenInfo == null) return new JSONArray();
 
         JSONArray children = new JSONArray();
         for (Map.Entry<String, ? extends Info> entry : childrenInfo.entrySet()) {
             if (!hideConfigMethods || !entry.getValue().isConfig()) {
-                children.add(createJson(builds, entry.getValue(), hideConfigMethods));
+                JSONObject child = createJson(builds, entry.getValue(), hideConfigMethods, hideNATestsThreshold);
+                if (child != null) {
+                    children.add(child);
+                }
             }
         }
 
         return children;
+    }
+
+    private boolean isLeafNode(Info info) {
+        Map<String, ? extends Info> childrenInfo = info.getChildren();
+        return childrenInfo == null || childrenInfo.isEmpty();
+    }
+
+    private boolean shouldHideForNAThreshold(List<Integer> builds, Info info, int hideNATestsThreshold) {
+        if (hideNATestsThreshold <= 0) {
+            return false;
+        }
+
+        int naCount = 0;
+        for (Integer buildNumber : builds) {
+            if (info.getBuildResult(buildNumber) == null) {
+                naCount++;
+            }
+        }
+        return naCount >= hideNATestsThreshold;
     }
 
     private JSONObject getBuild(Integer buildNumber, Info info) {

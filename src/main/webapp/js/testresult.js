@@ -88,6 +88,9 @@ function getUserConfig(){
 
     var hideConfig = $j("#hide-config-methods").is(":checked");
     userConfig["hideConfigMethods"] = hideConfig;
+
+    var hideNATestsThreshold = $j("#hide-na-tests-threshold").val();
+    userConfig["hideNATestsThreshold"] = hideNATestsThreshold;
     return userConfig;
 }
 

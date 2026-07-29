@@ -59,6 +59,10 @@ var $j = jQuery.noConflict();
         	<td><input type="checkbox" id="hide-config-methods" name="hide-config-methods" checked="${it.hideConfigurationMethods}"/></td>
         </tr>
 		<tr>
+			<td>Hide tests with N/A in at least this many builds:</td>
+			<td><input id="hide-na-tests-threshold" type="number" value="${it.hideNATestsThreshold}" min="0" step="1"/></td>
+		</tr>
+		<tr>
 			<td>Chart type:</td>
 			<td>
 				<input id="linegraph" type="checkbox" checked="${it.showLineGraph}" /> Line

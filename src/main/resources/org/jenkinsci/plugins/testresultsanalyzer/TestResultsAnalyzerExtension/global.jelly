@@ -16,6 +16,9 @@
 		<f:entry title="${%Hide configuration methods - Only for TestNG results}">
         	<f:checkbox name="hideConfigurationMethods" checked="${descriptor.getHideConfigurationMethods()}" />
         </f:entry>
+		<f:entry title="${%Hide tests with N/A in at least this many builds}" field="hideNATestsThreshold">
+			<f:number name="hideNATestsThreshold" value="${descriptor.getHideNATestsThreshold()}" min="0" step="1"/>
+		</f:entry>
 		<f:entry title="${%Show Line Graph}">
 			<f:checkbox name="showLineGraph" checked="${descriptor.getShowLineGraph()}" />
 		</f:entry>

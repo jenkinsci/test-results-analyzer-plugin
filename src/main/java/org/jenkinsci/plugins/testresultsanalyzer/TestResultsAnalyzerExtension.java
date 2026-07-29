@@ -57,6 +57,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         private boolean showBarGraph = true;
         private boolean showPieGraph = true;
         private boolean hideConfigurationMethods = false;
+        private int hideNATestsThreshold = 0;
         private String runTimeLowThreshold = "0.5";
         private String runTimeHighThreshold = "1.0";
 
@@ -95,6 +96,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
                 showAllBuilds = formData.getBoolean("showAllBuilds");
                 showBuildTime = formData.getBoolean("showBuildTime");
                 hideConfigurationMethods = formData.getBoolean("hideConfigurationMethods");
+                hideNATestsThreshold = formData.getInt("hideNATestsThreshold");
                 showLineGraph = formData.getBoolean("showLineGraph");
                 showBarGraph = formData.getBoolean("showBarGraph");
                 showPieGraph = formData.getBoolean("showPieGraph");
@@ -162,6 +164,10 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
 
         public boolean getHideConfigurationMethods() {
             return hideConfigurationMethods;
+        }
+
+        public int getHideNATestsThreshold() {
+            return hideNATestsThreshold;
         }
 
         public boolean getShowBuildTime() {
@@ -234,6 +240,19 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
 
         public FormValidation doCheckNoOfBuilds(@QueryParameter String noOfBuilds) {
             return intValidation(noOfBuilds);
+        }
+
+        public FormValidation doCheckHideNATestsThreshold(@QueryParameter String hideNATestsThreshold) {
+            FormValidation result = intValidation(hideNATestsThreshold);
+            if (result.kind != FormValidation.Kind.OK) {
+                return result;
+            }
+
+            int value = Integer.parseInt(hideNATestsThreshold);
+            if (value < 0) {
+                return FormValidation.error("Entered value should be greater than or equal to 0");
+            }
+            return FormValidation.ok();
         }
 
         public FormValidation doCheckPassedRepresentation(@QueryParameter String passedRepresentation) {

@@ -9,11 +9,13 @@ public class UserConfig {
     private boolean hideConfigMethods = false;
 
     private String noOfBuildsNeeded;
+    private String hideNATestsThreshold;
 
     @DataBoundConstructor
-    public UserConfig(String noOfBuildsNeeded, boolean hideConfigMethods) {
+    public UserConfig(String noOfBuildsNeeded, boolean hideConfigMethods, String hideNATestsThreshold) {
         this.noOfBuildsNeeded = noOfBuildsNeeded;
         this.hideConfigMethods = hideConfigMethods;
+        this.hideNATestsThreshold = hideNATestsThreshold;
     }
 
     public boolean isHideConfigMethods() {
@@ -30,5 +32,13 @@ public class UserConfig {
 
     public void setNoOfBuildsNeeded(String noOfBuildsNeeded) {
         this.noOfBuildsNeeded = noOfBuildsNeeded;
+    }
+
+    public String getHideNATestsThreshold() {
+        return hideNATestsThreshold;
+    }
+
+    public void setHideNATestsThreshold(String hideNATestsThreshold) {
+        this.hideNATestsThreshold = hideNATestsThreshold;
     }
 }
