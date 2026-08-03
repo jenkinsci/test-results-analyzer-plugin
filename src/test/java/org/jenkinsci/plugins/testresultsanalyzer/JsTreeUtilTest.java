@@ -148,30 +148,32 @@ class JsTreeUtilTest {
 
     @Test
     void doesNotHideWhenNAValuesAreNotConsecutive() {
-    List<Integer> builds = Arrays.asList(5, 4, 3, 2, 1);
-    ResultInfo results = new ResultInfo();
+        List<Integer> builds = Arrays.asList(5, 4, 3, 2, 1);
+        ResultInfo results = new ResultInfo();
 
-    FakePackageResult packageFoo = new FakePackageResult("pn").addTest("Class1", "method1", TestStatus.Pass);
-    results.addPackage(4, packageFoo, "someUrl/");
-    results.addPackage(2, packageFoo, "someUrl/");
+        FakePackageResult packageFoo = new FakePackageResult("pn").addTest("Class1", "method1", TestStatus.Pass);
+        results.addPackage(4, packageFoo, "someUrl/");
+        results.addPackage(2, packageFoo, "someUrl/");
 
-    JSONObject method1Build4 = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn/Class1/method1", 4);
-    JSONObject method1Build2 = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn/Class1/method1", 2);
-    JSONObject class1Build4 = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn/Class1", 4);
-    JSONObject class1Build2 = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn/Class1", 2);
-    JSONObject pnBuild4 = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn", 4);
-    JSONObject pnBuild2 = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn", 2);
+        JSONObject method1Build4 = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn/Class1/method1", 4);
+        JSONObject method1Build2 = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn/Class1/method1", 2);
+        JSONObject class1Build4 = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn/Class1", 4);
+        JSONObject class1Build2 = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn/Class1", 2);
+        JSONObject pnBuild4 = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn", 4);
+        JSONObject pnBuild2 = buildLeaf(1, 0, 0, "PASSED", "someUrl/testReport/pn", 2);
 
-    JSONObject method1Node = buildNode(
-        "method1", jsonArray(buildNA(5), method1Build4, buildNA(3), method1Build2, buildNA(1)), jsonArray());
-    JSONObject class1Node = buildNode(
-        "Class1", jsonArray(buildNA(5), class1Build4, buildNA(3), class1Build2, buildNA(1)), jsonArray(method1Node));
-    JSONObject pnNode =
-        buildNode("pn", jsonArray(buildNA(5), pnBuild4, buildNA(3), pnBuild2, buildNA(1)), jsonArray(class1Node));
+        JSONObject method1Node = buildNode(
+                "method1", jsonArray(buildNA(5), method1Build4, buildNA(3), method1Build2, buildNA(1)), jsonArray());
+        JSONObject class1Node = buildNode(
+                "Class1",
+                jsonArray(buildNA(5), class1Build4, buildNA(3), class1Build2, buildNA(1)),
+                jsonArray(method1Node));
+        JSONObject pnNode = buildNode(
+                "pn", jsonArray(buildNA(5), pnBuild4, buildNA(3), pnBuild2, buildNA(1)), jsonArray(class1Node));
 
-    JSONObject expected = buildRoot(jsonArray("5", "4", "3", "2", "1"), jsonArray(pnNode));
+        JSONObject expected = buildRoot(jsonArray("5", "4", "3", "2", "1"), jsonArray(pnNode));
 
-    assertEquals(expected, new JsTreeUtil().getJsTree(builds, results, false, 3));
+        assertEquals(expected, new JsTreeUtil().getJsTree(builds, results, false, 3));
     }
 
     private static JSONObject buildRoot(JSONArray builds, JSONArray results) {
