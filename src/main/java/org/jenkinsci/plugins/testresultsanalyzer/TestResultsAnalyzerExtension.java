@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 import jenkins.model.Jenkins;
 import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.verb.POST;
@@ -273,7 +272,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         }
 
         private FormValidation intValidation(String value) {
-            if (StringUtils.isBlank(value)) return FormValidation.error("Entered value should not be empty");
+            if (value == null || value.isBlank()) return FormValidation.error("Entered value should not be empty");
 
             try {
                 Integer.valueOf(value);
@@ -284,7 +283,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         }
 
         private FormValidation valueValidation(String value) {
-            if (StringUtils.isBlank(value)) return FormValidation.error("Entered value should not be empty");
+            if (value == null || value.isBlank()) return FormValidation.error("Entered value should not be empty");
             Pattern regex = Pattern.compile("[<>{}*\\\"\'$&+,:;=?@#|]");
             Matcher matcher = regex.matcher(value);
             if (matcher.find()) return FormValidation.error("Entered value should not have special characters.");
@@ -308,7 +307,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         }
 
         private FormValidation colorValidation(String value) {
-            if (StringUtils.isBlank(value)) return FormValidation.error("Entered value should not be empty");
+            if (value == null || value.isBlank()) return FormValidation.error("Entered value should not be empty");
             final String HEX_PATTERN = "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$";
             Pattern regex = Pattern.compile(HEX_PATTERN);
             Matcher matcher = regex.matcher(value);
