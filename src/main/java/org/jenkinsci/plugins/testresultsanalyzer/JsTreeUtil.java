@@ -91,13 +91,18 @@ public class JsTreeUtil {
             return false;
         }
 
-        int naCount = 0;
+        int consecutiveNaCount = 0;
         for (Integer buildNumber : builds) {
             if (info.getBuildResult(buildNumber) == null) {
-                naCount++;
+                consecutiveNaCount++;
+                if (consecutiveNaCount >= hideNATestsThreshold) {
+                    return true;
+                }
+            } else {
+                break;
             }
         }
-        return naCount >= hideNATestsThreshold;
+        return false;
     }
 
     private JSONObject getBuild(Integer buildNumber, Info info) {

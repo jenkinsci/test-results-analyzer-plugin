@@ -11,11 +11,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import jenkins.model.Jenkins;
 import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.verb.POST;
 
 @Extension
 public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
@@ -242,7 +244,10 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
             return intValidation(noOfBuilds);
         }
 
+        @POST
         public FormValidation doCheckHideNATestsThreshold(@QueryParameter String hideNATestsThreshold) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+
             FormValidation result = intValidation(hideNATestsThreshold);
             if (result.kind != FormValidation.Kind.OK) {
                 return result;
