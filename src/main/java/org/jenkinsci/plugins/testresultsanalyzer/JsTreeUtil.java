@@ -33,7 +33,7 @@ public class JsTreeUtil {
         return tree;
     }
 
-        private JSONObject createJson(
+    private JSONObject createJson(
             List<Integer> builds, Info info, boolean hideConfigMethods, int hideNATestsThreshold) {
         JSONArray children = getChildren(builds, info, hideConfigMethods, hideNATestsThreshold);
         boolean leafNode = isLeafNode(info);
@@ -63,7 +63,7 @@ public class JsTreeUtil {
         return treeDataJson;
     }
 
-        private JSONArray getChildren(
+    private JSONArray getChildren(
             List<Integer> builds, Info info, boolean hideConfigMethods, int hideNATestsThreshold) {
         Map<String, ? extends Info> childrenInfo = info.getChildren();
         if (childrenInfo == null) return new JSONArray();

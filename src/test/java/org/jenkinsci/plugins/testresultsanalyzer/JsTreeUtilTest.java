@@ -137,9 +137,9 @@ class JsTreeUtilTest {
         JSONObject method1Node =
                 buildNode("method1", jsonArray(buildNA(4), buildNA(3), method1Build2, method1Build1), jsonArray());
         JSONObject class1Node = buildNode(
-            "Class1", jsonArray(buildNA(4), buildNA(3), class1Build2, class1Build1), jsonArray(method1Node));
+                "Class1", jsonArray(buildNA(4), buildNA(3), class1Build2, class1Build1), jsonArray(method1Node));
         JSONObject pnNode =
-            buildNode("pn", jsonArray(buildNA(4), buildNA(3), pnBuild2, pnBuild1), jsonArray(class1Node));
+                buildNode("pn", jsonArray(buildNA(4), buildNA(3), pnBuild2, pnBuild1), jsonArray(class1Node));
 
         JSONObject expected = buildRoot(jsonArray("4", "3", "2", "1"), jsonArray(pnNode));
 
