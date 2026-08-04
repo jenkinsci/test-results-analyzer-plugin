@@ -1,6 +1,84 @@
 var colTemplate = "{'cellClass':'col1','value':'build20','header':'20','title':'20'}";
 var reevaluateChartData = true;
 var displayValues = false;
+var analyzerOptionsStorageKey = "test-results-analyzer-options";
+
+function saveAnalyzerOptions() {
+    if (typeof(Storage) === "undefined") {
+        return;
+    }
+
+    var options = {
+        noOfBuilds: $j("#noofbuilds").val(),
+        allNoOfBuilds: $j("#allnoofbuilds").is(":checked"),
+        showBuildDurations: $j("#show-build-durations").is(":checked"),
+        hideConfigMethods: $j("#hide-config-methods").is(":checked"),
+        hideNATestsThreshold: $j("#hide-na-tests-threshold").val(),
+        lineGraph: $j("#linegraph").is(":checked"),
+        barGraph: $j("#bargraph").is(":checked"),
+        pieGraph: $j("#piegraph").is(":checked"),
+        chartDataType: $j("#chartDataType").val()
+    };
+
+    try {
+        localStorage.setItem(analyzerOptionsStorageKey, JSON.stringify(options));
+    } catch (e) {
+        // ignore storage issues
+    }
+}
+
+function restoreAnalyzerOptions() {
+    if (typeof(Storage) === "undefined") {
+        return;
+    }
+
+    var stored;
+    try {
+        stored = localStorage.getItem(analyzerOptionsStorageKey);
+    } catch (e) {
+        return;
+    }
+
+    if (!stored) {
+        return;
+    }
+
+    try {
+        var options = JSON.parse(stored);
+        if (options.noOfBuilds !== undefined) {
+            $j("#noofbuilds").val(options.noOfBuilds);
+        }
+        if (options.allNoOfBuilds !== undefined) {
+            $j("#allnoofbuilds").prop("checked", !!options.allNoOfBuilds);
+        }
+        if (options.showBuildDurations !== undefined) {
+            $j("#show-build-durations").prop("checked", !!options.showBuildDurations);
+        }
+        if (options.hideConfigMethods !== undefined) {
+            $j("#hide-config-methods").prop("checked", !!options.hideConfigMethods);
+        }
+        if (options.hideNATestsThreshold !== undefined) {
+            $j("#hide-na-tests-threshold").val(options.hideNATestsThreshold);
+        }
+        if (options.lineGraph !== undefined) {
+            $j("#linegraph").prop("checked", !!options.lineGraph);
+        }
+        if (options.barGraph !== undefined) {
+            $j("#bargraph").prop("checked", !!options.barGraph);
+        }
+        if (options.pieGraph !== undefined) {
+            $j("#piegraph").prop("checked", !!options.pieGraph);
+        }
+        if (options.chartDataType !== undefined) {
+            $j("#chartDataType").val(options.chartDataType);
+        }
+    } catch (e) {
+        return;
+    }
+
+    $j("#noofbuilds").attr("disabled", $j("#allnoofbuilds").is(":checked"));
+    $j("#bargraph").attr("disabled", $j("#chartDataType").val() == "runtime");
+}
 
 function clearedFilter(rows) {
     var levelsToShow = [0]; // stack to keep track of hierarchy

@@ -166,6 +166,7 @@ Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Cl
 		} else {
 			jQuery("#chartDataType").val("passfail");
 		}
+		restoreAnalyzerOptions();
 		setCustomStatuses();
 		populateTemplate();
 	});
@@ -200,6 +201,7 @@ Search: <input id="filter" class="table-filter" type="text" placeholder="Test/Cl
     });
 
 	jQuery("#getbuildreport").click(function () {
+		saveAnalyzerOptions();
 		populateTemplate();
 	});
 	
