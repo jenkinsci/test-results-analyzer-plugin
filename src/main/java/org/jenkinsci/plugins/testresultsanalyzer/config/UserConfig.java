@@ -39,6 +39,7 @@ public class UserConfig {
     }
 
     @DataBoundSetter
+    @DataBoundSetter
     public void setHideNATestsThreshold(String hideNATestsThreshold) {
         this.hideNATestsThreshold = hideNATestsThreshold;
     }
