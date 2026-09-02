@@ -11,10 +11,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import jenkins.model.Jenkins;
 import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.verb.POST;
 
 @Extension
 public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
@@ -56,6 +58,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         private boolean showBarGraph = true;
         private boolean showPieGraph = true;
         private boolean hideConfigurationMethods = false;
+        private int hideNATestsThreshold = 0;
         private String runTimeLowThreshold = "0.5";
         private String runTimeHighThreshold = "1.0";
 
@@ -88,48 +91,45 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
 
         @Override
         public boolean configure(StaplerRequest2 req, JSONObject formData) {
-            try {
-                noOfBuilds = formData.getString("noOfBuilds");
-                noOfRunsToFetch = formData.getInt("noOfRunsToFetch");
-                showAllBuilds = formData.getBoolean("showAllBuilds");
-                showBuildTime = formData.getBoolean("showBuildTime");
-                hideConfigurationMethods = formData.getBoolean("hideConfigurationMethods");
-                showLineGraph = formData.getBoolean("showLineGraph");
-                showBarGraph = formData.getBoolean("showBarGraph");
-                showPieGraph = formData.getBoolean("showPieGraph");
-                runTimeLowThreshold = formData.getString("runTimeLowThreshold");
-                runTimeHighThreshold = formData.getString("runTimeHighThreshold");
-                chartDataType = formData.getString("chartDataType");
-                if (formData.containsKey("useCustomStatusNames")) {
-                    JSONObject customData = formData.getJSONObject("useCustomStatusNames");
-                    useCustomStatusNames = true;
-                    passedRepresentation = customData.getString("passedRepresentation");
-                    failedRepresentation = customData.getString("failedRepresentation");
-                    skippedRepresentation = customData.getString("skippedRepresentation");
-                    naRepresentation = customData.getString("naRepresentation");
-                } else {
-                    useCustomStatusNames = false;
-                    passedRepresentation = PASSED_REPRESENTATION;
-                    failedRepresentation = FAILED_REPRESENTATION;
-                    skippedRepresentation = SKIPPED_REPRESENTATION;
-                    naRepresentation = NA_REPRESENTATION;
-                }
-                if (formData.containsKey("useCustomStatusColors")) {
-                    JSONObject customData = formData.getJSONObject("useCustomStatusColors");
-                    useCustomStatusColors = true;
-                    passedColor = customData.getString("passedColor");
-                    failedColor = customData.getString("failedColor");
-                    skippedColor = customData.getString("skippedColor");
-                    naColor = customData.getString("naColor");
-                } else {
-                    useCustomStatusColors = false;
-                    passedColor = PASSED_STATUS_COLOR;
-                    failedColor = FAILED_STATUS_COLOR;
-                    skippedColor = SKIP_STATUS_COLOR;
-                    naColor = NA_STATUS_COLOR;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            noOfBuilds = formData.getString("noOfBuilds");
+            noOfRunsToFetch = formData.getInt("noOfRunsToFetch");
+            showAllBuilds = formData.getBoolean("showAllBuilds");
+            showBuildTime = formData.getBoolean("showBuildTime");
+            hideConfigurationMethods = formData.getBoolean("hideConfigurationMethods");
+            hideNATestsThreshold = formData.getInt("hideNATestsThreshold");
+            showLineGraph = formData.getBoolean("showLineGraph");
+            showBarGraph = formData.getBoolean("showBarGraph");
+            showPieGraph = formData.getBoolean("showPieGraph");
+            runTimeLowThreshold = formData.getString("runTimeLowThreshold");
+            runTimeHighThreshold = formData.getString("runTimeHighThreshold");
+            chartDataType = formData.getString("chartDataType");
+            if (formData.containsKey("useCustomStatusNames")) {
+                JSONObject customData = formData.getJSONObject("useCustomStatusNames");
+                useCustomStatusNames = true;
+                passedRepresentation = customData.getString("passedRepresentation");
+                failedRepresentation = customData.getString("failedRepresentation");
+                skippedRepresentation = customData.getString("skippedRepresentation");
+                naRepresentation = customData.getString("naRepresentation");
+            } else {
+                useCustomStatusNames = false;
+                passedRepresentation = PASSED_REPRESENTATION;
+                failedRepresentation = FAILED_REPRESENTATION;
+                skippedRepresentation = SKIPPED_REPRESENTATION;
+                naRepresentation = NA_REPRESENTATION;
+            }
+            if (formData.containsKey("useCustomStatusColors")) {
+                JSONObject customData = formData.getJSONObject("useCustomStatusColors");
+                useCustomStatusColors = true;
+                passedColor = customData.getString("passedColor");
+                failedColor = customData.getString("failedColor");
+                skippedColor = customData.getString("skippedColor");
+                naColor = customData.getString("naColor");
+            } else {
+                useCustomStatusColors = false;
+                passedColor = PASSED_STATUS_COLOR;
+                failedColor = FAILED_STATUS_COLOR;
+                skippedColor = SKIP_STATUS_COLOR;
+                naColor = NA_STATUS_COLOR;
             }
             save();
             return true;
@@ -161,6 +161,10 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
 
         public boolean getHideConfigurationMethods() {
             return hideConfigurationMethods;
+        }
+
+        public int getHideNATestsThreshold() {
+            return hideNATestsThreshold;
         }
 
         public boolean getShowBuildTime() {
@@ -233,6 +237,22 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
 
         public FormValidation doCheckNoOfBuilds(@QueryParameter String noOfBuilds) {
             return intValidation(noOfBuilds);
+        }
+
+        @POST
+        public FormValidation doCheckHideNATestsThreshold(@QueryParameter String hideNATestsThreshold) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+
+            FormValidation result = intValidation(hideNATestsThreshold);
+            if (result.kind != FormValidation.Kind.OK) {
+                return result;
+            }
+
+            int value = Integer.parseInt(hideNATestsThreshold);
+            if (value < 0) {
+                return FormValidation.error("Entered value should be greater than or equal to 0");
+            }
+            return FormValidation.ok();
         }
 
         public FormValidation doCheckPassedRepresentation(@QueryParameter String passedRepresentation) {

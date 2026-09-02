@@ -209,9 +209,20 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
         int noOfBuilds = getNoOfBuildRequired(userConfig.getNoOfBuildsNeeded());
         List<Integer> buildList = getBuildList(noOfBuilds);
+        int hideNATestsThreshold = getNonNegativeValue(userConfig.getHideNATestsThreshold(), getHideNATestsThreshold());
 
         JsTreeUtil jsTreeUtils = new JsTreeUtil();
-        return jsTreeUtils.getJsTree(buildList, resultInfo, userConfig.isHideConfigMethods());
+        return jsTreeUtils.getJsTree(buildList, resultInfo, userConfig.isHideConfigMethods(), hideNATestsThreshold);
+    }
+
+    private int getNonNegativeValue(String value, int defaultValue) {
+        int parsedValue;
+        try {
+            parsedValue = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            parsedValue = defaultValue;
+        }
+        return Math.max(parsedValue, 0);
     }
 
     @JavaScriptMethod
@@ -315,6 +326,10 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
     public boolean getHideConfigurationMethods() {
         return TestResultsAnalyzerExtension.DESCRIPTOR.getHideConfigurationMethods();
+    }
+
+    public int getHideNATestsThreshold() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getHideNATestsThreshold();
     }
 
     public String getChartDataType() {
