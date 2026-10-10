@@ -111,6 +111,12 @@ class JsTreeUtilTest {
         JSONObject result = new JSONObject();
 
         result.put("builds", builds);
+        // No build details were recorded, so only the numbers are known
+        JSONArray buildInfo = new JSONArray();
+        for (Object build : builds) {
+            buildInfo.add(new JSONObject().element("number", Integer.parseInt(build.toString())));
+        }
+        result.put("buildInfo", buildInfo);
         result.put("results", results);
 
         return result;

@@ -381,4 +381,71 @@ describe("AnalyzerPage", () => {
       "Build #1: OK in 0.100s",
     );
   });
+
+  it("labels builds by display name, number or date", async () => {
+    const data: AnalyzerData = {
+      ...calculatorData(),
+      buildInfo: [
+        {
+          number: 3,
+          displayName: "release-1.3",
+          timestamp: Date.UTC(2026, 9, 10, 14, 32),
+        },
+        { number: 2, displayName: "#2", timestamp: Date.UTC(2026, 9, 9, 9, 5) },
+        { number: 1, displayName: "#1" },
+      ],
+    };
+    const optionsButton = document.createElement("button");
+    const { container, user } = await renderPage(data, { optionsButton });
+    const headers = () =>
+      [...container.querySelectorAll(".tra-build--header")].map(
+        (header) => header.textContent,
+      );
+    expect(headers()).toEqual(["release-1.3", "#2", "#1"]);
+    expect(container.querySelector(".tra-build--header")).toHaveAttribute(
+      "title",
+      expect.stringMatching(/^#3 release-1\.3 \(.*2026.*\)$/),
+    );
+    expect(
+      row(container, "com.example").querySelector(".tra-build"),
+    ).toHaveAttribute(
+      "title",
+      expect.stringMatching(/^Build #3 release-1\.3 \(.*\): FAILED/),
+    );
+    expect(container.querySelector(".tra-chip")).toHaveTextContent(
+      "release-1.3",
+    );
+
+    await act(async () => optionsButton.click());
+    const labelBy = await screen.findByLabelText("Label builds by");
+    expect(labelBy).toHaveValue("name");
+    await user.selectOptions(labelBy, "number");
+    expect(headers()).toEqual(["#3", "#2", "#1"]);
+    expect(container.querySelector(".tra-chip")).toHaveTextContent("#3");
+
+    await user.selectOptions(labelBy, "date");
+    const [newest, previous, oldest] = headers();
+    expect(newest).toMatch(/Oct/);
+    expect(previous).toMatch(/Oct/);
+    expect(newest).not.toBe(previous);
+    expect(oldest).toBe("#1");
+  });
+
+  it("labels builds as configured by the administrator", async () => {
+    const defaults = bootstrap().defaults;
+    const { container } = await renderPage(
+      {
+        ...calculatorData(),
+        buildInfo: [{ number: 3, displayName: "release-1.3" }],
+      },
+      {
+        bootstrap: bootstrap({
+          defaults: { ...defaults, buildLabel: "number" },
+        }),
+      },
+    );
+    expect(container.querySelector(".tra-build--header")).toHaveTextContent(
+      "#3",
+    );
+  });
 });

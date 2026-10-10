@@ -101,11 +101,26 @@ class RestApiTest {
         assertThat(response.getContentType(), is("application/json"));
 
         JSONObject data = JSONObject.fromObject(response.getContentAsString());
-        assertThat(data.keySet(), containsInAnyOrder("builds", "results"));
+        assertThat(data.keySet(), containsInAnyOrder("builds", "buildInfo", "results"));
         assertThat(
                 "newest build first, as strings",
                 data.getJSONArray("builds"),
                 is(JSONArray.fromObject("[\"2\",\"1\"]")));
+
+        // One entry per build, in the same order as "builds"
+        JSONArray buildInfo = data.getJSONArray("buildInfo");
+        assertThat(buildInfo.size(), is(2));
+        for (int i = 0; i < buildInfo.size(); i++) {
+            JSONObject build = buildInfo.getJSONObject(i);
+            int number = 2 - i;
+            assertThat(build.keySet(), containsInAnyOrder("number", "displayName", "timestamp", "url"));
+            assertThat(build.getInt("number"), is(number));
+            assertThat(build.getString("displayName"), is("#" + number));
+            assertThat(
+                    build.getLong("timestamp"),
+                    is(project.getBuildByNumber(number).getTimeInMillis()));
+            assertThat(build.getString("url"), is(j.getURL() + project.getUrl() + number + "/"));
+        }
 
         JSONArray packages = data.getJSONArray("results");
         assertThat(packages.size(), is(1));
@@ -160,6 +175,7 @@ class RestApiTest {
     void dataIsLimitedToTheRequestedNumberOfBuilds() throws Exception {
         JSONObject data = JSONObject.fromObject(get("reader", "data?builds=1").getContentAsString());
         assertThat(data.getJSONArray("builds"), is(JSONArray.fromObject("[\"2\"]")));
+        assertThat(data.getJSONArray("buildInfo").size(), is(1));
         assertThat(
                 data.getJSONArray("results")
                         .getJSONObject(0)
