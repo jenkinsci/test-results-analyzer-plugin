@@ -17,6 +17,7 @@ import type {
   AnalyzerData,
   Bootstrap,
   ChartData,
+  CountBy,
   Options,
   Row,
 } from "./model.ts";
@@ -31,6 +32,7 @@ import { flattenTree, worstTests } from "./utils/stats.ts";
 import {
   chartNodes,
   expandAll,
+  testGroups,
   testNodes,
   toggleChecked,
   toggleExpanded,
@@ -54,6 +56,10 @@ function chartData(value: string): ChartData {
   return value === "runtime" || value === "passrate" ? value : "passfail";
 }
 
+function countBy(value: string): CountBy {
+  return value === "classes" || value === "packages" ? value : "tests";
+}
+
 function initialOptions({ defaults }: Bootstrap): Options {
   return {
     buildMode: "latest",
@@ -70,6 +76,7 @@ function initialOptions({ defaults }: Bootstrap): Options {
     worstCount: "10",
     chartData: chartData(defaults.chartDataType),
     buildLabel: buildLabelMode(defaults.buildLabel),
+    countBy: countBy(defaults.chartCountBy),
   };
 }
 
@@ -229,6 +236,13 @@ export function AnalyzerPage({
     () => createBuildLabeler(data?.buildInfo, options.buildLabel),
     [data, options.buildLabel],
   );
+  const groups = useMemo(
+    () =>
+      options.countBy === "tests"
+        ? null
+        : testGroups(rows, checked, options.countBy),
+    [rows, checked, options.countBy],
+  );
   const thresholds = useMemo(
     () => ({
       low: bootstrap.runTimeLowThreshold,
@@ -342,6 +356,8 @@ export function AnalyzerPage({
       <Charts
         nodes={nodes}
         tests={tests}
+        groups={groups}
+        countBy={options.countBy}
         mode={options.chartData}
         line={options.line}
         bar={options.bar}

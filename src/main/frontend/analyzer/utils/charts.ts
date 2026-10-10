@@ -1,5 +1,6 @@
 import type { EChartsOption, LineSeriesOption, PieSeriesOption } from "echarts";
 
+import type { CountBy } from "../model.ts";
 import { type BuildLabeler, numberLabels, truncate } from "./buildLabels.ts";
 import type { BuildTotals } from "./stats.ts";
 
@@ -63,6 +64,23 @@ export function readTheme(element: Element): ChartTheme {
     total: token("--tra-total", "#0b6aa2"),
     fontFamily: style.fontFamily,
   };
+}
+
+const UNITS: Record<CountBy, { one: string; many: string; adjective: string }> =
+  {
+    tests: { one: "test", many: "tests", adjective: "Test" },
+    classes: { one: "class", many: "classes", adjective: "Class" },
+    packages: { one: "package", many: "packages", adjective: "Package" },
+  };
+
+/** A count with its unit, such as "1 class" or "3 tests". */
+function counted(value: unknown, unit: CountBy): string {
+  const { one, many } = UNITS[unit];
+  return `${value} ${value === 1 ? one : many}`;
+}
+
+function capitalised(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 function baseOptions(theme: ChartTheme, title: string): EChartsOption {
@@ -207,15 +225,21 @@ export function lineChartOptions(
   builds: BuildTotals[],
   mode: "passfail" | "passrate" | "runtime",
   label: BuildLabeler = numberLabels,
+  unit: CountBy = "tests",
 ): EChartsOption {
+  const byUnit = unit === "tests" ? "" : ` by ${UNITS[unit].one}`;
   const title =
     mode === "runtime"
       ? "Build run time"
       : mode === "passrate"
-        ? "Pass rate"
-        : "Build status";
+        ? `Pass rate${byUnit}`
+        : `Build status${byUnit}`;
   const yName =
-    mode === "runtime" ? "Seconds" : mode === "passrate" ? "%" : "Tests";
+    mode === "runtime"
+      ? "Seconds"
+      : mode === "passrate"
+        ? "%"
+        : capitalised(UNITS[unit].many);
   const axisOptions = axes(theme, builds, yName, label);
   const yAxis = axisOptions.yAxis as Record<string, unknown>;
   // Clicking anywhere in a build's column shows that build in the pie chart, so shade the column
@@ -256,6 +280,7 @@ export function lineChartOptions(
       ),
     ];
   } else {
+    valueFormatter = (value: unknown) => counted(value, unit);
     series = [
       lineSeries(
         "Passed",
@@ -292,6 +317,7 @@ export function barChartOptions(
   theme: ChartTheme,
   builds: BuildTotals[],
   label: BuildLabeler = numberLabels,
+  unit: CountBy = "tests",
 ): EChartsOption {
   const bar = (
     name: string,
@@ -306,15 +332,22 @@ export function barChartOptions(
     emphasis: { focus: "series" as const },
     data: builds.map((b) => b[key]),
   });
-  const base = baseOptions(theme, "Results per build");
+  const base = baseOptions(
+    theme,
+    unit === "tests"
+      ? "Results per build"
+      : `${UNITS[unit].adjective} results per build`,
+  );
   return {
     ...base,
-    ...axes(theme, builds, "Tests", label),
+    ...axes(theme, builds, capitalised(UNITS[unit].many), label),
     tooltip: {
       ...(base.tooltip as object),
       trigger: "axis",
       axisPointer: { type: "shadow" },
-      formatter: axisTooltipFormatter(builds, label),
+      formatter: axisTooltipFormatter(builds, label, (value: unknown) =>
+        counted(value, unit),
+      ),
     },
     series: [
       bar("Passed", "passed", theme.passed),
@@ -336,6 +369,8 @@ function pieOptions(
   title: string,
   slices: Slice[],
   showLabels: boolean,
+  /** What the slices count, for the tooltip; left out to show the bare number. */
+  unit?: CountBy,
 ): EChartsOption {
   const base = baseOptions(theme, title);
   const series: PieSeriesOption = {
@@ -374,7 +409,8 @@ function pieOptions(
           data: { hint?: string };
         };
         const hint = data.hint ? ` (${data.hint})` : "";
-        return `${name}${hint}: ${value} (${percent}%)`;
+        const count = unit ? counted(value, unit) : value;
+        return `${name}${hint}: ${count} (${percent}%)`;
       },
     },
     series: [series],
@@ -388,11 +424,15 @@ export function passFailPieOptions(
   focus: BuildTotals | null,
   showLabels: boolean,
   label: BuildLabeler = numberLabels,
+  unit: CountBy = "tests",
 ): EChartsOption {
   let title: string;
   let counts: { passed: number; failed: number; skipped: number };
   if (focus) {
-    title = `Build ${label(focus.build).short}`;
+    title =
+      unit === "tests"
+        ? `Build ${label(focus.build).short}`
+        : `Build ${label(focus.build).short} by ${UNITS[unit].one}`;
     counts = focus;
   } else {
     title =
@@ -419,6 +459,8 @@ export function passFailPieOptions(
       { name: "Skipped", value: counts.skipped, color: theme.skipped },
     ],
     showLabels,
+    // Without a focused build the slices count builds
+    focus ? unit : undefined,
   );
 }
 
@@ -429,13 +471,16 @@ export function passRatePieOptions(
   focus: BuildTotals | null,
   showLabels: boolean,
   label: BuildLabeler = numberLabels,
+  unit: CountBy = "tests",
 ): EChartsOption {
   const covered = focus ? [focus] : builds;
+  const prefix =
+    unit === "tests" ? "Pass rate" : `${UNITS[unit].adjective} pass rate`;
   const title = focus
-    ? `Pass rate, build ${label(focus.build).short}`
+    ? `${prefix}, build ${label(focus.build).short}`
     : builds.length === 1
-      ? "Pass rate, last build"
-      : `Pass rate, last ${builds.length} builds`;
+      ? `${prefix}, last build`
+      : `${prefix}, last ${builds.length} builds`;
   const passed = covered.reduce((sum, build) => sum + build.passed, 0);
   const failed = covered.reduce((sum, build) => sum + build.failed, 0);
   return pieOptions(
@@ -446,6 +491,7 @@ export function passRatePieOptions(
       { name: "Failed", value: failed, color: theme.failed },
     ],
     showLabels,
+    unit,
   );
 }
 

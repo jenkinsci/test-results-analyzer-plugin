@@ -324,6 +324,29 @@ describe("AnalyzerPage", () => {
     expect(bar).toBeDisabled();
   });
 
+  it("counts the charts by class or package, except for run times", async () => {
+    const optionsButton = document.createElement("button");
+    const { user } = await renderPage(undefined, { optionsButton });
+    await act(async () => optionsButton.click());
+    const countBy = await screen.findByLabelText("Count by");
+    expect(countBy).toHaveValue("tests");
+    await user.selectOptions(countBy, "classes");
+    expect(countBy).toHaveValue("classes");
+    await user.selectOptions(screen.getByLabelText("Chart data"), "runtime");
+    expect(countBy).toBeDisabled();
+  });
+
+  it("starts counting by the configured default", async () => {
+    const optionsButton = document.createElement("button");
+    const defaults = { ...bootstrap().defaults, chartCountBy: "packages" };
+    await renderPage(undefined, {
+      optionsButton,
+      bootstrap: bootstrap({ defaults }),
+    });
+    await act(async () => optionsButton.click());
+    expect(await screen.findByLabelText("Count by")).toHaveValue("packages");
+  });
+
   it("shows run times when asked", async () => {
     const optionsButton = document.createElement("button");
     const { container, user } = await renderPage(undefined, { optionsButton });

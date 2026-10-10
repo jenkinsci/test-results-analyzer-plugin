@@ -1,4 +1,4 @@
-import type { BuildResult, Row, TreeNode } from "../model.ts";
+import type { BuildResult, Row, Status, TreeNode } from "../model.ts";
 
 export function isNewFailure(buildResults: BuildResult[]): boolean {
   return (
@@ -176,6 +176,82 @@ export function aggregate(nodes: TreeNode[]): BuildTotals[] {
       if (typeof result.totalTimeTaken === "number") {
         entry.runtime += result.totalTimeTaken;
         entry.runtimes.push(result.totalTimeTaken);
+      }
+    }
+  }
+  return [...perBuild.values()].sort(
+    (a, b) => Number.parseInt(a.build, 10) - Number.parseInt(b.build, 10),
+  );
+}
+
+/**
+ * The status of a class or package made up of the given results, worked out as Jenkins does: skipped
+ * when every test that ran was skipped, failed when any failed, otherwise passed.
+ */
+export function combinedStatus(results: BuildResult[]): Status {
+  const ran = results.filter((result) => result.status !== "N/A");
+  if (ran.length === 0) {
+    return "N/A";
+  }
+  if (ran.some((result) => result.status === "FAILED")) {
+    return "FAILED";
+  }
+  return ran.every((result) => result.status === "SKIPPED")
+    ? "SKIPPED"
+    : "PASSED";
+}
+
+/**
+ * Counts each group of tests, such as the tests of a class, once per build by their combined
+ * status, oldest build first. A group none of whose tests ran in a build is not counted in it.
+ */
+export function aggregateGroups(groups: TreeNode[][]): BuildTotals[] {
+  const perBuild = new Map<string, BuildTotals>();
+  for (const group of groups) {
+    const resultsPerBuild = new Map<string, BuildResult[]>();
+    for (const node of group) {
+      for (const result of node.buildResults) {
+        let results = resultsPerBuild.get(result.buildNumber);
+        if (!results) {
+          results = [];
+          resultsPerBuild.set(result.buildNumber, results);
+        }
+        results.push(result);
+      }
+    }
+    for (const [build, results] of resultsPerBuild) {
+      let entry = perBuild.get(build);
+      if (!entry) {
+        entry = {
+          build,
+          passed: 0,
+          failed: 0,
+          skipped: 0,
+          total: 0,
+          runtime: 0,
+          runtimes: [],
+        };
+        perBuild.set(build, entry);
+      }
+      const status = combinedStatus(results);
+      if (status === "N/A") {
+        continue;
+      }
+      entry.total++;
+      if (status === "FAILED") {
+        entry.failed++;
+      } else if (status === "SKIPPED") {
+        entry.skipped++;
+      } else {
+        entry.passed++;
+      }
+      const times = results
+        .map((result) => result.totalTimeTaken)
+        .filter((time) => typeof time === "number");
+      if (times.length > 0) {
+        const time = times.reduce((sum, value) => sum + value, 0);
+        entry.runtime += time;
+        entry.runtimes.push(time);
       }
     }
   }

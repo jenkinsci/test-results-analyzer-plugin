@@ -1,6 +1,6 @@
 import type { EChartsOption } from "echarts";
 import { describe, expect, it } from "vitest";
-import { createBuildLabeler } from "./buildLabels.ts";
+import { createBuildLabeler, numberLabels } from "./buildLabels.ts";
 import {
   barChartOptions,
   type ChartTheme,
@@ -102,6 +102,82 @@ describe("lineChartOptions", () => {
     );
     expect(title(options)).toBe("Build run time");
     expect(series(options)[0].data).toEqual([0.323]);
+  });
+});
+
+describe("counting by class or package", () => {
+  // The value of one series, as the axis tooltip shows it
+  const formatted = (options: EChartsOption, value: number) => {
+    const html = (
+      options.tooltip as { formatter: (params: unknown) => string }
+    ).formatter([{ dataIndex: 0, seriesName: "Passed", value }]);
+    return /<strong[^>]*>([^<]*)<\/strong>/.exec(html)?.[1];
+  };
+  const yName = (options: EChartsOption) =>
+    (options.yAxis as { name: string }).name;
+
+  it("names the unit in the line chart", () => {
+    const tests = lineChartOptions(theme, builds, "passfail");
+    expect(yName(tests)).toBe("Tests");
+    expect(formatted(tests, 1)).toBe("1 test");
+
+    const classes = lineChartOptions(
+      theme,
+      builds,
+      "passfail",
+      numberLabels,
+      "classes",
+    );
+    expect(title(classes)).toBe("Build status by class");
+    expect(yName(classes)).toBe("Classes");
+    expect(formatted(classes, 2)).toBe("2 classes");
+    expect(
+      title(
+        lineChartOptions(theme, builds, "passrate", numberLabels, "packages"),
+      ),
+    ).toBe("Pass rate by package");
+  });
+
+  it("names the unit in the bar chart", () => {
+    const options = barChartOptions(theme, builds, numberLabels, "packages");
+    expect(title(options)).toBe("Package results per build");
+    expect(yName(options)).toBe("Packages");
+    expect(formatted(options, 1)).toBe("1 package");
+    expect(title(barChartOptions(theme, builds))).toBe("Results per build");
+  });
+
+  it("names the unit in the pie charts", () => {
+    const tooltip = (options: EChartsOption) =>
+      (options.tooltip as { formatter: (params: unknown) => string }).formatter(
+        { name: "Passed", value: 3, percent: 75, data: {} },
+      );
+    const focused = passFailPieOptions(
+      theme,
+      builds,
+      builds[1],
+      true,
+      numberLabels,
+      "classes",
+    );
+    expect(title(focused)).toBe("Build #2 by class");
+    expect(tooltip(focused)).toBe("Passed: 3 classes (75%)");
+    // Without a focused build the slices count builds
+    expect(
+      tooltip(
+        passFailPieOptions(theme, builds, null, true, numberLabels, "classes"),
+      ),
+    ).toBe("Passed: 3 (75%)");
+
+    const rate = passRatePieOptions(
+      theme,
+      builds,
+      null,
+      true,
+      numberLabels,
+      "packages",
+    );
+    expect(title(rate)).toBe("Package pass rate, last 3 builds");
+    expect(tooltip(rate)).toBe("Passed: 3 packages (75%)");
   });
 });
 
@@ -306,5 +382,29 @@ describe("build labels", () => {
         runtimePieOptions(theme, builds[2], { low: 1, high: 2 }, false, label),
       ),
     ).toBe("Test run times, build #3");
+  });
+
+  it("combines build labels with the unit counted", () => {
+    const line = lineChartOptions(theme, builds, "passfail", label, "classes");
+    expect((line.xAxis as { data: string[] }).data[0]).toBe(
+      "nightly-2026-10-08",
+    );
+    expect(title(line)).toBe("Build status by class");
+    expect((line.yAxis as { name: string }).name).toBe("Classes");
+
+    const bar = barChartOptions(theme, builds, label, "packages");
+    expect((bar.xAxis as { data: string[] }).data[2]).toBe("#3");
+    expect(title(bar)).toBe("Package results per build");
+
+    expect(
+      title(
+        passFailPieOptions(theme, builds, builds[0], false, label, "classes"),
+      ),
+    ).toBe("Build nightly-2026-10-08 by class");
+    expect(
+      title(
+        passRatePieOptions(theme, builds, builds[0], false, label, "packages"),
+      ),
+    ).toBe("Package pass rate, build nightly-2026-10-08");
   });
 });

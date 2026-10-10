@@ -5,6 +5,7 @@ import { flattenTree } from "./stats.ts";
 import {
   chartNodes,
   expandAll,
+  testGroups,
   testNodes,
   toggleChecked,
   toggleExpanded,
@@ -104,6 +105,55 @@ describe("chart nodes", () => {
     );
     expect(testNodes(hidden, new Set()).map((node) => node.text)).toEqual([
       "u",
+    ]);
+  });
+});
+
+describe("testGroups", () => {
+  // 0 p, 1 T, 2 a, 3 b, 4 U, 5 c, 6 q, 7 V, 8 d, 9 Empty
+  const tree = flattenTree(
+    [
+      group("p", [
+        group("T", [test("a", ["PASSED"]), test("b", ["FAILED"])]),
+        group("U", [test("c", ["PASSED"])]),
+      ]),
+      group("q", [
+        group("V", [test("d", ["SKIPPED"])]),
+        {
+          text: "Empty",
+          buildResults: [{ buildNumber: "1", status: "N/A" }],
+          children: [],
+        },
+      ]),
+    ],
+    true,
+  );
+  const texts = (groups: { text: string }[][]) =>
+    groups.map((nodes) => nodes.map((node) => node.text));
+
+  it("groups the test cases by class", () => {
+    expect(texts(testGroups(tree, new Set(), "classes"))).toEqual([
+      ["a", "b"],
+      ["c"],
+      ["d"],
+      ["Empty"],
+    ]);
+  });
+
+  it("groups the test cases by package", () => {
+    expect(texts(testGroups(tree, new Set(), "packages"))).toEqual([
+      ["a", "b", "c"],
+      ["d", "Empty"],
+    ]);
+  });
+
+  it("only covers ticked tests, leaving out classes without any", () => {
+    expect(texts(testGroups(tree, new Set([3, 5]), "classes"))).toEqual([
+      ["b"],
+      ["c"],
+    ]);
+    expect(texts(testGroups(tree, new Set([3, 5]), "packages"))).toEqual([
+      ["b", "c"],
     ]);
   });
 });

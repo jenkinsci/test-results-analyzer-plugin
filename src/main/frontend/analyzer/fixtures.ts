@@ -1,7 +1,7 @@
 import type {
   AnalyzerData,
-  BuildResult,
   Bootstrap,
+  BuildResult,
   Status,
   TreeNode,
 } from "./model.ts";
@@ -106,6 +106,7 @@ export function bootstrap(overrides: Partial<Bootstrap> = {}): Bootstrap {
       showBarGraph: true,
       showPieGraph: true,
       chartDataType: "passfail",
+      chartCountBy: "tests",
     },
     ...overrides,
   };
