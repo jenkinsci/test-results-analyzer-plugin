@@ -1,6 +1,7 @@
 import { type CSSProperties, memo } from "react";
 
 import type { BuildResult, Row, StatusLabels } from "../model.ts";
+import { type BuildLabeler, numberLabels } from "../utils/buildLabels.ts";
 import {
   isNewFailure,
   numberOfTransitions,
@@ -27,6 +28,7 @@ interface HistoryViewProps {
   selecting: boolean;
   showDurations: boolean;
   labels: StatusLabels;
+  buildLabel?: BuildLabeler;
   onToggle: (id: number) => void;
   onCheck: (id: number, checked: boolean) => void;
 }
@@ -54,13 +56,15 @@ function BuildSquare({
   result,
   labels,
   showDurations,
+  buildLabel,
 }: {
   result: BuildResult;
   labels: StatusLabels;
   showDurations: boolean;
+  buildLabel: BuildLabeler;
 }) {
   const label = statusLabel(labels, result.status);
-  let title = `Build #${result.buildNumber}: ${label}`;
+  let title = `Build ${buildLabel(result.buildNumber).title}: ${label}`;
   if (typeof result.totalTimeTaken === "number") {
     title += ` in ${formatDuration(result, labels)}`;
   }
@@ -93,6 +97,7 @@ interface HistoryRowProps {
   checked: boolean;
   showDurations: boolean;
   labels: StatusLabels;
+  buildLabel: BuildLabeler;
   onToggle: (id: number) => void;
   onCheck: (id: number, checked: boolean) => void;
 }
@@ -103,6 +108,7 @@ const HistoryRow = memo(function HistoryRow({
   checked,
   showDurations,
   labels,
+  buildLabel,
   onToggle,
   onCheck,
 }: HistoryRowProps) {
@@ -192,6 +198,7 @@ const HistoryRow = memo(function HistoryRow({
             result={result}
             labels={labels}
             showDurations={showDurations}
+            buildLabel={buildLabel}
           />
         ))}
       </div>
@@ -202,9 +209,11 @@ const HistoryRow = memo(function HistoryRow({
 function HistoryHeader({
   builds,
   showDurations,
+  buildLabel,
 }: {
   builds: string[];
   showDurations: boolean;
+  buildLabel: BuildLabeler;
 }) {
   return (
     <div className="tra-history__header" aria-hidden="true">
@@ -222,14 +231,18 @@ function HistoryHeader({
         </span>
       </div>
       <div className={`tra-strip${showDurations ? " tra-strip--values" : ""}`}>
-        {builds.map((build) => (
-          <span
-            key={build}
-            className={`tra-build tra-build--header${showDurations ? " tra-build--value" : ""}`}
-          >
-            #{build}
-          </span>
-        ))}
+        {builds.map((build) => {
+          const label = buildLabel(build);
+          return (
+            <span
+              key={build}
+              className={`tra-build tra-build--header${showDurations ? " tra-build--value" : ""}`}
+              title={label.title}
+            >
+              {label.short}
+            </span>
+          );
+        })}
       </div>
     </div>
   );
@@ -245,6 +258,7 @@ export function HistoryView({
   selecting,
   showDurations,
   labels,
+  buildLabel = numberLabels,
   onToggle,
   onCheck,
 }: HistoryViewProps) {
@@ -264,7 +278,11 @@ export function HistoryView({
       className={`tra-history-container${selecting ? " tra-history-container--selecting" : ""}`}
     >
       <div className="tra-history" role="group" aria-label="Test history">
-        <HistoryHeader builds={builds} showDurations={showDurations} />
+        <HistoryHeader
+          builds={builds}
+          showDurations={showDurations}
+          buildLabel={buildLabel}
+        />
         {packages
           .filter((packageRows) => packageRows.length > 0)
           .map((packageRows) => (
@@ -277,6 +295,7 @@ export function HistoryView({
                   checked={checked.has(row.id)}
                   showDurations={showDurations}
                   labels={labels}
+                  buildLabel={buildLabel}
                   onToggle={onToggle}
                   onCheck={onCheck}
                 />

@@ -1,5 +1,6 @@
 import type { EChartsOption, LineSeriesOption, PieSeriesOption } from "echarts";
 
+import { type BuildLabeler, numberLabels, truncate } from "./buildLabels.ts";
 import type { BuildTotals } from "./stats.ts";
 
 export interface ChartTheme {
@@ -98,10 +99,59 @@ function baseOptions(theme: ChartTheme, title: string): EChartsOption {
   };
 }
 
+const HTML_ESCAPES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
+
+/** Escapes text for the HTML that ECharts renders tooltips with. */
+export function escapeHtml(text: string): string {
+  return text.replace(/[&<>"']/g, (character) => HTML_ESCAPES[character]);
+}
+
+interface AxisTooltipParam {
+  dataIndex: number;
+  marker?: string;
+  seriesName?: string;
+  value: unknown;
+}
+
+/**
+ * Formats an axis tooltip with the whole title of the hovered build (number, name and date) as its
+ * heading, rather than the category value on the axis, followed by a line per series.
+ */
+export function axisTooltipFormatter(
+  builds: BuildTotals[],
+  label: BuildLabeler,
+  valueFormatter: (value: unknown) => string = (value) =>
+    value === null || value === undefined ? "–" : String(value),
+): (params: unknown) => string {
+  return (params) => {
+    const items = (
+      Array.isArray(params) ? params : [params]
+    ) as AxisTooltipParam[];
+    if (items.length === 0) {
+      return "";
+    }
+    const build = builds[items[0].dataIndex];
+    const heading = build ? escapeHtml(label(build.build).title) : "";
+    const lines = items.map(
+      (item) =>
+        `<div>${item.marker ?? ""}${escapeHtml(item.seriesName ?? "")}` +
+        `<strong style="float:right;margin-left:1.5em">${escapeHtml(valueFormatter(item.value))}</strong></div>`,
+    );
+    return `<div style="font-weight:600;margin-bottom:0.25em">${heading}</div>${lines.join("")}`;
+  };
+}
+
 function axes(
   theme: ChartTheme,
   builds: BuildTotals[],
   yName: string,
+  label: BuildLabeler,
 ): EChartsOption {
   return {
     grid: { left: 8, right: 16, top: 48, bottom: 48, containLabel: true },
@@ -111,10 +161,14 @@ function axes(
       nameLocation: "middle",
       nameGap: 28,
       nameTextStyle: { color: theme.textSecondary },
-      data: builds.map((build) => `#${build.build}`),
+      // The whole title shows in the tooltip, a shortened label on the axis
+      data: builds.map((build) => label(build.build).text),
       axisLine: { lineStyle: { color: theme.border } },
       axisTick: { show: false },
-      axisLabel: { color: theme.textSecondary },
+      axisLabel: {
+        color: theme.textSecondary,
+        formatter: (value: string) => truncate(value),
+      },
     },
     yAxis: {
       type: "value",
@@ -152,6 +206,7 @@ export function lineChartOptions(
   theme: ChartTheme,
   builds: BuildTotals[],
   mode: "passfail" | "passrate" | "runtime",
+  label: BuildLabeler = numberLabels,
 ): EChartsOption {
   const title =
     mode === "runtime"
@@ -161,7 +216,7 @@ export function lineChartOptions(
         : "Build status";
   const yName =
     mode === "runtime" ? "Seconds" : mode === "passrate" ? "%" : "Tests";
-  const axisOptions = axes(theme, builds, yName);
+  const axisOptions = axes(theme, builds, yName, label);
   const yAxis = axisOptions.yAxis as Record<string, unknown>;
   // Clicking anywhere in a build's column shows that build in the pie chart, so shade the column
   const tooltip = {
@@ -170,12 +225,13 @@ export function lineChartOptions(
     axisPointer: { type: "shadow" as const },
   } as Record<string, unknown>;
 
+  let valueFormatter: ((value: unknown) => string) | undefined;
   let series: LineSeriesOption[];
   if (mode === "passrate") {
     yAxis.max = 100;
     yAxis.minInterval = undefined;
-    tooltip.valueFormatter = (value: unknown) =>
-      value === null ? "–" : `${value}%`;
+    valueFormatter = (value: unknown) =>
+      value === null || value === undefined ? "–" : `${value}%`;
     series = [
       lineSeries(
         "Pass rate",
@@ -191,7 +247,7 @@ export function lineChartOptions(
     ];
   } else if (mode === "runtime") {
     yAxis.minInterval = undefined;
-    tooltip.valueFormatter = (value: unknown) => `${value} s`;
+    valueFormatter = (value: unknown) => `${value} s`;
     series = [
       lineSeries(
         "Run time",
@@ -223,6 +279,7 @@ export function lineChartOptions(
       ),
     ];
   }
+  tooltip.formatter = axisTooltipFormatter(builds, label, valueFormatter);
   return {
     ...baseOptions(theme, title),
     ...axisOptions,
@@ -234,6 +291,7 @@ export function lineChartOptions(
 export function barChartOptions(
   theme: ChartTheme,
   builds: BuildTotals[],
+  label: BuildLabeler = numberLabels,
 ): EChartsOption {
   const bar = (
     name: string,
@@ -251,11 +309,12 @@ export function barChartOptions(
   const base = baseOptions(theme, "Results per build");
   return {
     ...base,
-    ...axes(theme, builds, "Tests"),
+    ...axes(theme, builds, "Tests", label),
     tooltip: {
       ...(base.tooltip as object),
       trigger: "axis",
       axisPointer: { type: "shadow" },
+      formatter: axisTooltipFormatter(builds, label),
     },
     series: [
       bar("Passed", "passed", theme.passed),
@@ -328,11 +387,12 @@ export function passFailPieOptions(
   builds: BuildTotals[],
   focus: BuildTotals | null,
   showLabels: boolean,
+  label: BuildLabeler = numberLabels,
 ): EChartsOption {
   let title: string;
   let counts: { passed: number; failed: number; skipped: number };
   if (focus) {
-    title = `Build #${focus.build}`;
+    title = `Build ${label(focus.build).short}`;
     counts = focus;
   } else {
     title =
@@ -368,10 +428,11 @@ export function passRatePieOptions(
   builds: BuildTotals[],
   focus: BuildTotals | null,
   showLabels: boolean,
+  label: BuildLabeler = numberLabels,
 ): EChartsOption {
   const covered = focus ? [focus] : builds;
   const title = focus
-    ? `Pass rate, build #${focus.build}`
+    ? `Pass rate, build ${label(focus.build).short}`
     : builds.length === 1
       ? "Pass rate, last build"
       : `Pass rate, last ${builds.length} builds`;
@@ -394,6 +455,7 @@ export function runtimePieOptions(
   build: BuildTotals,
   thresholds: { low: number; high: number },
   showLabels: boolean,
+  label: BuildLabeler = numberLabels,
 ): EChartsOption {
   let fast = 0;
   let medium = 0;
@@ -409,7 +471,7 @@ export function runtimePieOptions(
   }
   return pieOptions(
     theme,
-    `Test run times, build #${build.build}`,
+    `Test run times, build ${label(build.build).short}`,
     [
       {
         name: "Fast",

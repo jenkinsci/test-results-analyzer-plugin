@@ -32,7 +32,11 @@ export function createClient(actionUrl: string): AnalyzerClient {
         throw new Error(`${response.status} ${response.statusText}`);
       }
       const data = (await response.json()) as Partial<AnalyzerData>;
-      return { builds: data.builds ?? [], results: data.results ?? [] };
+      return {
+        builds: data.builds ?? [],
+        buildInfo: data.buildInfo ?? [],
+        results: data.results ?? [],
+      };
     },
     csvUrl(builds, durations, buildNumbers) {
       const query = new URLSearchParams({

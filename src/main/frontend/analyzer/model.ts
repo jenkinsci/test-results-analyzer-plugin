@@ -18,11 +18,25 @@ export interface TreeNode {
   children?: TreeNode[];
 }
 
+/** Details of a build, as served by JsTreeUtil alongside the build numbers. */
+export interface BuildInfo {
+  number: number;
+  displayName?: string;
+  /** When the build was scheduled, in milliseconds since the epoch. */
+  timestamp?: number;
+  url?: string;
+}
+
 export interface AnalyzerData {
   /** Build numbers, newest first. */
   builds: string[];
+  /** Details of the builds, in the same order; missing when served by an older version. */
+  buildInfo?: BuildInfo[];
   results: TreeNode[];
 }
+
+/** What builds are labelled by. */
+export type BuildLabelMode = "number" | "name" | "date";
 
 export type ChartData = "passfail" | "passrate" | "runtime";
 
@@ -51,6 +65,8 @@ export interface Bootstrap {
     showBarGraph: boolean;
     showPieGraph: boolean;
     chartDataType: string;
+    /** Missing when the page is served by an older version. */
+    buildLabel?: string;
   };
 }
 
@@ -72,6 +88,7 @@ export interface Options {
   /** As typed; see worstLimit. */
   worstCount: string;
   chartData: ChartData;
+  buildLabel: BuildLabelMode;
 }
 
 /** A package, class or test in the flattened history, in display order. */

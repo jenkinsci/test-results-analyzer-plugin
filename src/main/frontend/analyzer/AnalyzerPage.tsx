@@ -20,6 +20,7 @@ import type {
   Options,
   Row,
 } from "./model.ts";
+import { buildLabelMode, createBuildLabeler } from "./utils/buildLabels.ts";
 import {
   type BuildRequest,
   buildNumbersError,
@@ -68,6 +69,7 @@ function initialOptions({ defaults }: Bootstrap): Options {
     pie: defaults.showPieGraph,
     worstCount: "10",
     chartData: chartData(defaults.chartDataType),
+    buildLabel: buildLabelMode(defaults.buildLabel),
   };
 }
 
@@ -223,6 +225,10 @@ export function AnalyzerPage({
   );
   const nodes = useMemo(() => chartNodes(rows, checked), [rows, checked]);
   const tests = useMemo(() => testNodes(rows, checked), [rows, checked]);
+  const buildLabel = useMemo(
+    () => createBuildLabeler(data?.buildInfo, options.buildLabel),
+    [data, options.buildLabel],
+  );
   const thresholds = useMemo(
     () => ({
       low: bootstrap.runTimeLowThreshold,
@@ -320,6 +326,7 @@ export function AnalyzerPage({
               selecting={selecting}
               showDurations={options.showDurations}
               labels={bootstrap.labels}
+              buildLabel={buildLabel}
               onToggle={onToggle}
               onCheck={onCheck}
             />
@@ -340,13 +347,14 @@ export function AnalyzerPage({
         bar={options.bar}
         pie={options.pie}
         thresholds={thresholds}
+        buildLabel={buildLabel}
       />
 
       {data && (
         <section className="tra-section">
           <h2 className="jenkins-section__title">Most broken tests</h2>
           <div id="tra-worst-tests">
-            <WorstTests tests={worst} />
+            <WorstTests tests={worst} buildLabel={buildLabel} />
           </div>
         </section>
       )}

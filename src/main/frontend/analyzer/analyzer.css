@@ -148,8 +148,11 @@
   writing-mode: vertical-rl;
 }
 
+/* Run-time mode: labels read across the wider columns, cut to their width (the title has all of it) */
 .tra-history__header .tra-build--header.tra-build--value {
   line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transform: none;
   writing-mode: horizontal-tb;
 }

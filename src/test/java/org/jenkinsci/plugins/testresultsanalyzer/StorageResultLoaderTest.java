@@ -108,6 +108,7 @@ class StorageResultLoaderTest {
             runs.add(r.buildAndAssertStatus(hudson.model.Result.UNSTABLE, project));
         }
 
+        runs.get(0).setDisplayName("first build");
         String allFromFiles = tree(project, "-1");
         String twoFromFiles = tree(project, "2");
         String chosenFromFiles = tree(project, "1,3");
@@ -119,6 +120,7 @@ class StorageResultLoaderTest {
         assertEquals(twoFromFiles, tree(project, "2"));
         assertEquals(chosenFromFiles, tree(project, "1,3"));
         assertTrue(StubStorage.streamed > 0, "storage fast path should have been used");
+        assertTrue(tree(project, "-1").contains("\"displayName\": \"first build\""), "build details are sent");
     }
 
     @Test

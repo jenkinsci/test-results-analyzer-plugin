@@ -78,6 +78,13 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         // true = Show Test Runtimes in Charts instead of Passes and Failures
         private String chartDataType = passFailString;
 
+        /** What builds are labelled by on the analyzer page: their number, display name or date. */
+        private String buildLabel = BUILD_LABEL_NAME;
+
+        static final String BUILD_LABEL_NUMBER = "number";
+        static final String BUILD_LABEL_NAME = "name";
+        static final String BUILD_LABEL_DATE = "date";
+
         public DescriptorImpl() {
             // jenkins actually will edit your program's memory and set variables
             load();
@@ -91,6 +98,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         @Override
         public boolean configure(StaplerRequest2 req, JSONObject formData) {
             duplicateTestPolicy = parseDuplicateTestPolicy(formData.optString("duplicateTestPolicy"));
+            buildLabel = buildLabel(formData.optString("buildLabel"));
             try {
                 noOfBuilds = formData.getString("noOfBuilds");
                 noOfRunsToFetch = formData.getInt("noOfRunsToFetch");
@@ -202,6 +210,16 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
                 }
             }
             return DuplicateTestPolicy.DEFAULT;
+        }
+
+        /** One of {@code number}, {@code name} or {@code date}. */
+        public String getBuildLabel() {
+            return buildLabel(buildLabel);
+        }
+
+        /** Settings saved before the option existed have no value, so builds are labelled by name. */
+        private static String buildLabel(String value) {
+            return BUILD_LABEL_NUMBER.equals(value) || BUILD_LABEL_DATE.equals(value) ? value : BUILD_LABEL_NAME;
         }
 
         public String getPassFailString() {
