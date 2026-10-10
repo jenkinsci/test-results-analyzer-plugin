@@ -52,6 +52,15 @@
 				</select>
 			</div>
 		</f:entry>
+		<f:entry title="${%Count Charts By}">
+			<div class="jenkins-select">
+				<select name="chartCountBy" class="jenkins-select__input">
+					<f:option value="tests" selected="${descriptor.getChartCountBy().equals('tests')}">${%Tests}</f:option>
+					<f:option value="classes" selected="${descriptor.getChartCountBy().equals('classes')}">${%Classes}</f:option>
+					<f:option value="packages" selected="${descriptor.getChartCountBy().equals('packages')}">${%Packages}</f:option>
+				</select>
+			</div>
+		</f:entry>
 		<f:entry title="${%Runtime Low Threshold}">
 			<f:textbox name="runTimeLowThreshold" value="${descriptor.getRunTimeLowThreshold()}" />
 		</f:entry>

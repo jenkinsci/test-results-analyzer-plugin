@@ -1,4 +1,4 @@
-import type { Row, TreeNode } from "../model.ts";
+import type { CountBy, Row, TreeNode } from "../model.ts";
 
 /**
  * Which rows are shown. Without a filter a row is shown when all its ancestors are expanded.
@@ -140,4 +140,33 @@ export function testNodes(
   return rows
     .filter((row) => isLeaf(row) && (checked.size === 0 || checked.has(row.id)))
     .map((row) => row.node);
+}
+
+/**
+ * The test cases the charts cover, as with testNodes, grouped by their class or package. A class or
+ * package without test cases of its own forms a group by itself.
+ */
+export function testGroups(
+  rows: Row[],
+  checked: ReadonlySet<number>,
+  countBy: Exclude<CountBy, "tests">,
+): TreeNode[][] {
+  const level = countBy === "packages" ? 0 : 1;
+  const groups = new Map<number, TreeNode[]>();
+  for (const row of rows) {
+    if (!isLeaf(row) || (checked.size > 0 && !checked.has(row.id))) {
+      continue;
+    }
+    let owner = row;
+    while (owner.level > level) {
+      owner = rows[owner.parent];
+    }
+    let group = groups.get(owner.id);
+    if (!group) {
+      group = [];
+      groups.set(owner.id, group);
+    }
+    group.push(row.node);
+  }
+  return [...groups.values()];
 }

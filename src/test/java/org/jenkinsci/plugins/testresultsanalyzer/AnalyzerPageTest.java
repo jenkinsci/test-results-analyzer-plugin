@@ -109,6 +109,7 @@ class AnalyzerPageTest {
         JSONObject bootstrap = JSONObject.fromObject(root.getAttribute("data-bootstrap"));
         assertThat(bootstrap.getJSONObject("labels").getString("passed"), is("PASSED"));
         assertThat(bootstrap.getJSONObject("defaults").getString("chartDataType"), is("passfail"));
+        assertThat(bootstrap.getJSONObject("defaults").getString("chartCountBy"), is("tests"));
         assertThat(
                 "theme colours are used by default",
                 bootstrap.get("customColors").toString(),
@@ -159,6 +160,19 @@ class AnalyzerPageTest {
                     is("#00ff00"));
         } finally {
             // The descriptor outlives the Jenkins instance of a test
+            configureGlobally("");
+        }
+    }
+
+    @Test
+    void chartCountByIsPassedToThePage() throws Exception {
+        TestResultsAnalyzerAction action = calculatorProject().getAction(TestResultsAnalyzerAction.class);
+        try {
+            configureGlobally("chartCountBy: 'classes'");
+            assertThat(defaults(action).getString("chartCountBy"), is("classes"));
+            configureGlobally("chartCountBy: 'bogus'");
+            assertThat(defaults(action).getString("chartCountBy"), is("tests"));
+        } finally {
             configureGlobally("");
         }
     }
