@@ -22,6 +22,7 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
+import org.jenkinsci.plugins.testresultsanalyzer.result.info.BuildInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ClassInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.PackageInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
@@ -240,9 +241,6 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
     private void loadRuns(List<Run> completed) {
         resultInfo = new ResultInfo(getDuplicateTestPolicy());
         builds = new ArrayList<Integer>();
-        for (Run run : completed) {
-            builds.add(run.getNumber());
-        }
         if (completed.isEmpty()) {
             return;
         }
@@ -250,6 +248,11 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         String rootUrl = jenkins != null ? jenkins.getRootUrl() : "";
         if (rootUrl == null) {
             rootUrl = "";
+        }
+        for (Run run : completed) {
+            builds.add(run.getNumber());
+            resultInfo.addBuild(new BuildInfo(
+                    run.getNumber(), run.getDisplayName(), run.getTimeInMillis(), rootUrl + run.getUrl()));
         }
 
         StorageResultLoader storageLoader =
@@ -533,7 +536,8 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                 .element("showLineGraph", getShowLineGraph())
                 .element("showBarGraph", getShowBarGraph())
                 .element("showPieGraph", getShowPieGraph())
-                .element("chartDataType", getChartDataType());
+                .element("chartDataType", getChartDataType())
+                .element("buildLabel", getBuildLabel());
         JSONObject bootstrap = new JSONObject()
                 .element("labels", labels)
                 .element("runTimeLowThreshold", parseSeconds(getRunTimeLowThreshold()))
@@ -606,6 +610,10 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
     public String getChartDataType() {
         return TestResultsAnalyzerExtension.DESCRIPTOR.getChartDataType();
+    }
+
+    public String getBuildLabel() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getBuildLabel();
     }
 
     public String getRunTimeLowThreshold() {

@@ -8,6 +8,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.util.JSONUtils;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
+import org.jenkinsci.plugins.testresultsanalyzer.result.info.BuildInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.Info;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 
@@ -21,6 +22,12 @@ public class JsTreeUtil {
             buildJson.add(buildNumber.toString());
         }
         tree.put("builds", buildJson);
+
+        JSONArray buildInfoJson = new JSONArray();
+        for (Integer buildNumber : builds) {
+            buildInfoJson.add(getBuildInfo(buildNumber, resultInfo));
+        }
+        tree.put("buildInfo", buildInfoJson);
 
         JSONArray results = new JSONArray();
         for (Map.Entry<String, ? extends Info> entry :
@@ -40,6 +47,22 @@ public class JsTreeUtil {
         baseJson.put("children", getChildren(builds, info, hideConfigMethods));
 
         return baseJson;
+    }
+
+    /**
+     * The number, display name, date and URL of a build. Only the number is known for builds whose details
+     * were not recorded.
+     */
+    private static JSONObject getBuildInfo(Integer buildNumber, ResultInfo resultInfo) {
+        JSONObject json = new JSONObject();
+        json.put("number", buildNumber);
+        BuildInfo build = resultInfo.getBuild(buildNumber);
+        if (build != null) {
+            json.put("displayName", build.displayName()); // dropped when null
+            json.put("timestamp", build.timestamp());
+            json.put("url", build.url());
+        }
+        return json;
     }
 
     private JSONArray getBuilds(List<Integer> builds, Info info) {
@@ -99,6 +122,13 @@ public class JsTreeUtil {
                 out.write(',');
             }
             out.write(buildNumbers[i]);
+        }
+        out.write("],\"buildInfo\":[");
+        for (int i = 0; i < buildNumbers.length; i++) {
+            if (i > 0) {
+                out.write(',');
+            }
+            out.write(getBuildInfo(builds.get(i), resultInfo).toString());
         }
         out.write("],\"results\":[");
         boolean first = true;

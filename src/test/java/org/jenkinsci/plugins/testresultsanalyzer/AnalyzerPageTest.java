@@ -212,6 +212,56 @@ class AnalyzerPageTest {
     }
 
     @Test
+    void dataServesTheDisplayNameAndDateOfEachBuild() throws Exception {
+        FreeStyleProject project = calculatorProject();
+        project.getBuildByNumber(3).setDisplayName("release-1.3");
+        JSONObject data = data(project, "builds=2&hideConfigMethods=false");
+
+        // The build numbers stay as they were, for other clients of the endpoint
+        assertThat(data.getJSONArray("builds"), is(JSONArray.fromObject("[\"3\",\"2\"]")));
+        JSONArray buildInfo = data.getJSONArray("buildInfo");
+        assertThat(buildInfo, hasSize(2));
+        JSONObject renamed = buildInfo.getJSONObject(0);
+        assertThat(renamed.getInt("number"), is(3));
+        assertThat(renamed.getString("displayName"), is("release-1.3"));
+        assertThat(renamed.getLong("timestamp"), is(project.getBuildByNumber(3).getTimeInMillis()));
+        assertThat(renamed.getString("url"), endsWith(project.getUrl() + "3/"));
+        JSONObject plain = buildInfo.getJSONObject(1);
+        assertThat(plain.getInt("number"), is(2));
+        assertThat(plain.getString("displayName"), is("#2"));
+    }
+
+    @Test
+    void buildLabelIsConfiguredGlobally() throws Exception {
+        FreeStyleProject project = calculatorProject();
+        TestResultsAnalyzerAction action = project.getAction(TestResultsAnalyzerAction.class);
+        assertThat(defaults(action).getString("buildLabel"), is("name"));
+        try {
+            configureGlobally("buildLabel: 'date'");
+            assertThat(defaults(action).getString("buildLabel"), is("date"));
+            configureGlobally("buildLabel: 'bogus'");
+            assertThat(defaults(action).getString("buildLabel"), is("name"));
+        } finally {
+            configureGlobally("");
+        }
+    }
+
+    private static JSONObject defaults(TestResultsAnalyzerAction action) {
+        return JSONObject.fromObject(action.getBootstrapJson()).getJSONObject("defaults");
+    }
+
+    @Test
+    void globalConfigurationRoundTripsTheBuildLabel() throws Exception {
+        try {
+            configureGlobally("buildLabel: 'number'");
+            j.configRoundtrip();
+            assertThat(TestResultsAnalyzerExtension.DESCRIPTOR.getBuildLabel(), is("number"));
+        } finally {
+            configureGlobally("");
+        }
+    }
+
+    @Test
     void dataIsLimitedToTheRequestedBuilds() throws Exception {
         // "removed" only ran in build 1
         FreeStyleProject project = createProject(

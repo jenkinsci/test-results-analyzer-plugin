@@ -43,6 +43,15 @@
 				</select>
 			</div>
 		</f:entry>
+		<f:entry title="${%Label Builds By}" field="buildLabel">
+			<div class="jenkins-select">
+				<select name="buildLabel" class="jenkins-select__input">
+					<f:option value="name" selected="${descriptor.getBuildLabel() == 'name'}">${%Display name}</f:option>
+					<f:option value="number" selected="${descriptor.getBuildLabel() == 'number'}">${%Number}</f:option>
+					<f:option value="date" selected="${descriptor.getBuildLabel() == 'date'}">${%Date}</f:option>
+				</select>
+			</div>
+		</f:entry>
 		<f:entry title="${%Runtime Low Threshold}">
 			<f:textbox name="runTimeLowThreshold" value="${descriptor.getRunTimeLowThreshold()}" />
 		</f:entry>

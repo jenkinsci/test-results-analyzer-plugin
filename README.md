@@ -69,12 +69,26 @@ curl -u "$USER:$API_TOKEN" -o test-results.csv "$JENKINS_URL/job/my-job/test_res
 curl -u "$USER:$API_TOKEN" "$JENKINS_URL/job/my-job/test_results_analyzer/data?buildNumbers=12,36,40-53"
 ```
 
-The JSON has the build numbers, newest first, and a tree of packages, classes and tests. Every
-node has one `buildResults` entry per build, in the same order as `builds`:
+The JSON has the build numbers, newest first, details of those builds, and a tree of packages,
+classes and tests. Every node has one `buildResults` entry per build, in the same order as `builds`:
 
 ```json
 {
   "builds": ["2", "1"],
+  "buildInfo": [
+    {
+      "number": 2,
+      "displayName": "#2",
+      "timestamp": 1767225600000,
+      "url": "https://jenkins.example.com/job/my-job/2/"
+    },
+    {
+      "number": 1,
+      "displayName": "#1",
+      "timestamp": 1767139200000,
+      "url": "https://jenkins.example.com/job/my-job/1/"
+    }
+  ],
   "results": [
     {
       "text": "com.example",
@@ -109,11 +123,16 @@ node has one `buildResults` entry per build, in the same order as `builds`:
 }
 ```
 
+- `buildInfo` has one entry per build, in the same order as `builds`: its `number`, its
+  `displayName` (`#` and the number unless it was changed), its `timestamp` (when it was scheduled,
+  in milliseconds since the epoch) and the `url` of the build, absolute when the Jenkins URL is
+  configured, otherwise relative to the Jenkins root (such as `job/name/1/`).
 - `status` is `PASSED`, `FAILED` (failures and errors), `SKIPPED` or `N/A`. `N/A` means the item did
   not run in that build, and its entry has no other fields.
 - The `total*` counts are of the tests below the node; for a test they are 0 or 1.
 - `totalTimeTaken` is in seconds.
-- `url` links to the test report of that build. It is absolute when the Jenkins URL is configured.
+- `url` links to the test report of that build. It is absolute when the Jenkins URL is configured,
+  otherwise relative to the Jenkins root.
 
 The CSV has the columns `Package`, `Class`, `Test`, then one column per build number, newest first.
 Its cells use the custom status names when they are configured.
