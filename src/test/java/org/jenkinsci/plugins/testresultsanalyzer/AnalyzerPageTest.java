@@ -119,7 +119,7 @@ class AnalyzerPageTest {
 
     @Test
     void customStatusColoursArePassedToThePage() throws Exception {
-        configureGlobally(", useCustomStatusColors: {passedColor: '#00ff00', failedColor: '#ff0000',"
+        configureGlobally("useCustomStatusColors: {passedColor: '#00ff00', failedColor: '#ff0000',"
                 + " skippedColor: '#ffff00', naColor: '#cccccc'}");
         try {
             FreeStyleProject project = calculatorProject();
@@ -136,13 +136,34 @@ class AnalyzerPageTest {
         }
     }
 
-    private static void configureGlobally(String extra) {
-        TestResultsAnalyzerExtension.DESCRIPTOR.configure(
-                (StaplerRequest2) null,
-                JSONObject.fromObject("{noOfBuilds: '10', noOfRunsToFetch: 0, showAllBuilds: false,"
-                        + " showBuildTime: false, hideConfigurationMethods: false, showLineGraph: true,"
-                        + " showBarGraph: true, showPieGraph: true, runTimeLowThreshold: '0.5',"
-                        + " runTimeHighThreshold: '1.5', chartDataType: 'passfail'" + extra + "}"));
+    /** Saves the global configuration with the given settings over the defaults. */
+    private static void configureGlobally(String overrides) {
+        JSONObject form = JSONObject.fromObject("{noOfBuilds: '10', noOfRunsToFetch: 0, showAllBuilds: false,"
+                + " showBuildTime: false, hideConfigurationMethods: false, showLineGraph: true,"
+                + " showBarGraph: true, showPieGraph: true, runTimeLowThreshold: '0.5',"
+                + " runTimeHighThreshold: '1.5', chartDataType: 'passfail'}");
+        form.putAll(JSONObject.fromObject("{" + overrides + "}"));
+        TestResultsAnalyzerExtension.DESCRIPTOR.configure((StaplerRequest2) null, form);
+    }
+
+    @Test
+    void runTimeThresholdsThatAreNotNumbersAreIgnored() throws Exception {
+        assertThat(TestResultsAnalyzerAction.parseSeconds(" 1.5 "), is(1.5));
+        for (String value : new String[] {null, "", "fast", "NaN", "Infinity", "-Infinity"}) {
+            assertThat(value, TestResultsAnalyzerAction.parseSeconds(value), is(0.0));
+        }
+
+        configureGlobally("runTimeLowThreshold: 'NaN', runTimeHighThreshold: 'Infinity'");
+        try {
+            String bootstrap = calculatorProject()
+                    .getAction(TestResultsAnalyzerAction.class)
+                    .getBootstrapJson();
+            JSONObject json = JSONObject.fromObject(bootstrap);
+            assertThat(json.getDouble("runTimeLowThreshold"), is(0.0));
+            assertThat(json.getDouble("runTimeHighThreshold"), is(0.0));
+        } finally {
+            configureGlobally("");
+        }
     }
 
     @Test
@@ -167,13 +188,17 @@ class AnalyzerPageTest {
                 3,
                 build -> suite("p.T", testCase("p.T", "kept", ""), build == 1 ? testCase("p.T", "removed", "") : ""));
 
-        JSONObject data = data(project, "builds=2&hideConfigMethods=false");
-        assertThat(data.getJSONArray("builds"), is(JSONArray.fromObject("[\"3\",\"2\"]")));
-        JSONObject removed = child(child(data.getJSONArray("results").getJSONObject(0), 0), 1);
-        assertThat(removed.getString("text"), is("removed"));
-        for (Object result : removed.getJSONArray("buildResults")) {
-            assertThat(((JSONObject) result).getString("status"), is("N/A"));
-        }
+        JSONObject all = data(project, "builds=-1&hideConfigMethods=false");
+        assertThat(all.getJSONArray("builds"), hasSize(3));
+        assertThat(child(all.getJSONArray("results").getJSONObject(0), 0).getJSONArray("children"), hasSize(2));
+
+        // Only the requested builds are read, so "removed" is not listed at all
+        JSONObject latest = data(project, "builds=2&hideConfigMethods=false");
+        assertThat(latest.getJSONArray("builds"), is(JSONArray.fromObject("[\"3\",\"2\"]")));
+        JSONArray tests =
+                child(latest.getJSONArray("results").getJSONObject(0), 0).getJSONArray("children");
+        assertThat(tests, hasSize(1));
+        assertThat(tests.getJSONObject(0).getString("text"), is("kept"));
     }
 
     @Test

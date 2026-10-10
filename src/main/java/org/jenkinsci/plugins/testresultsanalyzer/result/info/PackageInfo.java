@@ -25,6 +25,14 @@ public class PackageInfo extends Info {
         return null;
     }
 
+    public ClassInfo getOrCreateClass(String className) {
+        return classes.computeIfAbsent(className, name -> {
+            ClassInfo classInfo = new ClassInfo();
+            classInfo.setName(name);
+            return classInfo;
+        });
+    }
+
     public Map<String, ClassInfo> getClasses() {
         return classes;
     }

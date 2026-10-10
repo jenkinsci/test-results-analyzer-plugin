@@ -35,6 +35,8 @@
     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
     <node.version>24.21.0</node.version>
     <npm.version>12.0.2</npm.version>
+    <!-- pluggable junit storage APIs (TestResultImpl) are @Restricted(Beta.class) -->
+    <useBeta>true</useBeta>
     <!-- SpotBugs is a program which uses static analysis to look for bugs in Java code -->
     <!-- Plugin maintenance can be improved by increasing the depth of spotbugs analysis. -->
     <spotbugs.effort>Max</spotbugs.effort>
@@ -68,7 +70,8 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>junit</artifactId>
-      <!-- Version is managed by the BOM, so no need to specify it -->
+      <!-- TODO remove once the BOM manages a version with TestResultImpl#forEachCaseResultSummary -->
+      <version>1437.v12280a_c49b_50</version>
     </dependency>
   </dependencies>
 

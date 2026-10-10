@@ -1,9 +1,12 @@
 package org.jenkinsci.plugins.testresultsanalyzer;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 import java.util.Map;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.util.JSONUtils;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.Info;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
@@ -79,5 +82,86 @@ public class JsTreeUtil {
         }
 
         return json;
+    }
+
+    /**
+     * Writes the same JSON as {@link #getJsTree(List, ResultInfo, boolean)} straight to {@code out}, without
+     * building a {@link JSONObject} per cell first: for many builds that tree is several times larger than
+     * the serialized form, and {@code net.sf.json} copies nested objects as they are added.
+     */
+    public void writeJsTree(Writer out, List<Integer> builds, ResultInfo resultInfo, boolean hideConfigMethods)
+            throws IOException {
+        String[] buildNumbers = new String[builds.size()];
+        out.write("{\"builds\":[");
+        for (int i = 0; i < buildNumbers.length; i++) {
+            buildNumbers[i] = JSONUtils.quote(builds.get(i).toString());
+            if (i > 0) {
+                out.write(',');
+            }
+            out.write(buildNumbers[i]);
+        }
+        out.write("],\"results\":[");
+        boolean first = true;
+        for (Info info : resultInfo.getPackageResults().values()) {
+            if (!first) {
+                out.write(',');
+            }
+            first = false;
+            writeNode(out, builds, buildNumbers, info, hideConfigMethods);
+        }
+        out.write("]}");
+    }
+
+    private void writeNode(
+            Writer out, List<Integer> builds, String[] buildNumbers, Info info, boolean hideConfigMethods)
+            throws IOException {
+        out.write("{\"text\":");
+        out.write(JSONUtils.quote(info.getName()));
+        out.write(",\"buildResults\":[");
+        for (int i = 0; i < buildNumbers.length; i++) {
+            if (i > 0) {
+                out.write(',');
+            }
+            out.write("{\"buildNumber\":");
+            out.write(buildNumbers[i]);
+            ResultData result = info.getBuildResult(builds.get(i));
+            if (result == null) {
+                out.write(",\"status\":\"N/A\"}");
+            } else {
+                out.write(",\"totalTests\":");
+                out.write(Integer.toString(result.getTotalTests()));
+                out.write(",\"totalFailed\":");
+                out.write(Integer.toString(result.getTotalFailed()));
+                out.write(",\"totalPassed\":");
+                out.write(Integer.toString(result.getTotalPassed()));
+                out.write(",\"totalSkipped\":");
+                out.write(Integer.toString(result.getTotalSkipped()));
+                out.write(",\"totalTimeTaken\":");
+                out.write(JSONUtils.numberToString(result.getTotalTimeTaken()));
+                out.write(",\"status\":");
+                out.write(JSONUtils.quote(result.getStatus()));
+                if (result.getUrl() != null) { // as JSONObject drops null values
+                    out.write(",\"url\":");
+                    out.write(JSONUtils.quote(result.getUrl()));
+                }
+                out.write('}');
+            }
+        }
+        out.write("],\"children\":[");
+        Map<String, ? extends Info> children = info.getChildren();
+        if (children != null) {
+            boolean first = true;
+            for (Info child : children.values()) {
+                if (hideConfigMethods && child.isConfig()) {
+                    continue;
+                }
+                if (!first) {
+                    out.write(',');
+                }
+                first = false;
+                writeNode(out, builds, buildNumbers, child, hideConfigMethods);
+            }
+        }
+        out.write("]}");
     }
 }

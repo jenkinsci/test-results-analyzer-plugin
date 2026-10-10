@@ -20,6 +20,10 @@ public abstract class Info {
         this.name = name;
     }
 
+    public void putBuildResult(Integer buildNumber, ResultData result) {
+        buildResults.put(buildNumber, result);
+    }
+
     public Map<Integer, ResultData> getBuildPackageResults() {
         return buildResults;
     }
