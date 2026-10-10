@@ -58,10 +58,18 @@
 
   <dependencies>
     <dependency>
+      <groupId>io.jenkins.plugins</groupId>
+      <artifactId>echarts-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.jenkins.plugins</groupId>
+      <artifactId>ionicons-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>junit</artifactId>
-      <!-- TODO switch back to the BOM managed version once a junit release has TestResultImpl#forEachCaseResultSummary -->
-      <version>999999-SNAPSHOT</version>
+      <!-- TODO remove once the BOM manages a version with TestResultImpl#forEachCaseResultSummary -->
+      <version>1437.v12280a_c49b_50</version>
     </dependency>
   </dependencies>
 

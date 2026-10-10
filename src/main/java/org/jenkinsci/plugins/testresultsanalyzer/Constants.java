@@ -12,5 +12,5 @@ public interface Constants {
      */
     public static final String NAME = "Test Results Analyzer";
 
-    public static final String ICONFILENAME = "/plugin/test-results-analyzer/images/icon.png";
+    public static final String ICONFILENAME = "symbol-stats-chart-outline plugin-ionicons-api";
 }
