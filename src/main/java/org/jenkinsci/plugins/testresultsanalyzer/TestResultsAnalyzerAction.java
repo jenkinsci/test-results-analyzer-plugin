@@ -537,7 +537,8 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                 .element("showBarGraph", getShowBarGraph())
                 .element("showPieGraph", getShowPieGraph())
                 .element("chartDataType", getChartDataType())
-                .element("buildLabel", getBuildLabel());
+                .element("buildLabel", getBuildLabel())
+                .element("chartCountBy", TestResultsAnalyzerExtension.DESCRIPTOR.getChartCountBy());
         JSONObject bootstrap = new JSONObject()
                 .element("labels", labels)
                 .element("runTimeLowThreshold", parseSeconds(getRunTimeLowThreshold()))

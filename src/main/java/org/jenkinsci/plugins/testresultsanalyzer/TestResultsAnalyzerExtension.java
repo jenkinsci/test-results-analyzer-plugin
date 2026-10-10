@@ -63,6 +63,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         private static final String passFailString = "passfail";
         private static final String runtimeString = "runtime";
         private static final String passRateString = "passrate";
+        private static final String COUNT_BY_TESTS = "tests";
         private boolean useCustomStatusNames;
         private String passedRepresentation = "PASSED";
         private String failedRepresentation = "FAILED";
@@ -85,6 +86,9 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         static final String BUILD_LABEL_NAME = "name";
         static final String BUILD_LABEL_DATE = "date";
 
+        // What the pass and fail charts count: tests, classes or packages
+        private String chartCountBy = COUNT_BY_TESTS;
+
         public DescriptorImpl() {
             // jenkins actually will edit your program's memory and set variables
             load();
@@ -99,6 +103,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         public boolean configure(StaplerRequest2 req, JSONObject formData) {
             duplicateTestPolicy = parseDuplicateTestPolicy(formData.optString("duplicateTestPolicy"));
             buildLabel = buildLabel(formData.optString("buildLabel"));
+            chartCountBy = formData.optString("chartCountBy", COUNT_BY_TESTS);
             try {
                 noOfBuilds = formData.getString("noOfBuilds");
                 noOfRunsToFetch = formData.getInt("noOfRunsToFetch");
@@ -220,6 +225,11 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         /** Settings saved before the option existed have no value, so builds are labelled by name. */
         private static String buildLabel(String value) {
             return BUILD_LABEL_NUMBER.equals(value) || BUILD_LABEL_DATE.equals(value) ? value : BUILD_LABEL_NAME;
+        }
+
+        public String getChartCountBy() {
+            // Missing from configurations saved before the option existed
+            return chartCountBy == null ? COUNT_BY_TESTS : chartCountBy;
         }
 
         public String getPassFailString() {

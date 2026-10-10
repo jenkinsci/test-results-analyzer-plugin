@@ -1,4 +1,4 @@
-import type { BuildLabelMode, ChartData, Options } from "../model.ts";
+import type { BuildLabelMode, ChartData, CountBy, Options } from "../model.ts";
 import { buildNumbersError } from "../utils/builds.ts";
 
 interface OptionsCardProps {
@@ -272,6 +272,27 @@ export function OptionsCard({
                 <option value="name">Display name</option>
                 <option value="number">Number</option>
                 <option value="date">Date</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="tra-options__group">
+            <label className="jenkins-form-label" htmlFor="tra-chart-count-by">
+              Count by
+            </label>
+            <div className="jenkins-select">
+              <select
+                id="tra-chart-count-by"
+                className="jenkins-select__input"
+                value={options.countBy}
+                disabled={options.chartData === "runtime"}
+                onChange={(event) =>
+                  onChange({ countBy: event.target.value as CountBy })
+                }
+              >
+                <option value="tests">Tests</option>
+                <option value="classes">Classes</option>
+                <option value="packages">Packages</option>
               </select>
             </div>
           </div>

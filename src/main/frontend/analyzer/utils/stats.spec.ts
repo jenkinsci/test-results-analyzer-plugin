@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { calculatorData, group, result, test } from "../fixtures.ts";
+import type { Status } from "../model.ts";
 import {
   aggregate,
+  aggregateGroups,
+  combinedStatus,
   flattenTree,
   isNewFailure,
   numberOfTransitions,
@@ -141,5 +144,95 @@ describe("aggregate", () => {
     ]);
     expect(totals[1].runtime).toBeCloseTo(2.1);
     expect(totals[1].runtimes).toEqual([0.1, 2]);
+  });
+});
+
+describe("combinedStatus", () => {
+  const results = (...statuses: Status[]) =>
+    statuses.map((status) => result("1", status));
+
+  it("fails when any test failed", () => {
+    expect(combinedStatus(results("PASSED", "FAILED", "SKIPPED"))).toBe(
+      "FAILED",
+    );
+  });
+
+  it("passes when nothing failed and something passed", () => {
+    expect(combinedStatus(results("PASSED", "SKIPPED", "N/A"))).toBe("PASSED");
+  });
+
+  it("is skipped when every test that ran was skipped", () => {
+    expect(combinedStatus(results("SKIPPED", "N/A"))).toBe("SKIPPED");
+  });
+
+  it("has no result when nothing ran", () => {
+    expect(combinedStatus(results("N/A", "N/A"))).toBe("N/A");
+    expect(combinedStatus([])).toBe("N/A");
+  });
+});
+
+describe("aggregateGroups", () => {
+  // Builds 3, 2 and 1, newest first
+  const groups = [
+    // A class with a failure in build 3 only
+    [
+      test("a", ["FAILED", "PASSED", "PASSED"]),
+      test("b", ["PASSED", "PASSED", "PASSED"]),
+    ],
+    // A class whose tests were all skipped in build 2 and did not exist in build 1
+    [test("c", ["PASSED", "SKIPPED", "N/A"])],
+    // A class that only ran in build 1
+    [test("d", ["N/A", "N/A", "FAILED"])],
+  ];
+
+  it("counts each group once per build by its combined status, oldest build first", () => {
+    expect(
+      aggregateGroups(groups).map((t) => [
+        t.build,
+        t.passed,
+        t.failed,
+        t.skipped,
+        t.total,
+      ]),
+    ).toEqual([
+      ["1", 1, 1, 0, 2],
+      ["2", 1, 0, 1, 2],
+      ["3", 1, 1, 0, 2],
+    ]);
+  });
+
+  it("keeps builds in which no group ran", () => {
+    expect(
+      aggregateGroups([[test("a", ["PASSED", "N/A"])]]).map((t) => [
+        t.build,
+        t.total,
+      ]),
+    ).toEqual([
+      ["1", 0],
+      ["2", 1],
+    ]);
+  });
+
+  it("adds up the run time of each group", () => {
+    const [, , latest] = aggregateGroups(groups);
+    expect(latest.runtimes.map((time) => Math.round(time * 10) / 10)).toEqual([
+      0.2, 0.1,
+    ]);
+    expect(latest.runtime).toBeCloseTo(0.3);
+  });
+
+  it("matches counting tests when every group has one test", () => {
+    const tests = [
+      test("a", ["FAILED", "PASSED"]),
+      test("b", ["SKIPPED", "N/A"]),
+    ];
+    const byTest = aggregate(tests).map((t) => [t.passed, t.failed, t.skipped]);
+    expect(
+      aggregateGroups(tests.map((node) => [node])).map((t) => [
+        t.passed,
+        t.failed,
+        t.skipped,
+      ]),
+    ).toEqual(byTest);
   });
 });
