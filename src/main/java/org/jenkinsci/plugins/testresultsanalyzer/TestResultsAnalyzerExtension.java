@@ -58,6 +58,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
         private boolean hideConfigurationMethods = false;
         private String runTimeLowThreshold = "0.5";
         private String runTimeHighThreshold = "1.0";
+        private DuplicateTestPolicy duplicateTestPolicy = DuplicateTestPolicy.DEFAULT;
 
         private static final String passFailString = "passfail";
         private static final String runtimeString = "runtime";
@@ -89,6 +90,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
 
         @Override
         public boolean configure(StaplerRequest2 req, JSONObject formData) {
+            duplicateTestPolicy = parseDuplicateTestPolicy(formData.optString("duplicateTestPolicy"));
             try {
                 noOfBuilds = formData.getString("noOfBuilds");
                 noOfRunsToFetch = formData.getInt("noOfRunsToFetch");
@@ -178,6 +180,28 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
 
         public String getChartDataType() {
             return chartDataType;
+        }
+
+        /** How to show a test that was executed more than once in a build. */
+        public DuplicateTestPolicy getDuplicateTestPolicy() {
+            return duplicateTestPolicy != null ? duplicateTestPolicy : DuplicateTestPolicy.DEFAULT;
+        }
+
+        public void setDuplicateTestPolicy(DuplicateTestPolicy duplicateTestPolicy) {
+            this.duplicateTestPolicy = duplicateTestPolicy;
+        }
+
+        public DuplicateTestPolicy[] getDuplicateTestPolicies() {
+            return DuplicateTestPolicy.values();
+        }
+
+        private static DuplicateTestPolicy parseDuplicateTestPolicy(String value) {
+            for (DuplicateTestPolicy policy : DuplicateTestPolicy.values()) {
+                if (policy.name().equals(value)) {
+                    return policy;
+                }
+            }
+            return DuplicateTestPolicy.DEFAULT;
         }
 
         public String getPassFailString() {
