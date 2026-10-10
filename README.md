@@ -126,12 +126,13 @@ classes and tests. Every node has one `buildResults` entry per build, in the sam
 - `buildInfo` has one entry per build, in the same order as `builds`: its `number`, its
   `displayName` (`#` and the number unless it was changed), its `timestamp` (when it was scheduled,
   in milliseconds since the epoch) and the `url` of the build, absolute when the Jenkins URL is
-  configured.
+  configured, otherwise relative to the Jenkins root (such as `job/name/1/`).
 - `status` is `PASSED`, `FAILED` (failures and errors), `SKIPPED` or `N/A`. `N/A` means the item did
   not run in that build, and its entry has no other fields.
 - The `total*` counts are of the tests below the node; for a test they are 0 or 1.
 - `totalTimeTaken` is in seconds.
-- `url` links to the test report of that build. It is absolute when the Jenkins URL is configured.
+- `url` links to the test report of that build. It is absolute when the Jenkins URL is configured,
+  otherwise relative to the Jenkins root.
 
 The CSV has the columns `Package`, `Class`, `Test`, then one column per build number, newest first.
 Its cells use the custom status names when they are configured.

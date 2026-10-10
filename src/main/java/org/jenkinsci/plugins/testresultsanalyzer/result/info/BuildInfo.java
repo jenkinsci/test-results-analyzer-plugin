@@ -8,7 +8,8 @@ import edu.umd.cs.findbugs.annotations.CheckForNull;
  * @param number the build number
  * @param displayName the display name of the build, {@code #number} unless it was changed
  * @param timestamp when the build was scheduled, in milliseconds since the epoch
- * @param url the absolute URL of the build
+ * @param url the URL of the build, absolute when the Jenkins URL is configured, otherwise relative to the
+ *     Jenkins root (such as {@code job/name/1/})
  */
 public record BuildInfo(
         int number,
