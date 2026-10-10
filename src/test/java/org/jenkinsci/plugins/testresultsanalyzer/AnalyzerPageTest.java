@@ -1,530 +1,154 @@
 package org.jenkinsci.plugins.testresultsanalyzer;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
-import hudson.model.*;
-import org.htmlunit.*;
-import org.htmlunit.html.*;
+import hudson.FilePath;
+import hudson.Launcher;
+import hudson.model.AbstractBuild;
+import hudson.model.BuildListener;
+import hudson.model.FreeStyleProject;
+import hudson.model.Result;
+import hudson.tasks.junit.JUnitResultArchiver;
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.htmlunit.html.DomElement;
+import org.htmlunit.html.HtmlInput;
+import org.htmlunit.html.HtmlPage;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.jvnet.hudson.test.*;
-import org.jvnet.hudson.test.JenkinsRule.WebClient;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.TestBuilder;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-@Disabled("Ignoring the test as they are failing and need time to debug and fix")
 @WithJenkins
 class AnalyzerPageTest {
 
-    private JenkinsRule jenkinsRule;
+    private JenkinsRule j;
 
     @BeforeEach
-    void setUp(JenkinsRule jenkinsRule) {
-        this.jenkinsRule = jenkinsRule;
+    void setUp(JenkinsRule j) {
+        this.j = j;
     }
 
-    private HtmlPage setupFreeStyle() throws Exception {
-        FreeStyleProject project = jenkinsRule.createFreeStyleProject();
-        project.getBuildersList().add(new FailureBuilder());
-        FreeStyleBuild build = project.scheduleBuild2(0).get();
-        jenkinsRule.assertBuildStatus(Result.FAILURE, build);
-        WebClient wc = jenkinsRule.createWebClient();
-        HtmlPage job = wc.getPage(project, "test_results_analyzer");
-        return job;
+    /** Builds 1 and 2 pass; build 3 fails {@code testB}, which makes it a new failure. */
+    private HtmlPage openAnalyzer() throws Exception {
+        FreeStyleProject project = j.createFreeStyleProject();
+        project.getBuildersList().add(new TestBuilder() {
+            @Override
+            public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
+                    throws InterruptedException, IOException {
+                boolean failB = build.getNumber() >= 3;
+                FilePath report = build.getWorkspace().child("TEST-com.example.CalculatorTest.xml");
+                report.write(
+                        "<testsuite name=\"com.example.CalculatorTest\" tests=\"2\" failures=\"" + (failB ? 1 : 0)
+                                + "\">"
+                                + "<testcase classname=\"com.example.CalculatorTest\" name=\"testA\" time=\"0.1\"/>"
+                                + "<testcase classname=\"com.example.CalculatorTest\" name=\"testB\" time=\"0.2\">"
+                                + (failB ? "<failure message=\"boom\">boom</failure>" : "")
+                                + "</testcase></testsuite>",
+                        "UTF-8");
+                return true;
+            }
+        });
+        JUnitResultArchiver archiver = new JUnitResultArchiver("*.xml");
+        archiver.setAllowEmptyResults(true);
+        project.getPublishersList().add(archiver);
+        j.buildAndAssertSuccess(project);
+        j.buildAndAssertSuccess(project);
+        j.buildAndAssertStatus(Result.UNSTABLE, project);
+
+        JenkinsRule.WebClient wc = j.createWebClient();
+        HtmlPage page = wc.getPage(project, Constants.URL);
+        wc.waitForBackgroundJavaScript(5_000);
+        return page;
     }
 
-    @Test
-    void newFailuresTest_noBuild() throws Exception {
-        HtmlPage job = setupFreeStyle();
-        String javaScriptCommand = "var Obj =   {\"" + "builds\":[],"
-                + "\"results\":[]"
-                + "};"
-                + "treeMarkup = analyzerTemplate(Obj);"
-                + "$j(\".table\").html(treeMarkup);"
-                + "addEvents();";
-        job.executeJavaScript(javaScriptCommand);
-        try {
-            DomElement exclamation_mark =
-                    (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]")
-                            .get(0);
-            fail("The table has an new failure exclamation mark element even though there are no buils.");
-        } catch (Exception e) {
-            assertTrue(true);
-        }
+    private static List<DomElement> rows(HtmlPage page) {
+        return page.<DomElement>getByXPath(
+                "//div[@id='tra-history']//div[contains(concat(' ', @class, ' '), ' tra-row ')]");
     }
 
-    @Test
-    void newFailuresTest_twoBuilds_trueCase() throws Exception {
-        HtmlPage job = setupFreeStyle();
-        String javaScriptCommand = "var Obj = {\"" + "builds\":[\"2\",\"1\"],"
-                + "\"results\":[{"
-                + "\"buildResults\":[{"
-                + "\"buildNumber\":\"2\","
-                + "\"children\":[],"
-                + "\"isPassed\":false,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"FAILED\","
-                + "\"totalFailed\":1,"
-                + "\"totalPassed\":0,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.023"
-                + "},{"
-                + "\"buildNumber\":\"1\","
-                + "\"children\":[],"
-                + "\"isPassed\":true,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"PASSED\","
-                + "\"totalFailed\":0,"
-                + "\"totalPassed\":1,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.032"
-                + "}],"
-                + "\"buildStatuses\":[\"FAILED\",\"PASSED\"],"
-                + "\"children\":[],"
-                + "\"parentclass\":\"base\","
-                + "\"parentname\":\"base\","
-                + "\"text\": \"edu.illinois.cs427.mp3\","
-                + "\"type\":\"package\""
-                + "}]"
-                + "};"
-                + "treeMarkup = analyzerTemplate(Obj);"
-                + "$j(\".table\").html(treeMarkup);"
-                + "addEvents();";
-        job.executeJavaScript(javaScriptCommand);
-        DomElement exclamation_mark =
-                (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]")
-                        .get(0);
-        assertTrue(exclamation_mark.getAttribute("style").contains("inline-block"));
+    private static List<String> visibleRowNames(HtmlPage page) {
+        return rows(page).stream()
+                .filter(row -> !row.hasAttribute("hidden"))
+                .map(row -> row.getAttribute("data-name"))
+                .collect(Collectors.toList());
     }
 
     @Test
-    void newFailuresTest_twoBuilds_falseCase() throws Exception {
-        HtmlPage job = setupFreeStyle();
-        String javaScriptCommand = "var Obj =   {\"" + "builds\":[\"2\",\"1\"],"
-                + "\"results\": [{"
-                + "\"buildResults\":  [{"
-                + "\"buildNumber\":\"2\","
-                + "\"children\":[],"
-                + "\"isPassed\":true,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"PASSED\","
-                + "\"totalFailed\":0,"
-                + "\"totalPassed\":1,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.023"
-                + "},{"
-                + "\"buildNumber\":\"1\","
-                + "\"children\":[],"
-                + "\"isPassed\":false,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"FAILED\","
-                + "\"totalFailed\":1,"
-                + "\"totalPassed\":0,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.032"
-                + "}],"
-                + "\"buildStatuses\": [\"FAILED\",\"PASSED\"],"
-                + "\"children\":[],"
-                + "\"parentclass\":\"base\","
-                + "\"parentname\":\"base\","
-                + "\"text\": \"edu.illinois.cs427.mp3\","
-                + "\"type\":\"package\""
-                + "}]"
-                + "};"
-                + "treeMarkup = analyzerTemplate(Obj);"
-                + "$j(\".table\").html(treeMarkup);"
-                + "addEvents();";
-        job.executeJavaScript(javaScriptCommand);
-        DomElement exclamation_mark =
-                (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]")
-                        .get(0);
-        assertTrue(exclamation_mark.getAttribute("style").contains("none"));
+    void rendersCollapsedTreeWithNewFailureMarker() throws Exception {
+        HtmlPage page = openAnalyzer();
+
+        assertThat(rows(page), hasSize(4)); // package, class, two tests
+        assertThat(visibleRowNames(page), is(List.of("com.example")));
+
+        List<DomElement> markers = page.getByXPath("//div[@data-name='testB']//*[contains(@class, 'tra-new-failure')]");
+        assertThat(markers, hasSize(1));
+        assertThat(page.getByXPath("//div[@data-name='testA']//*[contains(@class, 'tra-new-failure')]"), is(empty()));
+
+        DomElement testB = page.getFirstByXPath("//div[@data-name='testB']");
+        assertThat(testB.getByXPath(".//*[contains(@class, 'tra-build--failed')]"), hasSize(1));
+        assertThat(testB.getByXPath(".//*[contains(@class, 'tra-build--passed')]"), hasSize(2));
     }
 
     @Test
-    void newFailuresTest_oneBuild_buildFailure() throws Exception {
-        HtmlPage job = setupFreeStyle();
-        String javaScriptCommand = "var Obj =   {\"" + "builds\":[\"1\"],"
-                + "\"results\":   [{"
-                + "\"buildResults\":  [{"
-                + "\"buildNumber\":\"1\","
-                + "\"children\":[],"
-                + "\"isPassed\":false,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"FAILED\","
-                + "\"totalFailed\":1,"
-                + "\"totalPassed\":0,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.032"
-                + "}],"
-                + "\"buildStatuses\":[\"FAILED\",\"PASSED\"],"
-                + "\"children\":[],"
-                + "\"parentclass\":\"base\","
-                + "\"parentname\":\"base\","
-                + "\"text\": \"edu.illinois.cs427.mp3\","
-                + "\"type\":\"package\""
-                + "}]"
-                + "};"
-                + "treeMarkup = analyzerTemplate(Obj);"
-                + "$j(\".table\").html(treeMarkup);"
-                + "addEvents();";
-        job.executeJavaScript(javaScriptCommand);
-        DomElement exclamation_mark =
-                (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]")
-                        .get(0);
-        assertTrue(exclamation_mark.getAttribute("style").contains("none"));
+    void expandAndCollapseAll() throws Exception {
+        HtmlPage page = openAnalyzer();
+
+        page.<DomElement>getElementById("tra-expand-all").click();
+        assertThat(visibleRowNames(page), is(List.of("com.example", "CalculatorTest", "testA", "testB")));
+
+        page.<DomElement>getElementById("tra-collapse-all").click();
+        assertThat(visibleRowNames(page), is(List.of("com.example")));
     }
 
     @Test
-    void newFailuresTest_oneBuild_buildSuccess() throws Exception {
-        HtmlPage job = setupFreeStyle();
-        String javaScriptCommand = "var Obj =   {\"" + "builds\":[\"1\"],"
-                + "\"results\":   [{"
-                + "\"buildResults\":  [{"
-                + "\"buildNumber\":\"1\","
-                + "\"children\":[],"
-                + "\"isPassed\":true,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"PASSED\","
-                + "\"totalFailed\":0,"
-                + "\"totalPassed\":1,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.032"
-                + "}],"
-                + "\"buildStatuses\":[\"FAILED\",\"PASSED\"],"
-                + "\"children\":[],"
-                + "\"parentclass\":\"base\","
-                + "\"parentname\":\"base\","
-                + "\"text\": \"edu.illinois.cs427.mp3\","
-                + "\"type\":\"package\""
-                + "}]"
-                + "};"
-                + "treeMarkup = analyzerTemplate(Obj);"
-                + "$j(\".table\").html(treeMarkup);"
-                + "addEvents();";
-        job.executeJavaScript(javaScriptCommand);
-        DomElement exclamation_mark =
-                (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]")
-                        .get(0);
-        assertTrue(exclamation_mark.getAttribute("style").contains("none"));
+    void toggleShowsDirectChildren() throws Exception {
+        HtmlPage page = openAnalyzer();
+
+        DomElement toggle =
+                page.getFirstByXPath("//div[@data-name='com.example']//button[contains(@class, 'tra-toggle')]");
+        toggle.click();
+        assertThat(toggle.getAttribute("aria-expanded"), is("true"));
+        assertThat(visibleRowNames(page), is(List.of("com.example", "CalculatorTest")));
     }
 
     @Test
-    void newFailuresTest_multipleBuilds_trueCase() throws Exception {
-        HtmlPage job = setupFreeStyle();
-        String javaScriptCommand = "var Obj =   {\"" + "builds\":[\"3\",\"2\",\"1\"],"
-                + "\"results\":   [{"
-                + "\"buildResults\":  [{"
-                + "\"buildNumber\":\"3\","
-                + "\"children\":[],"
-                + "\"isPassed\":false,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"FAILED\","
-                + "\"totalFailed\":1,"
-                + "\"totalPassed\":0,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.023"
-                + "},{"
-                + "\"buildNumber\":\"2\","
-                + "\"children\":[],"
-                + "\"isPassed\":true,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"PASSED\","
-                + "\"totalFailed\":0,"
-                + "\"totalPassed\":1,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.032"
-                + "},{"
-                + "\"buildNumber\":\"1\","
-                + "\"children\":[],"
-                + "\"isPassed\":true,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"PASSED\","
-                + "\"totalFailed\":0,"
-                + "\"totalPassed\":1,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.0432"
-                + "}],"
-                + "\"buildStatuses\":[\"FAILED\",\"PASSED\"],"
-                + "\"children\":[],"
-                + "\"parentclass\":\"base\","
-                + "\"parentname\":\"base\","
-                + "\"text\": \"edu.illinois.cs427.mp3\","
-                + "\"type\":\"package\""
-                + "}]"
-                + "};"
-                + "treeMarkup = analyzerTemplate(Obj);"
-                + "$j(\".table\").html(treeMarkup);"
-                + "addEvents();";
-        job.executeJavaScript(javaScriptCommand);
-        DomElement exclamation_mark =
-                (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]")
-                        .get(0);
-        assertTrue(exclamation_mark.getAttribute("style").contains("inline-block"));
+    void filterShowsMatchingRows() throws Exception {
+        HtmlPage page = openAnalyzer();
+
+        HtmlInput filter = page.getHtmlElementById("tra-filter");
+        filter.setValue("testb");
+        page.executeJavaScript("window.testResultsAnalyzer.applyFilter();");
+        assertThat(visibleRowNames(page), is(List.of("testB")));
+
+        filter.setValue("");
+        page.executeJavaScript("window.testResultsAnalyzer.applyFilter();");
+        assertThat(visibleRowNames(page), is(List.of("com.example")));
     }
 
     @Test
-    void newFailuresTest_multipleBuilds_falseCase() throws Exception {
-        HtmlPage job = setupFreeStyle();
-        String javaScriptCommand = "var Obj =   {" + "\"builds\":[\"3\",\"2\",\"1\"],"
-                + "\"results\":   [{"
-                + "\"buildResults\":  [{"
-                + "\"buildNumber\":\"3\","
-                + "\"children\":[],"
-                + "\"isPassed\":true,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"PASSED\","
-                + "\"totalFailed\":0,"
-                + "\"totalPassed\":1,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.023"
-                + "},{"
-                + "\"buildNumber\":\"2\","
-                + "\"children\":[],"
-                + "\"isPassed\":false,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"FAILED\","
-                + "\"totalFailed\":1,"
-                + "\"totalPassed\":0,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.032"
-                + "},{"
-                + "\"buildNumber\":\"1\","
-                + "\"children\":[],"
-                + "\"isPassed\":false,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"FAILED\","
-                + "\"totalFailed\":1,"
-                + "\"totalPassed\":0,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.0432"
-                + "}],"
-                + "\"buildStatuses\":[\"FAILED\",\"PASSED\"],"
-                + "\"children\":[],"
-                + "\"parentclass\":\"base\","
-                + "\"parentname\":\"base\","
-                + "\"text\": \"edu.illinois.cs427.mp3\","
-                + "\"type\":\"package\""
-                + "}]"
-                + "};"
-                + "treeMarkup = analyzerTemplate(Obj);"
-                + "$j(\".table\").html(treeMarkup);"
-                + "addEvents();";
-        job.executeJavaScript(javaScriptCommand);
-        DomElement exclamation_mark =
-                (DomElement) job.getByXPath("//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]")
-                        .get(0);
-        assertTrue(exclamation_mark.getAttribute("style").contains("none"));
+    void listsMostBrokenTests() throws Exception {
+        HtmlPage page = openAnalyzer();
+
+        DomElement worst = page.getElementById("tra-worst-tests");
+        assertThat(worst.getTextContent(), containsString("com.example.CalculatorTest.testB"));
+        assertThat(worst.getTextContent(), not(containsString("testA")));
     }
 
     @Test
-    void newFailuresTest_multipleTests_multipleBuilds() throws Exception {
-        HtmlPage job = setupFreeStyle();
-        String javaScriptCommand = "var Obj =   {" + "\"builds\":[\"3\",\"2\",\"1\"],"
-                + "\"results\":   [{"
-                + "\"buildResults\":  [{"
-                + "\"buildNumber\":\"3\","
-                + "\"children\":[],"
-                + "\"isPassed\":false,"
-                + "\"isFlaky\":false,"
-                + "\"isSkipped\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"FAILED\","
-                + "\"totalFailed\":1,"
-                + "\"totalPassed\":0,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.023"
-                + "},{"
-                + "\"buildNumber\":\"2\","
-                + "\"children\":[],"
-                + "\"isPassed\":false,"
-                + "\"isSkipped\":false,"
-                + "\"isFlaky\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"FAILED\","
-                + "\"totalFailed\":1,"
-                + "\"totalPassed\":0,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.023"
-                + "},{"
-                + "\"buildNumber\":\"1\","
-                + "\"children\":[],"
-                + "\"isPassed\":true,"
-                + "\"isSkipped\":false,"
-                + "\"isFlaky\":false,"
-                + "\"name\":\"edu.illinois.cs427.mp3\","
-                + "\"status\":\"PASSED\","
-                + "\"totalFailed\":0,"
-                + "\"totalPassed\":1,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.032"
-                + "}],"
-                + "\"buildStatuses\":[\"FAILED\",\"PASSED\"],"
-                + "\"children\":[],"
-                + "\"parentclass\":\"base\","
-                + "\"parentname\":\"base\","
-                + "\"text\":\"edu.illinois.cs427.mp3\","
-                + "\"type\":\"package\""
-                + "},{"
-                + "\"buildResults\":  [{"
-                + "                       \"buildNumber\":\"3\","
-                + "\"children\":[],"
-                + "\"isPassed\":false,"
-                + "\"isSkipped\":false,"
-                + "\"isFlaky\":false,"
-                + "\"name\":\"edu.illinois.cs512.mp0\","
-                + "\"status\":\"FAILED\","
-                + "\"totalFailed\":1,"
-                + "\"totalPassed\":0,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.253"
-                + "},{"
-                + "\"buildNumber\":\"2\","
-                + "\"children\":[],"
-                + "\"isPassed\":true,"
-                + "\"isSkipped\":false,"
-                + "\"isFlaky\":false,"
-                + "\"name\":\"edu.illinois.cs512.mp0\","
-                + "\"status\":\"PASSED\","
-                + "\"totalFailed\":0,"
-                + "\"totalPassed\":1,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.253"
-                + "},{"
-                + "\"buildNumber\":\"1\","
-                + "\"children\":[],"
-                + "\"isPassed\":true,"
-                + "\"isSkipped\":false,"
-                + "\"isFlaky\":false,"
-                + "\"name\":\"edu.illinois.cs512.mp0\","
-                + "\"status\":\"FAILED\","
-                + "\"totalFailed\":1,"
-                + "\"totalPassed\":0,"
-                + "\"totalSkipped\":0,"
-                + "\"totalTests\":1,"
-                + "\"totalTimeTaken\":0.392"
-                + "}],"
-                + "\"buildStatuses\":[\"FAILED\",\"PASSED\"],"
-                + "\"children\":[],"
-                + "\"parentclass\":\"base\","
-                + "\"parentname\":\"base\","
-                + "\"text\":\"edu.illinois.cs512.mp0\","
-                + "\"type\":\"package\""
-                + "}]"
-                + "};"
-                + "treeMarkup = analyzerTemplate(Obj);"
-                + "$j(\".table\").html(treeMarkup);"
-                + "addEvents();";
-        job.executeJavaScript(javaScriptCommand);
-        DomElement cs427_exclamation_mark = (DomElement) job.getByXPath(
-                        "//*[contains(@class, 'cs427')]//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]")
-                .get(0);
-        assertTrue(cs427_exclamation_mark.getAttribute("style").contains("none"));
-        DomElement cs512_exclamation_mark = (DomElement) job.getByXPath(
-                        "//*[contains(@class, 'cs512')]//*[contains(concat(' ', @class, ' '), ' icon-exclamation-sign ')]")
-                .get(0);
-        assertTrue(cs512_exclamation_mark.getAttribute("style").contains("inline-block"));
-    }
+    void computesRowStatistics() throws Exception {
+        HtmlPage page = openAnalyzer();
 
-    final String singleTest_populateTable_javascript = "var Obj =   {" + "\"builds\":[\"2\",\"1\"],"
-            + "\"results\":   [{"
-            + "\"buildResults\":  [{"
-            + "\"buildNumber\":\"2\","
-            + "\"children\":[],"
-            + "\"isPassed\":false,"
-            + "\"isSkipped\":false,"
-            + "\"name\":\"edu.illinois.cs427.mp3\","
-            + "\"status\":\"FAILED\","
-            + "\"totalFailed\":1,"
-            + "\"totalPassed\":0,"
-            + "\"totalSkipped\":0,"
-            + "\"totalTests\":1,"
-            + "\"totalTimeTaken\":0.023"
-            + "},{"
-            + "\"buildNumber\":\"1\","
-            + "\"children\":[],"
-            + "\"isPassed\":true,"
-            + "\"isSkipped\":false,"
-            + "\"name\":\"edu.illinois.cs427.mp3\","
-            + "\"status\":\"PASSED\","
-            + "\"totalFailed\":0,"
-            + "\"totalPassed\":1,"
-            + "\"totalSkipped\":0,"
-            + "\"totalTests\":1,"
-            + "\"totalTimeTaken\":0.032"
-            + "}],"
-            + "\"buildStatuses\":[\"FAILED\",\"PASSED\"],"
-            + "\"children\":[],"
-            + "\"parentclass\":\"base\","
-            + "\"parentname\":\"base\","
-            + "\"text\": \"edu.illinois.cs427.mp3\","
-            + "\"type\":\"package\""
-            + "}]"
-            + "};"
-            + "treeMarkup = analyzerTemplate(Obj);"
-            + "$j(\".table\").html(treeMarkup);"
-            + "addEvents();";
-
-    /* TESTS for searchTests() */
-
-    @Test
-    void searchTest_matchExists() throws Exception {
-        HtmlPage job = setupFreeStyle();
-        String javaScriptCommand =
-                singleTest_populateTable_javascript + "$j(\"#filter\").val(\"illinois\");searchTests();";
-        ScriptResult result = job.executeJavaScript(javaScriptCommand);
-        DomElement row =
-                (DomElement) job.getByXPath("//*[contains(@class, 'cs427')]").get(0);
-        assertTrue(row.getAttribute("style").contains("table-row"));
-    }
-
-    @Test
-    void searchTest_noMatch() throws Exception {
-        HtmlPage job = setupFreeStyle();
-        String javaScriptCommand = singleTest_populateTable_javascript + "$j(\"#filter\").val(\"was\");searchTests();";
-        ScriptResult result = job.executeJavaScript(javaScriptCommand);
-        DomElement row =
-                (DomElement) job.getByXPath("//*[contains(@class, 'cs427')]").get(0);
-        assertTrue(row.getAttribute("style").contains("none"));
-    }
-
-    @Test
-    void searchTest_emptyFilter() throws Exception {
-        HtmlPage job = setupFreeStyle();
-        String javaScriptCommand = singleTest_populateTable_javascript + "$j(\"#filter\").val(\"\");searchTests();";
-        ScriptResult result = job.executeJavaScript(javaScriptCommand);
-        DomElement row =
-                (DomElement) job.getByXPath("//*[contains(@class, 'cs427')]").get(0);
-        assertTrue(row.getAttribute("style").contains("table-row"));
+        DomElement testB = page.getFirstByXPath("//div[@data-name='testB']");
+        List<DomElement> numbers = testB.getByXPath(".//span[contains(concat(' ', @class, ' '), ' tra-stat ')]");
+        assertThat(numbers.get(0).getTextContent(), is("67% (67%)"));
+        assertThat(numbers.get(1).getTextContent(), is("1"));
     }
 }

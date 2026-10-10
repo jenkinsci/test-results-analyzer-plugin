@@ -333,6 +333,10 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         return TestResultsAnalyzerExtension.DESCRIPTOR.isUseCustomStatusNames();
     }
 
+    public boolean isUseCustomStatusColors() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.isUseCustomStatusColors();
+    }
+
     public String getPassedRepresentation() {
         return TestResultsAnalyzerExtension.DESCRIPTOR.getPassedRepresentation();
     }

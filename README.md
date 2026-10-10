@@ -1,57 +1,38 @@
 # [Test Results Analyzer](https://plugins.jenkins.io/test-results-analyzer/)
 
-- A plugin that shows history of test execution results in a tabular format.
-- The results are shown in a tree grid hierarchy and user has the provision to drill-down to test-method level to see the execution status of the respective set across multiple builds.
+Shows the history of your test results across builds, so you can see when a package, class or
+test started failing, how often it flips between passing and failing, and which tests break most.
 
 ## About
 
-While executing our tests on Jenkins many of time test fails on
-particular builds. Now if you want to check that when a particular
-test-case, test-class or a test-package has failed you may need to go to
-each and every build report and check for the result.
+When a test fails it is usually not enough to know that it failed in the latest build: you want to
+know whether it is a new failure, whether it is flaky, and how long it has been like that.
+Finding that out by opening every build's test report is slow.
 
-This process is very cumbersome and may take a lot of time to get the
-report. The said plugin solves the said issue by showing the build
-result history of test-class, test-class and test-package in a tabular
-tree format. The plugin can be used enabling the "Publish junit results"
-or "Publish TestNG results"(in case of TestNG) feature of Jenkins.
+The analyzer collects the results published by "Publish JUnit test result report" (or the TestNG
+plugin) and shows them in one place. Open it from the **Test Results Analyzer** link in a job's
+side panel.
 
-It allows users to filter the results based on passed, failed and
-skipped status. 
+![Test Results Analyzer](docs/images/analyzer-light.png)
 
-Once installed you can just click on the "Test Results Analyzer" link on
-the left hand side of your job, as shown in the following image:
+- **History**: one card per package. Expand a package to see its classes and tests. Each row has a
+  strip of squares, one per build with the newest first, coloured by result. Click a square to open
+  that build. Rows also show how often the item passed and how many times it switched between
+  passing and failing. A red marker flags a test that passed in the previous build and fails now.
+- **Filter**: type part of a package, class or test name to narrow the list.
+- **Charts**: line, stacked bar and pie charts of passes and failures per build, or of test run
+  times. Select rows to chart only those items. Click a build on the line chart to show it in the
+  pie chart. Each chart can be saved as an image.
+- **Most broken tests**: the tests that failed most often, with links to the builds they failed in.
+- **Download CSV**: exports the visible history.
 
-![](docs/images/TestResultsAnalyzerLink.png)
+Use **Options** to change the number of builds, show run times instead of results, hide TestNG
+configuration methods, or pick which charts to draw. Defaults, run-time thresholds, custom status
+names and custom status colours are set under *Manage Jenkins › System › Test Results Analyzer*.
 
-Following is a sample image of the report:
+The page follows the Jenkins theme, including dark mode, and adapts to small screens.
 
-![](docs/images/table-report-2.1.png)
-
- 
-
-## Graphs
-
-We all know the importance of the graphical report for our test
-execution as it gives us a clear picture of the execution. The said
-plugin also supports generation of Graphs for the test execution from
-0.2.0 version onwards.
-
-### Following charts are available 
-
-### Line Charts
- 
-![](docs/images/line-chart-2.1.png)  
-
-###  Pie Charts
-![](docs/images/pie-chart-2.1.png)  
-
-### Bar Charts
-![](docs/images/bar-chart-2.1.png)  
-
-**Note**: **If you click on any point on the line chart it will generate
-a pie chart for said build/point.**
-
+![Dark theme](docs/images/analyzer-dark.png)
 
 ## Change Log
 **[Changelog](./CHANGELOG.md)**
