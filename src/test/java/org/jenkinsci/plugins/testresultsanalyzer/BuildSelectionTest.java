@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
@@ -62,5 +63,19 @@ class BuildSelectionTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> BuildSelection.parse("1,".repeat(BuildSelection.MAX_LENGTH / 2 + 1)));
+    }
+
+    @Test
+    void administratorLimitCapsHowManyBuildsCanBeChosen() {
+        assertThat(BuildSelection.maxBuilds(-1), is(BuildSelection.MAX_BUILDS));
+        assertThat(BuildSelection.maxBuilds(0), is(BuildSelection.MAX_BUILDS));
+        assertThat(BuildSelection.maxBuilds(5), is(5));
+        assertThat(BuildSelection.maxBuilds(BuildSelection.MAX_BUILDS * 2), is(BuildSelection.MAX_BUILDS));
+
+        // The limit is on how many are chosen, not on how old they are
+        assertThat(BuildSelection.parse("1, 500, 1000", 3), hasSize(3));
+        IllegalArgumentException tooMany =
+                assertThrows(IllegalArgumentException.class, () -> BuildSelection.parse("1-4", 3));
+        assertThat(tooMany.getMessage(), is("At most 3 builds can be chosen"));
     }
 }

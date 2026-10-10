@@ -55,8 +55,11 @@ Parameters:
 - `builds`: how many of the latest completed builds to include. Leave it out, or pass `-1`, for all
   of them (limited by *No. of Runs To Fetch Reports* in the global configuration).
 - `buildNumbers`: build numbers and ranges to include instead of the latest builds, such as
-  `12,36,40-53` (at most 10,000 builds). `builds` is ignored when it is given. Builds that do not
-  exist or are still running are left out; an invalid list is answered with a `400`.
+  `12,36,40-53`. When it is given and not blank, `builds` is ignored; a blank value falls back to
+  `builds`. The list may be at most 1,000 characters long and cover at most 10,000 builds, or fewer
+  when *No. of Runs To Fetch Reports* is set: it then caps how many builds can be chosen, but not
+  how old they are. Overlapping ranges count each time. Builds that do not exist or are still
+  running are left out; an invalid list, or one over the limit, is answered with a `400`.
 - `hideConfigMethods` (`data` only): `true` leaves out TestNG configuration methods.
 - `durations` (`csv` only): `true` exports run times in seconds instead of results.
 

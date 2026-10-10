@@ -40,6 +40,8 @@ export interface Bootstrap {
   runTimeHighThreshold: number;
   /** Colours set by the administrator, or null to use the theme's status colours. */
   customColors: StatusLabels | null;
+  /** The most builds that may be chosen at once, capped by the administrator's limit on the runs to fetch. */
+  maxChosenBuilds: number;
   defaults: {
     noOfBuilds: string;
     showAllBuilds: boolean;

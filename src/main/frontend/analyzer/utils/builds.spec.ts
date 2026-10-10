@@ -32,6 +32,8 @@ describe("buildNumbersError", () => {
     expect(buildNumbersError("0-3")).toBe("Build numbers start at 1.");
     expect(buildNumbersError("1-999999999")).toMatch(/At most/);
     expect(buildNumbersError(`1-${MAX_BUILDS},1`)).toMatch(/At most/);
+    expect(buildNumbersError("1, 500, 1000", 3)).toBeNull();
+    expect(buildNumbersError("1-4", 3)).toBe("At most 3 builds can be chosen.");
     expect(buildNumbersError("1,".repeat(MAX_LENGTH))).toMatch(/at most/);
   });
 

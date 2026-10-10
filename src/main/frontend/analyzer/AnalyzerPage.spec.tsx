@@ -234,6 +234,9 @@ describe("AnalyzerPage", () => {
       download,
     });
     await act(async () => optionsButton.click());
+    expect(
+      await screen.findByRole("radiogroup", { name: "Builds" }),
+    ).toBeInTheDocument();
     await user.click(await screen.findByLabelText("Specific builds"));
     expect(screen.queryByLabelText("Number of builds")).toBeNull();
     const update = screen.getByRole("button", { name: "Update" });

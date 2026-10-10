@@ -310,8 +310,15 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
      *
      * @throws IllegalArgumentException when the build numbers are not valid
      */
-    private static List<Integer> parseSelection(String buildNumbers) {
-        return buildNumbers == null || buildNumbers.isBlank() ? null : BuildSelection.parse(buildNumbers);
+    private List<Integer> parseSelection(String buildNumbers) {
+        return buildNumbers == null || buildNumbers.isBlank()
+                ? null
+                : BuildSelection.parse(buildNumbers, getMaxChosenBuilds());
+    }
+
+    /** The most builds that may be chosen at once, capped by the administrator's limit on the runs to fetch. */
+    public int getMaxChosenBuilds() {
+        return BuildSelection.maxBuilds(getNoOfRunsToFetch());
     }
 
     /**
@@ -531,6 +538,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                 .element("labels", labels)
                 .element("runTimeLowThreshold", parseSeconds(getRunTimeLowThreshold()))
                 .element("runTimeHighThreshold", parseSeconds(getRunTimeHighThreshold()))
+                .element("maxChosenBuilds", getMaxChosenBuilds())
                 .element("defaults", defaults);
         if (isUseCustomStatusColors()) {
             bootstrap.element(

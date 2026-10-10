@@ -32,6 +32,25 @@ final class BuildSelection {
      * @throws IllegalArgumentException with a message for the user when the specification is not valid
      */
     static List<Integer> parse(String spec) {
+        return parse(spec, MAX_BUILDS);
+    }
+
+    /**
+     * The most builds that may be chosen, given the administrator's limit on the runs to fetch.
+     *
+     * @param noOfRunsToFetch the global limit, or a non-positive number for none
+     */
+    static int maxBuilds(int noOfRunsToFetch) {
+        return noOfRunsToFetch > 0 ? Math.min(noOfRunsToFetch, MAX_BUILDS) : MAX_BUILDS;
+    }
+
+    /**
+     * @param spec comma separated build numbers and inclusive ranges, in any order; blank entries are ignored
+     * @param maxBuilds most build numbers the specification may cover, see {@link #maxBuilds(int)}
+     * @return the distinct build numbers covered, newest (highest) first
+     * @throws IllegalArgumentException with a message for the user when the specification is not valid
+     */
+    static List<Integer> parse(String spec, int maxBuilds) {
         if (spec == null) {
             throw new IllegalArgumentException("No build numbers were given");
         }
@@ -60,8 +79,8 @@ final class BuildSelection {
                 throw new IllegalArgumentException("Build numbers start at 1");
             }
             covered += (long) to - from + 1;
-            if (covered > MAX_BUILDS) {
-                throw new IllegalArgumentException("At most " + MAX_BUILDS + " builds can be chosen");
+            if (covered > maxBuilds) {
+                throw new IllegalArgumentException("At most " + maxBuilds + " builds can be chosen");
             }
             for (int number = from; number <= to; number++) {
                 numbers.add(number);

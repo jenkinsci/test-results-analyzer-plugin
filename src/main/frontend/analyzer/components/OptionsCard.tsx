@@ -6,6 +6,8 @@ interface OptionsCardProps {
   onChange: (changes: Partial<Options>) => void;
   /** Reloads the results for the number of builds and the configuration method setting. */
   onApply: () => void;
+  /** The most builds that may be chosen at once. */
+  maxBuilds: number;
 }
 
 interface CheckboxProps {
@@ -57,9 +59,16 @@ function Radio({ id, name, label, checked, onChange }: RadioProps) {
   );
 }
 
-export function OptionsCard({ options, onChange, onApply }: OptionsCardProps) {
+export function OptionsCard({
+  options,
+  onChange,
+  onApply,
+  maxBuilds,
+}: OptionsCardProps) {
   const specific = options.buildMode === "specific";
-  const error = specific ? buildNumbersError(options.buildNumbers) : null;
+  const error = specific
+    ? buildNumbersError(options.buildNumbers, maxBuilds)
+    : null;
   // Nothing typed yet is not worth an error, though there is nothing to update with either
   const shownError = options.buildNumbers.trim() === "" ? null : error;
   return (
@@ -68,8 +77,14 @@ export function OptionsCard({ options, onChange, onApply }: OptionsCardProps) {
       <div className="jenkins-card__content">
         <div className="tra-options__grid">
           <div className="tra-options__group">
-            <span className="jenkins-form-label">Builds</span>
-            <div className="tra-options__inline">
+            <span id="tra-build-mode-label" className="jenkins-form-label">
+              Builds
+            </span>
+            <div
+              className="tra-options__inline"
+              role="radiogroup"
+              aria-labelledby="tra-build-mode-label"
+            >
               <Radio
                 id="tra-build-mode-latest"
                 name="tra-build-mode"

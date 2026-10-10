@@ -119,7 +119,8 @@ export function AnalyzerPage({
     const current = optionsRef.current;
     if (
       current.buildMode === "specific" &&
-      buildNumbersError(current.buildNumbers) !== null
+      buildNumbersError(current.buildNumbers, bootstrap.maxChosenBuilds) !==
+        null
     ) {
       return;
     }
@@ -149,7 +150,7 @@ export function AnalyzerPage({
           setLoading(false);
         }
       });
-  }, [client]);
+  }, [client, bootstrap.maxChosenBuilds]);
 
   useEffect(() => {
     load();
@@ -237,6 +238,7 @@ export function AnalyzerPage({
           options={options}
           onChange={updateOptions}
           onApply={load}
+          maxBuilds={bootstrap.maxChosenBuilds}
         />
       )}
 

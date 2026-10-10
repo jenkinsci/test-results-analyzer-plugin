@@ -120,6 +120,31 @@ class AnalyzerPageTest {
     }
 
     @Test
+    void administratorRunLimitCapsHowManyBuildsCanBeChosen() throws Exception {
+        configureGlobally("noOfRunsToFetch: 2");
+        try {
+            FreeStyleProject project = calculatorProject();
+            TestResultsAnalyzerAction action = project.getAction(TestResultsAnalyzerAction.class);
+            assertThat(action.getMaxChosenBuilds(), is(2));
+            assertThat(JSONObject.fromObject(action.getBootstrapJson()).getInt("maxChosenBuilds"), is(2));
+            // Older builds than the latest two can still be chosen, just not more than two of them
+            assertThat(data(project, "buildNumbers=" + encode("1,3")).getJSONArray("builds"), hasSize(2));
+            JenkinsRule.WebClient wc = j.createWebClient();
+            for (String endpoint : new String[] {"/data", "/csv"}) {
+                try {
+                    wc.goTo(project.getUrl() + Constants.URL + endpoint + "?buildNumbers=1-3", null);
+                    throw new AssertionError(endpoint + " should reject more builds than the limit");
+                } catch (FailingHttpStatusCodeException e) {
+                    assertThat(e.getStatusCode(), is(400));
+                }
+            }
+        } finally {
+            // The descriptor outlives the Jenkins instance of a test
+            configureGlobally("");
+        }
+    }
+
+    @Test
     void customStatusColoursArePassedToThePage() throws Exception {
         configureGlobally("useCustomStatusColors: {passedColor: '#00ff00', failedColor: '#ff0000',"
                 + " skippedColor: '#ffff00', naColor: '#cccccc'}");

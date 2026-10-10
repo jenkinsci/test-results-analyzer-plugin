@@ -11,7 +11,10 @@ const TOKEN = /^[ \t]*(\d{1,9})(?:[ \t]*-[ \t]*(\d{1,9}))?[ \t]*$/;
  * Why a list of build numbers and ranges such as "12, 36, 40-53" would be refused by the server,
  * or null when it is valid.
  */
-export function buildNumbersError(spec: string): string | null {
+export function buildNumbersError(
+  spec: string,
+  maxBuilds: number = MAX_BUILDS,
+): string | null {
   if (spec.length > MAX_LENGTH) {
     return `Use at most ${MAX_LENGTH} characters.`;
   }
@@ -32,8 +35,8 @@ export function buildNumbersError(spec: string): string | null {
       return "Build numbers start at 1.";
     }
     covered += to - from + 1;
-    if (covered > MAX_BUILDS) {
-      return `At most ${MAX_BUILDS} builds can be chosen.`;
+    if (covered > maxBuilds) {
+      return `At most ${maxBuilds} builds can be chosen.`;
     }
   }
   return covered === 0 ? "Enter build numbers, such as 12, 36, 40-53." : null;
