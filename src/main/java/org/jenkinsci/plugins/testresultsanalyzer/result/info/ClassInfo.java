@@ -5,6 +5,7 @@ import hudson.tasks.test.TestResult;
 import java.util.Map;
 import java.util.TreeMap;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ClassResultData;
+import org.jenkinsci.plugins.testresultsanalyzer.result.data.TestCaseResultData;
 
 public class ClassInfo extends Info {
 
@@ -41,7 +42,8 @@ public class ClassInfo extends Info {
                 testCaseInfo.setName(testCaseName);
             }
 
-            testCaseInfo.putTestCaseResult(buildNumber, testCaseResult, url + "/" + testCaseResult.getSafeName());
+            testCaseInfo.putTestCaseResult(
+                    buildNumber, new CaseData(testCaseResult, url, testCaseResult.getSafeName()));
             tests.put(testCaseName, testCaseInfo);
         }
     }
@@ -49,5 +51,22 @@ public class ClassInfo extends Info {
     @Override
     public Map<String, TestCaseInfo> getChildren() {
         return tests;
+    }
+
+    /** A case result whose URL is derived from its class when needed rather than stored per cell. */
+    private static final class CaseData extends TestCaseResultData {
+        private final String classUrl;
+        private final String safeName;
+
+        CaseData(TestResult testCaseResult, String classUrl, String safeName) {
+            super(testCaseResult, null);
+            this.classUrl = classUrl;
+            this.safeName = safeName;
+        }
+
+        @Override
+        public String getUrl() {
+            return classUrl + "/" + safeName;
+        }
     }
 }

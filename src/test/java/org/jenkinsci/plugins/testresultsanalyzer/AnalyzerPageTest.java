@@ -168,7 +168,8 @@ class AnalyzerPageTest {
 
     @Test
     void dataServesTheTreeNewestBuildFirst() throws Exception {
-        JSONObject data = data(calculatorProject(), "builds=-1&hideConfigMethods=false");
+        FreeStyleProject project = calculatorProject();
+        JSONObject data = data(project, "builds=-1&hideConfigMethods=false");
 
         assertThat(data.getJSONArray("builds"), is(JSONArray.fromObject("[\"3\",\"2\",\"1\"]")));
         JSONObject pkg = data.getJSONArray("results").getJSONObject(0);
@@ -178,7 +179,9 @@ class AnalyzerPageTest {
         JSONArray results = testB.getJSONArray("buildResults");
         assertThat(results.getJSONObject(0).getString("status"), is("FAILED"));
         assertThat(results.getJSONObject(1).getString("status"), is("PASSED"));
-        assertThat(results.getJSONObject(0).getString("url"), containsString("/job/"));
+        assertThat(
+                results.getJSONObject(0).getString("url"),
+                endsWith(project.getUrl() + "3/testReport/com.example/CalculatorTest/testB"));
     }
 
     @Test
