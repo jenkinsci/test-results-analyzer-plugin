@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.testresultsanalyzer.result.info;
 
 import hudson.tasks.test.TabulatedResult;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import org.jenkinsci.plugins.testresultsanalyzer.DuplicateTestPolicy;
@@ -23,6 +24,18 @@ public class ResultInfo {
 
     public DuplicateTestPolicy getDuplicateTestPolicy() {
         return duplicateTestPolicy;
+    }
+
+    private final Map<Integer, BuildInfo> builds = new HashMap<>();
+
+    /** Records the number, display name and date of a build whose results were loaded. */
+    public void addBuild(BuildInfo build) {
+        builds.put(build.number(), build);
+    }
+
+    /** The details of a loaded build, or {@code null} if they were not recorded. */
+    public BuildInfo getBuild(int buildNumber) {
+        return builds.get(buildNumber);
     }
 
     public void addPackage(Integer buildNumber, TabulatedResult packageResult, String url) {

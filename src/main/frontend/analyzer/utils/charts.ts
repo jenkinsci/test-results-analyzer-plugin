@@ -1,5 +1,6 @@
 import type { EChartsOption, LineSeriesOption, PieSeriesOption } from "echarts";
 
+import { type BuildLabeler, numberLabels, truncate } from "./buildLabels.ts";
 import type { BuildTotals } from "./stats.ts";
 
 export interface ChartTheme {
@@ -102,6 +103,7 @@ function axes(
   theme: ChartTheme,
   builds: BuildTotals[],
   yName: string,
+  label: BuildLabeler,
 ): EChartsOption {
   return {
     grid: { left: 8, right: 16, top: 48, bottom: 48, containLabel: true },
@@ -111,10 +113,14 @@ function axes(
       nameLocation: "middle",
       nameGap: 28,
       nameTextStyle: { color: theme.textSecondary },
-      data: builds.map((build) => `#${build.build}`),
+      // The whole label shows in the tooltip, a shortened one on the axis
+      data: builds.map((build) => label(build.build).text),
       axisLine: { lineStyle: { color: theme.border } },
       axisTick: { show: false },
-      axisLabel: { color: theme.textSecondary },
+      axisLabel: {
+        color: theme.textSecondary,
+        formatter: (value: string) => truncate(value),
+      },
     },
     yAxis: {
       type: "value",
@@ -152,6 +158,7 @@ export function lineChartOptions(
   theme: ChartTheme,
   builds: BuildTotals[],
   mode: "passfail" | "passrate" | "runtime",
+  label: BuildLabeler = numberLabels,
 ): EChartsOption {
   const title =
     mode === "runtime"
@@ -161,7 +168,7 @@ export function lineChartOptions(
         : "Build status";
   const yName =
     mode === "runtime" ? "Seconds" : mode === "passrate" ? "%" : "Tests";
-  const axisOptions = axes(theme, builds, yName);
+  const axisOptions = axes(theme, builds, yName, label);
   const yAxis = axisOptions.yAxis as Record<string, unknown>;
   // Clicking anywhere in a build's column shows that build in the pie chart, so shade the column
   const tooltip = {
@@ -234,6 +241,7 @@ export function lineChartOptions(
 export function barChartOptions(
   theme: ChartTheme,
   builds: BuildTotals[],
+  label: BuildLabeler = numberLabels,
 ): EChartsOption {
   const bar = (
     name: string,
@@ -251,7 +259,7 @@ export function barChartOptions(
   const base = baseOptions(theme, "Results per build");
   return {
     ...base,
-    ...axes(theme, builds, "Tests"),
+    ...axes(theme, builds, "Tests", label),
     tooltip: {
       ...(base.tooltip as object),
       trigger: "axis",
@@ -328,11 +336,12 @@ export function passFailPieOptions(
   builds: BuildTotals[],
   focus: BuildTotals | null,
   showLabels: boolean,
+  label: BuildLabeler = numberLabels,
 ): EChartsOption {
   let title: string;
   let counts: { passed: number; failed: number; skipped: number };
   if (focus) {
-    title = `Build #${focus.build}`;
+    title = `Build ${label(focus.build).short}`;
     counts = focus;
   } else {
     title =
@@ -368,10 +377,11 @@ export function passRatePieOptions(
   builds: BuildTotals[],
   focus: BuildTotals | null,
   showLabels: boolean,
+  label: BuildLabeler = numberLabels,
 ): EChartsOption {
   const covered = focus ? [focus] : builds;
   const title = focus
-    ? `Pass rate, build #${focus.build}`
+    ? `Pass rate, build ${label(focus.build).short}`
     : builds.length === 1
       ? "Pass rate, last build"
       : `Pass rate, last ${builds.length} builds`;
@@ -394,6 +404,7 @@ export function runtimePieOptions(
   build: BuildTotals,
   thresholds: { low: number; high: number },
   showLabels: boolean,
+  label: BuildLabeler = numberLabels,
 ): EChartsOption {
   let fast = 0;
   let medium = 0;
@@ -409,7 +420,7 @@ export function runtimePieOptions(
   }
   return pieOptions(
     theme,
-    `Test run times, build #${build.build}`,
+    `Test run times, build ${label(build.build).short}`,
     [
       {
         name: "Fast",

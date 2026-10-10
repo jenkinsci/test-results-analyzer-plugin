@@ -1,4 +1,4 @@
-import type { ChartData, Options } from "../model.ts";
+import type { BuildLabelMode, ChartData, Options } from "../model.ts";
 import { buildNumbersError } from "../utils/builds.ts";
 
 interface OptionsCardProps {
@@ -250,6 +250,28 @@ export function OptionsCard({
                 <option value="passfail">Passes and failures</option>
                 <option value="passrate">Pass rate</option>
                 <option value="runtime">Test run times</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="tra-options__group">
+            <label className="jenkins-form-label" htmlFor="tra-build-label">
+              Label builds by
+            </label>
+            <div className="jenkins-select">
+              <select
+                id="tra-build-label"
+                className="jenkins-select__input"
+                value={options.buildLabel}
+                onChange={(event) =>
+                  onChange({
+                    buildLabel: event.target.value as BuildLabelMode,
+                  })
+                }
+              >
+                <option value="name">Display name</option>
+                <option value="number">Number</option>
+                <option value="date">Date</option>
               </select>
             </div>
           </div>

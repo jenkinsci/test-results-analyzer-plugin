@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 
 import type { ChartData, TreeNode } from "../model.ts";
+import type { BuildLabeler } from "../utils/buildLabels.ts";
 import {
   barChartOptions,
   type ChartTheme,
@@ -22,6 +23,7 @@ interface ChartsProps {
   bar: boolean;
   pie: boolean;
   thresholds: { low: number; high: number };
+  buildLabel?: BuildLabeler;
 }
 
 interface Focus {
@@ -39,6 +41,7 @@ export function Charts({
   bar,
   pie,
   thresholds,
+  buildLabel,
 }: ChartsProps) {
   const builds = useMemo(() => aggregate(nodes), [nodes]);
   const testBuilds = useMemo(() => aggregate(tests), [tests]);
@@ -53,13 +56,13 @@ export function Charts({
   const hasData = builds.length > 0;
 
   const lineOption = useCallback(
-    (theme: ChartTheme) => lineChartOptions(theme, builds, mode),
-    [builds, mode],
+    (theme: ChartTheme) => lineChartOptions(theme, builds, mode, buildLabel),
+    [builds, mode, buildLabel],
   );
 
   const barOption = useCallback(
-    (theme: ChartTheme) => barChartOptions(theme, builds),
-    [builds],
+    (theme: ChartTheme) => barChartOptions(theme, builds, buildLabel),
+    [builds, buildLabel],
   );
 
   const pieOption = useCallback(
@@ -69,14 +72,16 @@ export function Charts({
         const match = testBuilds.find(
           (candidate) => candidate.build === build?.build,
         );
-        return match ? runtimePieOptions(theme, match, thresholds, wide) : {};
+        return match
+          ? runtimePieOptions(theme, match, thresholds, wide, buildLabel)
+          : {};
       }
       if (mode === "passrate") {
-        return passRatePieOptions(theme, builds, focused, wide);
+        return passRatePieOptions(theme, builds, focused, wide, buildLabel);
       }
-      return passFailPieOptions(theme, builds, focused, wide);
+      return passFailPieOptions(theme, builds, focused, wide, buildLabel);
     },
-    [mode, builds, testBuilds, focused, thresholds],
+    [mode, builds, testBuilds, focused, thresholds, buildLabel],
   );
 
   const onColumnClick = useCallback(

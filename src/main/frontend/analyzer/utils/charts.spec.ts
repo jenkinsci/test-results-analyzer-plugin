@@ -1,6 +1,6 @@
 import type { EChartsOption } from "echarts";
 import { describe, expect, it } from "vitest";
-
+import { createBuildLabeler } from "./buildLabels.ts";
 import {
   barChartOptions,
   type ChartTheme,
@@ -205,5 +205,50 @@ describe("runtimePieOptions", () => {
         data: { hint: "under 1s" },
       }),
     ).toBe("Fast (under 1s): 1 (100%)");
+  });
+});
+
+describe("build labels", () => {
+  const label = createBuildLabeler(
+    [
+      { number: 1, displayName: "nightly-2026-10-08" },
+      { number: 2, displayName: "a display name that is far too long" },
+      { number: 3, displayName: "#3" },
+    ],
+    "name",
+  );
+
+  it("labels the build axis, shortening long labels only on the axis", () => {
+    for (const options of [
+      lineChartOptions(theme, builds, "passfail", label),
+      barChartOptions(theme, builds, label),
+    ]) {
+      const xAxis = options.xAxis as {
+        data: string[];
+        axisLabel: { formatter: (value: string) => string };
+      };
+      expect(xAxis.data).toEqual([
+        "nightly-2026-10-08",
+        "a display name that is far too long",
+        "#3",
+      ]);
+      expect(xAxis.axisLabel.formatter(xAxis.data[1])).toBe(
+        "a display name that…",
+      );
+    }
+  });
+
+  it("titles the pie of a clicked build with its label", () => {
+    expect(
+      title(passFailPieOptions(theme, builds, builds[0], false, label)),
+    ).toBe("Build nightly-2026-10-08");
+    expect(
+      title(passRatePieOptions(theme, builds, builds[0], false, label)),
+    ).toBe("Pass rate, build nightly-2026-10-08");
+    expect(
+      title(
+        runtimePieOptions(theme, builds[2], { low: 1, high: 2 }, false, label),
+      ),
+    ).toBe("Test run times, build #3");
   });
 });
