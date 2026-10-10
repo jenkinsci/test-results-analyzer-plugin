@@ -15,6 +15,7 @@
            data-failed-label="${it.failedRepresentation}"
            data-skipped-label="${it.skippedRepresentation}"
            data-na-label="${it.naRepresentation}"
+           data-new-failure-label="${%New failure: failed in the latest build after passing in the build before}"
            data-runtime-low-threshold="${it.runTimeLowThreshold}"
            data-runtime-high-threshold="${it.runTimeHighThreshold}"
            data-use-custom-colors="${it.useCustomStatusColors}"

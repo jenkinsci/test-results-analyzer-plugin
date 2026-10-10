@@ -246,8 +246,8 @@
     name.appendChild(el("span", "tra-row__text", node.text));
     if (isNewFailure(node.buildResults)) {
       var marker = el("span", "tra-new-failure");
-      marker.title = "New failure";
-      marker.setAttribute("aria-label", "New failure");
+      marker.setAttribute("tooltip", state.root.dataset.newFailureLabel);
+      marker.setAttribute("aria-label", state.root.dataset.newFailureLabel);
       marker.appendChild(cloneIcon("tra-icon-new-failure"));
       name.appendChild(marker);
     }
@@ -1124,6 +1124,12 @@
     if (rows.length > 0) {
       bindHistoryEvents(history);
       container.appendChild(history);
+      // Tooltips are attached by a behaviour rule, which only runs on what is in the page
+      if (window.Behaviour) {
+        history.querySelectorAll("[tooltip]").forEach(function (marker) {
+          Behaviour.applySubtree(marker, true);
+        });
+      }
       state.rows = Array.prototype.slice.call(rows);
       applyFilter();
     }

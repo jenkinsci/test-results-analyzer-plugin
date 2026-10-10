@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 
 import hudson.FilePath;
 import hudson.Launcher;
@@ -112,6 +113,7 @@ class AnalyzerPageTest {
 
         List<DomElement> markers = page.getByXPath("//div[@data-name='testB']//*[contains(@class, 'tra-new-failure')]");
         assertThat(markers, hasSize(1));
+        assertThat(markers.get(0).getAttribute("aria-label"), startsWith("New failure: failed in the latest build"));
         assertThat(page.getByXPath("//div[@data-name='testA']//*[contains(@class, 'tra-new-failure')]"), is(empty()));
 
         DomElement testB = page.getFirstByXPath("//div[@data-name='testB']");
