@@ -53,8 +53,14 @@ export interface Bootstrap {
 }
 
 export interface Options {
+  /** Whether to show the latest builds, or the builds listed in buildNumbers. */
+  buildMode: "latest" | "specific";
   builds: string;
   allBuilds: boolean;
+  /** Build numbers and ranges as typed, such as "12, 36, 40-53". */
+  buildNumbers: string;
+  /** Show only the tests whose status differs between the builds shown. */
+  onlyDiffering: boolean;
   showDurations: boolean;
   showNotRun: boolean;
   hideConfig: boolean;

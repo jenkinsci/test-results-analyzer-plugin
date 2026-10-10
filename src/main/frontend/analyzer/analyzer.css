@@ -49,6 +49,10 @@
   max-width: 7rem;
 }
 
+.tra-options__help {
+  font-size: var(--font-size-xs, 0.8125rem);
+}
+
 .tra-options__actions {
   display: flex;
   justify-content: flex-end;
