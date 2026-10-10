@@ -35,6 +35,80 @@ The page follows the Jenkins theme, including dark mode, and adapts to small scr
 
 ![Dark theme](docs/images/analyzer-dark.png)
 
+## REST API
+
+The data behind the page can be fetched by scripts. Both endpoints live under the job's analyzer
+URL, take a `GET`, and need *Job › Read* on the job. Authenticate with a user's
+[API token](https://www.jenkins.io/doc/book/using/remote-access-api/); no crumb is needed.
+
+| Endpoint | Returns |
+|----------|---------|
+| `job/<job>/test_results_analyzer/data` | The test history as JSON |
+| `job/<job>/test_results_analyzer/csv`  | The same history as CSV, as downloaded by **Download CSV** |
+
+For a job in a folder, use the job's full URL, for example `job/<folder>/job/<job>/test_results_analyzer/data`.
+
+Parameters:
+
+- `builds`: how many of the latest completed builds to include. Leave it out, or pass `-1`, for all
+  of them (limited by *No. of Runs To Fetch Reports* in the global configuration).
+- `hideConfigMethods` (`data` only): `true` leaves out TestNG configuration methods.
+- `durations` (`csv` only): `true` exports run times in seconds instead of results.
+
+```sh
+curl -u "$USER:$API_TOKEN" "$JENKINS_URL/job/my-job/test_results_analyzer/data?builds=10"
+curl -u "$USER:$API_TOKEN" -o test-results.csv "$JENKINS_URL/job/my-job/test_results_analyzer/csv?builds=10"
+```
+
+The JSON has the build numbers, newest first, and a tree of packages, classes and tests. Every
+node has one `buildResults` entry per build, in the same order as `builds`:
+
+```json
+{
+  "builds": ["2", "1"],
+  "results": [
+    {
+      "text": "com.example",
+      "buildResults": [ ... ],
+      "children": [
+        {
+          "text": "CalculatorTest",
+          "buildResults": [ ... ],
+          "children": [
+            {
+              "text": "testAdd",
+              "buildResults": [
+                {
+                  "buildNumber": "2",
+                  "totalTests": 1,
+                  "totalFailed": 1,
+                  "totalPassed": 0,
+                  "totalSkipped": 0,
+                  "totalTimeTaken": 0.25,
+                  "status": "FAILED",
+                  "url": "https://jenkins.example.com/job/my-job/2/testReport/com.example/CalculatorTest/testAdd"
+                },
+                { "buildNumber": "1", "status": "N/A" }
+              ],
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+- `status` is `PASSED`, `FAILED` (failures and errors), `SKIPPED` or `N/A`. `N/A` means the item did
+  not run in that build, and its entry has no other fields.
+- The `total*` counts are of the tests below the node; for a test they are 0 or 1.
+- `totalTimeTaken` is in seconds.
+- `url` links to the test report of that build. It is absolute when the Jenkins URL is configured.
+
+The CSV has the columns `Package`, `Class`, `Test`, then one column per build number, newest first.
+Its cells use the custom status names when they are configured.
+
 ## Development
 
 The analyzer page is a React and TypeScript app in `src/main/frontend`, built by Vite into
