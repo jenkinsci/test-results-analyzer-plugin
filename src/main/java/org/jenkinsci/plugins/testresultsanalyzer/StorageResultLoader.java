@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ClassResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.PackageResultData;
+import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.TestCaseResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ClassInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.PackageInfo;
@@ -119,10 +120,12 @@ final class StorageResultLoader {
                     .getOrCreatePackage(packageName)
                     .getOrCreateClass(className)
                     .getOrCreateTest(testName);
-            testCaseInfo.putBuildResult(
-                    build,
-                    new CaseData(
-                            rawName, summary, classTally, pooled(classTally.uniqueCaseName(safeCaseName(testName)))));
+            CaseData caseData = new CaseData(
+                    rawName, summary, classTally, pooled(classTally.uniqueCaseName(safeCaseName(testName))));
+            ResultData previous = testCaseInfo.putTestCaseResult(build, caseData, resultInfo.getDuplicateTestPolicy());
+            if (previous != null) {
+                classTally.mergedChild(previous, caseData, testCaseInfo.getBuildResult(build));
+            }
         }
 
         void flush(ResultInfo resultInfo) {
@@ -198,6 +201,14 @@ final class StorageResultLoader {
                 passed++;
             }
             duration += summary.getDuration();
+        }
+
+        /** As {@link ResultData#mergedChild}. */
+        void mergedChild(ResultData first, ResultData second, ResultData merged) {
+            total += merged.getTotalTests() - first.getTotalTests() - second.getTotalTests();
+            failed += merged.getTotalFailed() - first.getTotalFailed() - second.getTotalFailed();
+            passed += merged.getTotalPassed() - first.getTotalPassed() - second.getTotalPassed();
+            skipped += merged.getTotalSkipped() - first.getTotalSkipped() - second.getTotalSkipped();
         }
 
         void addAll(Tally child) {

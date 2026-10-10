@@ -34,6 +34,15 @@
 				</select>
 			</div>
 		</f:entry>
+		<f:entry title="${%Tests executed more than once in a build}" field="duplicateTestPolicy">
+			<div class="jenkins-select">
+				<select name="duplicateTestPolicy" class="jenkins-select__input">
+					<j:forEach var="policy" items="${descriptor.getDuplicateTestPolicies()}">
+						<f:option value="${policy.name()}" selected="${policy == descriptor.getDuplicateTestPolicy()}">${policy.displayName}</f:option>
+					</j:forEach>
+				</select>
+			</div>
+		</f:entry>
 		<f:entry title="${%Runtime Low Threshold}">
 			<f:textbox name="runTimeLowThreshold" value="${descriptor.getRunTimeLowThreshold()}" />
 		</f:entry>

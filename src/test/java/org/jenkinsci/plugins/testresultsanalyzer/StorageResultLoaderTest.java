@@ -23,10 +23,15 @@ import java.io.StringWriter;
 import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Consumer;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestBuilder;
@@ -58,10 +63,45 @@ class StorageResultLoaderTest {
                 + "</testsuite>",
     };
 
+    /**
+     * An NUnit parameterized fixture converted to JUnit XML by the nunit plugin (#224), whose fixtures' cases share
+     * a class and name, and a test retried until it passed (#233).
+     */
+    private static final String[] DUPLICATE_REPORTS = {
+        "<testsuites>" + nunitFixture("a", true) + nunitFixture("b", false) + nunitFixture("c", false)
+                + "<testsuite name='run1'>"
+                + "<testcase classname='pkg.A' name='flaky' time='1'><failure message='x'/></testcase>"
+                + "</testsuite>"
+                + "<testsuite name='run2'><testcase classname='pkg.A' name='flaky' time='2'/></testsuite>"
+                + "</testsuites>",
+    };
+
+    private static String nunitFixture(String param, boolean failSecond) {
+        return "<testsuite tests='3' name='ClassLibrary1.dll.ClassLibrary1.TestClass.TestClass(&quot;" + param
+                + "&quot;).TestMethod.'>"
+                + "<testcase name='TestMethod(1)' time='0.25' classname='ClassLibrary1.TestClass'/>"
+                + "<testcase name='TestMethod(2)' time='0.25' classname='ClassLibrary1.TestClass'>"
+                + (failSecond ? "<failure message='boom'>boom</failure>" : "")
+                + "</testcase>"
+                + "<testcase name='TestMethod(3)' time='0.25' classname='ClassLibrary1.TestClass'/>"
+                + "</testsuite>";
+    }
+
+    @BeforeEach
+    void resetStorage() {
+        StubStorage.SUMMARIES.clear();
+        StubStorage.streamed = 0;
+    }
+
+    @AfterEach
+    void resetPolicy() {
+        TestResultsAnalyzerExtension.DESCRIPTOR.setDuplicateTestPolicy(DuplicateTestPolicy.DEFAULT);
+    }
+
     @Test
     void storagePathMatchesPerBuildPath(JenkinsRule r) throws Exception {
         FreeStyleProject project = r.createFreeStyleProject("p");
-        project.getBuildersList().add(new ReportWriter());
+        project.getBuildersList().add(new ReportWriter(REPORTS));
         project.getPublishersList().add(new JUnitResultArchiver("report.xml"));
         List<FreeStyleBuild> runs = new ArrayList<>();
         for (int i = 0; i < REPORTS.length; i++) {
@@ -71,7 +111,106 @@ class StorageResultLoaderTest {
         String allFromFiles = tree(project, "-1");
         String twoFromFiles = tree(project, "2");
 
-        // capture what an external storage would hold, then switch to it
+        switchToStubStorage(runs);
+
+        assertEquals(allFromFiles, tree(project, "-1"));
+        assertEquals(twoFromFiles, tree(project, "2"));
+        assertTrue(StubStorage.streamed > 0, "storage fast path should have been used");
+    }
+
+    @Test
+    void duplicateExecutionsAreMergedAlikeInBothPaths(JenkinsRule r) throws Exception {
+        FreeStyleProject project = r.createFreeStyleProject("p");
+        project.getBuildersList().add(new ReportWriter(DUPLICATE_REPORTS));
+        project.getPublishersList().add(new JUnitResultArchiver("report.xml"));
+        FreeStyleBuild run = r.buildAndAssertStatus(hudson.model.Result.UNSTABLE, project);
+        // junit itself keeps every execution
+        assertEquals(11, run.getAction(TestResultAction.class).getTotalCount());
+        assertEquals(2, run.getAction(TestResultAction.class).getFailCount());
+
+        Map<DuplicateTestPolicy, String> fromFiles = new EnumMap<>(DuplicateTestPolicy.class);
+        for (DuplicateTestPolicy policy : DuplicateTestPolicy.values()) {
+            TestResultsAnalyzerExtension.DESCRIPTOR.setDuplicateTestPolicy(policy);
+            String tree = tree(project, "-1");
+            assertDuplicatesMerged(policy, JSONObject.fromObject(tree));
+            fromFiles.put(policy, tree);
+        }
+
+        switchToStubStorage(List.of(run));
+
+        for (DuplicateTestPolicy policy : DuplicateTestPolicy.values()) {
+            TestResultsAnalyzerExtension.DESCRIPTOR.setDuplicateTestPolicy(policy);
+            String tree = tree(project, "-1");
+            assertDuplicatesMerged(policy, JSONObject.fromObject(tree));
+            // which of several executions with the same status a test links to depends on junit's ordering
+            assertEquals(withoutTestUrls(fromFiles.get(policy)), withoutTestUrls(tree));
+        }
+        assertTrue(StubStorage.streamed > 0, "storage fast path should have been used");
+    }
+
+    private static void assertDuplicatesMerged(DuplicateTestPolicy policy, JSONObject tree) {
+        boolean failedIfAny = policy == DuplicateTestPolicy.FAILED_IF_ANY_FAILED;
+        String mergedStatus = failedIfAny ? "FAILED" : "PASSED";
+        int failed = failedIfAny ? 1 : 0;
+
+        JSONObject nunitPackage = child(tree.getJSONArray("results"), "ClassLibrary1");
+        JSONObject nunitClass = child(nunitPackage.getJSONArray("children"), "TestClass");
+        JSONArray nunitTests = nunitClass.getJSONArray("children");
+        assertEquals(3, nunitTests.size());
+        assertCell(child(nunitTests, "TestMethod(1)"), "PASSED", 1, 0, 0.75);
+        assertCell(child(nunitTests, "TestMethod(2)"), mergedStatus, 1, failed, 0.75);
+        assertCell(child(nunitTests, "TestMethod(3)"), "PASSED", 1, 0, 0.75);
+        assertCell(nunitClass, mergedStatus, 3, failed, 2.25);
+        assertCell(nunitPackage, mergedStatus, 3, failed, 2.25);
+
+        JSONObject retryPackage = child(tree.getJSONArray("results"), "pkg");
+        JSONObject retryClass = child(retryPackage.getJSONArray("children"), "A");
+        assertCell(child(retryClass.getJSONArray("children"), "flaky"), mergedStatus, 1, failed, 3);
+        assertCell(retryClass, mergedStatus, 1, failed, 3);
+        assertCell(retryPackage, mergedStatus, 1, failed, 3);
+    }
+
+    private static JSONObject child(JSONArray nodes, String text) {
+        for (int i = 0; i < nodes.size(); i++) {
+            if (text.equals(nodes.getJSONObject(i).getString("text"))) {
+                return nodes.getJSONObject(i);
+            }
+        }
+        throw new AssertionError("no " + text + " in " + nodes);
+    }
+
+    private static void assertCell(JSONObject node, String status, int total, int failed, double duration) {
+        JSONObject cell = node.getJSONArray("buildResults").getJSONObject(0);
+        String name = node.getString("text");
+        assertEquals(status, cell.getString("status"), name);
+        assertEquals(total, cell.getInt("totalTests"), name);
+        assertEquals(failed, cell.getInt("totalFailed"), name);
+        assertEquals(total - failed - cell.getInt("totalSkipped"), cell.getInt("totalPassed"), name);
+        assertEquals(duration, cell.getDouble("totalTimeTaken"), 0.001, name);
+    }
+
+    private static String withoutTestUrls(String tree) {
+        JSONObject json = JSONObject.fromObject(tree);
+        removeTestUrls(json.getJSONArray("results"));
+        return json.toString(2);
+    }
+
+    private static void removeTestUrls(JSONArray nodes) {
+        for (int i = 0; i < nodes.size(); i++) {
+            JSONObject node = nodes.getJSONObject(i);
+            JSONArray children = node.getJSONArray("children");
+            if (children.isEmpty()) {
+                JSONArray cells = node.getJSONArray("buildResults");
+                for (int j = 0; j < cells.size(); j++) {
+                    cells.getJSONObject(j).remove("url");
+                }
+            }
+            removeTestUrls(children);
+        }
+    }
+
+    /** Captures what an external storage would hold for the given builds, then switches to it. */
+    private static void switchToStubStorage(List<? extends Run<?, ?>> runs) {
         for (Run<?, ?> run : runs) {
             for (SuiteResult suite :
                     run.getAction(TestResultAction.class).getResult().getSuites()) {
@@ -90,17 +229,19 @@ class StorageResultLoaderTest {
             }
         }
         JunitTestResultStorageConfiguration.get().setStorage(new StubStorage());
-
-        assertEquals(allFromFiles, tree(project, "-1"));
-        assertEquals(twoFromFiles, tree(project, "2"));
-        assertTrue(StubStorage.streamed > 0, "storage fast path should have been used");
     }
 
     public static class ReportWriter extends TestBuilder {
+        private final String[] reports;
+
+        ReportWriter(String[] reports) {
+            this.reports = reports;
+        }
+
         @Override
         public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
                 throws IOException, InterruptedException {
-            String xml = REPORTS[(build.getNumber() - 1) % REPORTS.length];
+            String xml = reports[(build.getNumber() - 1) % reports.length];
             build.getWorkspace().child("report.xml").write(xml, StandardCharsets.UTF_8.name());
             return true;
         }

@@ -164,7 +164,10 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
     synchronized void ensureLoaded(int noOfBuilds) {
         int needed = noOfBuilds > 0 ? noOfBuilds : -1;
         boolean enough = loadedBuilds < 0 || (needed > 0 && needed <= loadedBuilds);
-        if (resultInfo != null && enough && !isUpdated()) {
+        if (resultInfo != null
+                && enough
+                && resultInfo.getDuplicateTestPolicy() == getDuplicateTestPolicy()
+                && !isUpdated()) {
             return;
         }
         load(needed);
@@ -172,7 +175,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void load(int noOfBuilds) {
-        resultInfo = new ResultInfo();
+        resultInfo = new ResultInfo(getDuplicateTestPolicy());
         builds = new ArrayList<Integer>();
         loadedBuilds = noOfBuilds;
 
@@ -454,6 +457,10 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
     public String getNoOfBuilds() {
         return TestResultsAnalyzerExtension.DESCRIPTOR.getNoOfBuilds();
+    }
+
+    private static DuplicateTestPolicy getDuplicateTestPolicy() {
+        return TestResultsAnalyzerExtension.DESCRIPTOR.getDuplicateTestPolicy();
     }
 
     public int getNoOfRunsToFetch() {
