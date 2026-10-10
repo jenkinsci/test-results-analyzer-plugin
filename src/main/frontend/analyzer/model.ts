@@ -40,6 +40,9 @@ export type BuildLabelMode = "number" | "name" | "date";
 
 export type ChartData = "passfail" | "passrate" | "runtime";
 
+/** What the pass and fail charts count: test cases, or whole classes or packages. */
+export type CountBy = "tests" | "classes" | "packages";
+
 export interface StatusLabels {
   passed: string;
   failed: string;
@@ -67,6 +70,7 @@ export interface Bootstrap {
     chartDataType: string;
     /** Missing when the page is served by an older version. */
     buildLabel?: string;
+    chartCountBy: string;
   };
 }
 
@@ -89,6 +93,7 @@ export interface Options {
   worstCount: string;
   chartData: ChartData;
   buildLabel: BuildLabelMode;
+  countBy: CountBy;
 }
 
 /** A package, class or test in the flattened history, in display order. */

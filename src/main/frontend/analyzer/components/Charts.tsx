@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
-import type { ChartData, TreeNode } from "../model.ts";
+import type { ChartData, CountBy, TreeNode } from "../model.ts";
 import type { BuildLabeler } from "../utils/buildLabels.ts";
 import {
   barChartOptions,
@@ -10,7 +10,11 @@ import {
   passRatePieOptions,
   runtimePieOptions,
 } from "../utils/charts.ts";
-import { aggregate, type BuildTotals } from "../utils/stats.ts";
+import {
+  aggregate,
+  aggregateGroups,
+  type BuildTotals,
+} from "../utils/stats.ts";
 import { EChart } from "./EChart.tsx";
 
 interface ChartsProps {
@@ -18,6 +22,9 @@ interface ChartsProps {
   nodes: TreeNode[];
   /** The test cases the run time pie covers. */
   tests: TreeNode[];
+  /** The test cases grouped by class or package, when counting those rather than tests. */
+  groups: TreeNode[][] | null;
+  countBy: CountBy;
   mode: ChartData;
   line: boolean;
   bar: boolean;
@@ -36,6 +43,8 @@ interface Focus {
 export function Charts({
   nodes,
   tests,
+  groups,
+  countBy,
   mode,
   line,
   bar,
@@ -43,7 +52,13 @@ export function Charts({
   thresholds,
   buildLabel,
 }: ChartsProps) {
-  const builds = useMemo(() => aggregate(nodes), [nodes]);
+  // Run times add up the same way whatever is counted, so only passes and failures are grouped
+  const unit = mode === "runtime" || !groups ? "tests" : countBy;
+  const builds = useMemo(
+    () =>
+      unit === "tests" || !groups ? aggregate(nodes) : aggregateGroups(groups),
+    [unit, nodes, groups],
+  );
   const testBuilds = useMemo(() => aggregate(tests), [tests]);
   // The build clicked on the line chart is shown in the pie chart
   const [focus, setFocus] = useState<Focus | null>(null);
@@ -56,13 +71,14 @@ export function Charts({
   const hasData = builds.length > 0;
 
   const lineOption = useCallback(
-    (theme: ChartTheme) => lineChartOptions(theme, builds, mode, buildLabel),
-    [builds, mode, buildLabel],
+    (theme: ChartTheme) =>
+      lineChartOptions(theme, builds, mode, buildLabel, unit),
+    [builds, mode, buildLabel, unit],
   );
 
   const barOption = useCallback(
-    (theme: ChartTheme) => barChartOptions(theme, builds, buildLabel),
-    [builds, buildLabel],
+    (theme: ChartTheme) => barChartOptions(theme, builds, buildLabel, unit),
+    [builds, buildLabel, unit],
   );
 
   const pieOption = useCallback(
@@ -77,11 +93,18 @@ export function Charts({
           : {};
       }
       if (mode === "passrate") {
-        return passRatePieOptions(theme, builds, focused, wide, buildLabel);
+        return passRatePieOptions(
+          theme,
+          builds,
+          focused,
+          wide,
+          buildLabel,
+          unit,
+        );
       }
-      return passFailPieOptions(theme, builds, focused, wide, buildLabel);
+      return passFailPieOptions(theme, builds, focused, wide, buildLabel, unit);
     },
-    [mode, builds, testBuilds, focused, thresholds, buildLabel],
+    [mode, unit, builds, testBuilds, focused, thresholds, buildLabel],
   );
 
   const onColumnClick = useCallback(
