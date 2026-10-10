@@ -1,0 +1,14 @@
+<div>
+    How to show a test that was executed more than once in the same build, that is when several test cases
+    in a build's results have the same class and name. This happens when tests are retried, or with
+    parameterized fixtures whose test cases share a class name (such as NUnit test fixtures converted to JUnit XML).
+    <br/>
+    <br/>
+    The executions are shown as a single result whose run time is their total:
+    <ul>
+        <li><b>Failed if any execution failed</b> (default): the test failed in that build if any of its executions failed.</li>
+        <li><b>Passed if any execution passed</b>: the test passed in that build if any of its executions passed,
+            for when failing tests are retried until they pass.</li>
+    </ul>
+    Class and package totals count such a test once, with the status shown for it.
+</div>
