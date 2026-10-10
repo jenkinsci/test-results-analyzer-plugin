@@ -91,6 +91,24 @@ public abstract class ResultData {
     // Used for constructing mock object
     public ResultData() {}
 
+    protected ResultData(
+            String name,
+            int totalTests,
+            int totalFailed,
+            int totalPassed,
+            int totalSkipped,
+            float duration,
+            String url) {
+        setName(name);
+        setTotalTests(totalTests);
+        setTotalFailed(totalFailed);
+        setTotalPassed(totalPassed);
+        setTotalSkipped(totalSkipped);
+        setTotalTimeTaken(duration);
+        setUrl(url);
+        evaluateStatus();
+    }
+
     public ResultData(TestObject result, String url) {
         setName(result.getName());
         setTotalTests(result.getTotalCount());

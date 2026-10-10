@@ -37,8 +37,6 @@ var $j = jQuery.noConflict();
         background-color: ${it.naColor};
     }
 </style>
-<j:set var="temp" value="${it.jsonLoadData}"/>
-<j:set var="builds" value="${it.builds}"/>
 
 <button id="settingsmenubutton">Options</button>
 <div id="settingsmenu" style="display: none;">

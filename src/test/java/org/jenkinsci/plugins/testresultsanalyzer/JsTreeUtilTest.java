@@ -4,6 +4,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,25 +19,25 @@ import org.junit.jupiter.api.Test;
 class JsTreeUtilTest {
 
     @Test
-    void noRequiredBuildsAndNoTestCases() {
+    void noRequiredBuildsAndNoTestCases() throws IOException {
         List<Integer> builds = new ArrayList<>();
         ResultInfo results = new ResultInfo();
 
         JSONObject expected = buildRoot(jsonArray(), jsonArray());
-        assertEquals(expected, new JsTreeUtil().getJsTree(builds, results, false));
+        assertTree(expected, builds, results);
     }
 
     @Test
-    void requiresBuildsButHasNoTestCases() {
+    void requiresBuildsButHasNoTestCases() throws IOException {
         List<Integer> builds = Arrays.asList(9, 7, 6);
         ResultInfo results = new ResultInfo();
 
         JSONObject expected = buildRoot(jsonArray("9", "7", "6"), jsonArray());
-        assertEquals(expected, new JsTreeUtil().getJsTree(builds, results, false));
+        assertTree(expected, builds, results);
     }
 
     @Test
-    void requiresBuildsButHasJustOneTestCase() {
+    void requiresBuildsButHasJustOneTestCase() throws IOException {
         List<Integer> builds = Arrays.asList(9, 7);
         ResultInfo results = new ResultInfo();
 
@@ -52,11 +54,11 @@ class JsTreeUtilTest {
 
         JSONObject expected = buildRoot(jsonArray("9", "7"), jsonArray(pnNode));
 
-        assertEquals(expected, new JsTreeUtil().getJsTree(builds, results, false));
+        assertTree(expected, builds, results);
     }
 
     @Test
-    void onePassedAndSkippedTestLeadsToPassed() {
+    void onePassedAndSkippedTestLeadsToPassed() throws IOException {
         List<Integer> builds = List.of(1);
         ResultInfo results = new ResultInfo();
 
@@ -77,11 +79,11 @@ class JsTreeUtilTest {
 
         JSONObject expected = buildRoot(jsonArray("1"), jsonArray(pnNode));
 
-        assertEquals(expected, new JsTreeUtil().getJsTree(builds, results, false));
+        assertTree(expected, builds, results);
     }
 
     @Test
-    void onePassedAndFailedTestLeadsToFailed() {
+    void onePassedAndFailedTestLeadsToFailed() throws IOException {
         List<Integer> builds = List.of(1);
         ResultInfo results = new ResultInfo();
 
@@ -102,7 +104,7 @@ class JsTreeUtilTest {
 
         JSONObject expected = buildRoot(jsonArray("1"), jsonArray(pnNode));
 
-        assertEquals(expected, new JsTreeUtil().getJsTree(builds, results, false));
+        assertTree(expected, builds, results);
     }
 
     private static JSONObject buildRoot(JSONArray builds, JSONArray results) {
@@ -147,6 +149,14 @@ class JsTreeUtilTest {
         result.put("status", "N/A");
 
         return result;
+    }
+
+    private static void assertTree(JSONObject expected, List<Integer> builds, ResultInfo results) throws IOException {
+        JSONObject tree = new JsTreeUtil().getJsTree(builds, results, false);
+        assertEquals(expected, tree);
+        StringWriter streamed = new StringWriter();
+        new JsTreeUtil().writeJsTree(streamed, builds, results, false);
+        assertThat(streamed.toString(), is(equalTo(tree.toString())));
     }
 
     private static void assertEquals(JSONObject expected, JSONObject actual) {

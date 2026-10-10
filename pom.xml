@@ -31,8 +31,10 @@
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-    <jenkins.baseline>2.479</jenkins.baseline>
+    <jenkins.baseline>2.555</jenkins.baseline>
     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
+    <!-- pluggable junit storage APIs (TestResultImpl) are @Restricted(Beta.class) -->
+    <useBeta>true</useBeta>
     <!-- SpotBugs is a program which uses static analysis to look for bugs in Java code -->
     <!-- Plugin maintenance can be improved by increasing the depth of spotbugs analysis. -->
     <spotbugs.effort>Max</spotbugs.effort>
@@ -47,7 +49,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>5054.v620b_5d2b_d5e6</version>
+        <version>7169.vb_32a_cfd93fa_6</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -58,7 +60,8 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>junit</artifactId>
-      <!-- Version is managed by the BOM, so no need to specify it -->
+      <!-- TODO switch back to the BOM managed version once a junit release has TestResultImpl#forEachCaseResultSummary -->
+      <version>999999-SNAPSHOT</version>
     </dependency>
   </dependencies>
 

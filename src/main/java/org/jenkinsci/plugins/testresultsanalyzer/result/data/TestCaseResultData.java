@@ -7,6 +7,10 @@ import java.util.Locale;
 
 public class TestCaseResultData extends ResultData {
 
+    public TestCaseResultData(String name, boolean failed, boolean skipped, float duration, String url) {
+        super(name, 1, failed && !skipped ? 1 : 0, failed || skipped ? 0 : 1, skipped ? 1 : 0, duration, url);
+    }
+
     public TestCaseResultData(TestResult testResult, String url) {
         setName(testResult.getName());
         boolean doTestNg = testResult.getClass().getName().equals("hudson.plugins.testng.results.MethodResult");
