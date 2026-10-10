@@ -273,4 +273,14 @@ class AnalyzerPageTest {
         assertThat(lines[0], is("\"Package\",\"Class\",\"Test\",\"1\""));
         assertThat(lines[1], is("\"p\",\"T\",\"takes(\"\"a, b\"\")\",\"PASSED\""));
     }
+
+    @Test
+    void csvValuesCannotRunAsSpreadsheetFormulas() {
+        assertThat(TestResultsAnalyzerAction.csvValue("=HYPERLINK(\"x\")"), is("\"'=HYPERLINK(\"\"x\"\")\""));
+        assertThat(TestResultsAnalyzerAction.csvValue("+1"), is("\"'+1\""));
+        assertThat(TestResultsAnalyzerAction.csvValue("-1"), is("\"'-1\""));
+        assertThat(TestResultsAnalyzerAction.csvValue("@SUM(A1)"), is("\"'@SUM(A1)\""));
+        assertThat(TestResultsAnalyzerAction.csvValue("a=b"), is("\"a=b\""));
+        assertThat(TestResultsAnalyzerAction.csvValue(null), is("\"\""));
+    }
 }

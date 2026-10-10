@@ -277,9 +277,14 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
     /**
      * Quotes a CSV value, doubling any quotes inside it (RFC 4180).
+     * Values a spreadsheet would run as a formula are prefixed with an apostrophe so they stay text.
      */
     static String csvValue(String value) {
-        return "\"" + (value == null ? "" : value.replace("\"", "\"\"")) + "\"";
+        String text = value == null ? "" : value;
+        if (!text.isEmpty() && "=+-@\t\r".indexOf(text.charAt(0)) >= 0) {
+            text = "'" + text;
+        }
+        return "\"" + text.replace("\"", "\"\"") + "\"";
     }
 
     private String getCustomStatus(String status) {

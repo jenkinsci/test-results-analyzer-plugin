@@ -24,7 +24,7 @@ side panel.
   or test run times. Click **Select** and tick packages, classes or tests to chart only those. Click a build on the line chart to show it in the
   pie chart. Each chart can be saved as an image.
 - **Most broken tests**: the tests that failed most often, with links to the builds they failed in.
-- **Download CSV**: exports the visible history.
+- **Download CSV**: exports every test for the selected number of builds, ignoring the filter and display options.
 
 Use **Options** to change the number of builds, show run times instead of results, show tests that
 did not run in the builds shown, hide TestNG configuration methods, change how many most broken

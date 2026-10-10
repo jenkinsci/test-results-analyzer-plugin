@@ -203,8 +203,6 @@
     var node = entry.node;
     var hasChildren = node.children && node.children.length > 0;
     var row = el("div", "tra-row");
-    row.setAttribute("role", "treeitem");
-    row.setAttribute("aria-level", String(entry.level + 1));
     row.dataset.level = String(entry.level);
     row.dataset.name = node.text;
     row.trNode = node;
@@ -302,7 +300,7 @@
 
   function renderHistory(data) {
     var history = el("div", "tra-history");
-    history.setAttribute("role", "tree");
+    history.setAttribute("role", "group");
     history.setAttribute("aria-label", "Test history");
     history.appendChild(renderHeader(data.builds));
 
@@ -875,6 +873,35 @@
     );
   }
 
+  function renderPassRatePie(chart, colors, builds) {
+    var title;
+    var passed = 0;
+    var failed = 0;
+    if (state.pieOverride) {
+      title = "Pass rate, build #" + state.pieOverride.build;
+      passed = state.pieOverride.passed;
+      failed = state.pieOverride.failed;
+    } else {
+      title = builds.length === 1 ? "Pass rate, last build" : "Pass rate, last " + builds.length + " builds";
+      builds.forEach(function (build) {
+        passed += build.passed;
+        failed += build.failed;
+      });
+    }
+    // Skipped tests are left out, as in the pass rate line chart
+    chart.setOption(
+      pieOptions(
+        colors,
+        title,
+        [
+          { name: "Passed", value: passed, itemStyle: { color: colors.passed } },
+          { name: "Failed", value: failed, itemStyle: { color: colors.failed } },
+        ],
+        title,
+      ),
+    );
+  }
+
   function renderRuntimePie(chart, colors) {
     var builds = aggregate(testRows());
     if (builds.length === 0) {
@@ -992,7 +1019,7 @@
         }
         state.pieOverride = builds[index];
         if (isChecked("tra-chart-pie")) {
-          renderPie(colors, builds, runtime);
+          renderPie(colors, builds, mode);
         }
       });
       line.setOption(lineOptions);
@@ -1028,16 +1055,18 @@
     }
 
     if (showPie && builds.length > 0) {
-      renderPie(colors, builds, runtime);
+      renderPie(colors, builds, mode);
     } else {
       chartFor("pie", "tra-chart-pie-container", "tra-pie-chart", false);
     }
   }
 
-  function renderPie(colors, builds, runtime) {
+  function renderPie(colors, builds, mode) {
     var pie = chartFor("pie", "tra-chart-pie-container", "tra-pie-chart", true);
-    if (runtime) {
+    if (mode === "runtime") {
       renderRuntimePie(pie, colors);
+    } else if (mode === "passrate") {
+      renderPassRatePie(pie, colors, builds);
     } else {
       renderPassFailPie(pie, colors, builds);
     }
