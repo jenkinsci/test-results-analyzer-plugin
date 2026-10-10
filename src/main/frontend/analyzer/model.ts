@@ -40,6 +40,8 @@ export interface Bootstrap {
   runTimeHighThreshold: number;
   /** Colours set by the administrator, or null to use the theme's status colours. */
   customColors: StatusLabels | null;
+  /** The most builds that may be chosen at once, capped by the administrator's limit on the runs to fetch. */
+  maxChosenBuilds: number;
   defaults: {
     noOfBuilds: string;
     showAllBuilds: boolean;
@@ -53,8 +55,14 @@ export interface Bootstrap {
 }
 
 export interface Options {
+  /** Whether to show the latest builds, or the builds listed in buildNumbers. */
+  buildMode: "latest" | "specific";
   builds: string;
   allBuilds: boolean;
+  /** Build numbers and ranges as typed, such as "12, 36, 40-53". */
+  buildNumbers: string;
+  /** Show only the tests whose status differs between the builds shown. */
+  onlyDiffering: boolean;
   showDurations: boolean;
   showNotRun: boolean;
   hideConfig: boolean;

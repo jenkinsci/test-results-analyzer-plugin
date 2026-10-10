@@ -27,6 +27,7 @@ import org.jenkinsci.plugins.testresultsanalyzer.result.info.PackageInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.TestCaseInfo;
 import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
@@ -44,6 +45,12 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
 
     /** How many completed builds {@link #resultInfo} was loaded for, {@code -1} meaning all of them. */
     private int loadedBuilds;
+
+    /**
+     * The completed builds {@link #resultInfo} was loaded for when specific builds were chosen, newest first, or
+     * {@code null} when it holds the latest builds.
+     */
+    private List<Integer> loadedSelection;
 
     public TestResultsAnalyzerAction(@SuppressWarnings("rawtypes") Job project) {
         this.project = project;
@@ -149,7 +156,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
      * Loads results for every completed build (up to the configured number of runs to fetch).
      *
      * @deprecated results are now loaded on demand for the number of builds requested, see
-     *     {@link #doData(String, boolean)}
+     *     {@link #doData(String, String, boolean)}
      */
     @Deprecated
     public void getJsonLoadData() {
@@ -165,6 +172,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         int needed = noOfBuilds > 0 ? noOfBuilds : -1;
         boolean enough = loadedBuilds < 0 || (needed > 0 && needed <= loadedBuilds);
         if (resultInfo != null
+                && loadedSelection == null
                 && enough
                 && resultInfo.getDuplicateTestPolicy() == getDuplicateTestPolicy()
                 && !isUpdated()) {
@@ -173,22 +181,45 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         load(needed);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    /**
+     * Makes sure {@link #resultInfo} holds the chosen builds that exist and have completed.
+     *
+     * @param buildNumbers the build numbers chosen, newest first, as returned by {@link BuildSelection#parse}
+     * @return the build numbers loaded, newest first
+     */
+    @SuppressWarnings("rawtypes")
+    synchronized List<Integer> ensureLoaded(List<Integer> buildNumbers) {
+        List<Run> completed = new ArrayList<>();
+        for (int buildNumber : buildNumbers) {
+            Run run = project.getBuildByNumber(buildNumber);
+            if (run != null && !run.isBuilding()) {
+                completed.add(run);
+            }
+        }
+        List<Integer> numbers = new ArrayList<>(completed.size());
+        for (Run run : completed) {
+            numbers.add(run.getNumber());
+        }
+        // Builds may have completed or been deleted since, so compare what exists now with what was loaded
+        if (resultInfo == null
+                || !numbers.equals(loadedSelection)
+                || resultInfo.getDuplicateTestPolicy() != getDuplicateTestPolicy()) {
+            loadRuns(completed);
+            loadedSelection = Collections.unmodifiableList(numbers);
+        }
+        return loadedSelection;
+    }
+
+    @SuppressWarnings("rawtypes")
     private void load(int noOfBuilds) {
-        resultInfo = new ResultInfo(getDuplicateTestPolicy());
-        builds = new ArrayList<Integer>();
         loadedBuilds = noOfBuilds;
+        loadedSelection = null;
 
         RunList<Run> runs = null;
         if (getNoOfRunsToFetch() > 0) {
             runs = project.getBuilds().limit(getNoOfRunsToFetch());
         } else {
             runs = project.getBuilds();
-        }
-        Jenkins jenkins = Jenkins.getInstanceOrNull();
-        String rootUrl = jenkins != null ? jenkins.getRootUrl() : "";
-        if (rootUrl == null) {
-            rootUrl = "";
         }
 
         List<Run> completed = new ArrayList<>();
@@ -197,13 +228,28 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                 continue;
             }
             completed.add(run);
-            builds.add(run.getNumber());
             if (noOfBuilds > 0 && completed.size() >= noOfBuilds) {
                 break;
             }
         }
+        loadRuns(completed);
+    }
+
+    /** Replaces {@link #resultInfo} with the results of the given completed builds, newest first. */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void loadRuns(List<Run> completed) {
+        resultInfo = new ResultInfo(getDuplicateTestPolicy());
+        builds = new ArrayList<Integer>();
+        for (Run run : completed) {
+            builds.add(run.getNumber());
+        }
         if (completed.isEmpty()) {
             return;
+        }
+        Jenkins jenkins = Jenkins.getInstanceOrNull();
+        String rootUrl = jenkins != null ? jenkins.getRootUrl() : "";
+        if (rootUrl == null) {
+            rootUrl = "";
         }
 
         StorageResultLoader storageLoader =
@@ -260,20 +306,62 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
     }
 
     /**
-     * The test history tree of the latest builds as JSON, for the analyzer page.
+     * The chosen build numbers, or {@code null} when none were given and the latest builds are wanted.
+     *
+     * @throws IllegalArgumentException when the build numbers are not valid
+     */
+    private List<Integer> parseSelection(String buildNumbers) {
+        return buildNumbers == null || buildNumbers.isBlank()
+                ? null
+                : BuildSelection.parse(buildNumbers, getMaxChosenBuilds());
+    }
+
+    /** The most builds that may be chosen at once, capped by the administrator's limit on the runs to fetch. */
+    public int getMaxChosenBuilds() {
+        return BuildSelection.maxBuilds(getNoOfRunsToFetch());
+    }
+
+    /**
+     * Loads the requested builds.
+     *
+     * @param noOfBuildsNeeded the number of latest builds, or -1 for all of them; ignored when builds are chosen
+     * @param selection the chosen build numbers, newest first, or {@code null} for the latest builds
+     * @return the build numbers to show, newest first
+     */
+    private synchronized List<Integer> loadBuilds(String noOfBuildsNeeded, List<Integer> selection) {
+        if (selection != null) {
+            return ensureLoaded(selection);
+        }
+        int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
+        ensureLoaded(noOfBuilds);
+        return getBuildList(noOfBuilds);
+    }
+
+    /**
+     * The test history tree of the latest or the chosen builds as JSON, for the analyzer page.
      *
      * <p>Streamed rather than returned as a {@link JSONObject}: with many builds and tests the tree has
      * millions of cells, too many to hold as {@code net.sf.json} objects.
      *
      * @param builds the number of builds, or -1 for all of them
+     * @param buildNumbers build numbers and ranges to show instead of the latest builds, such as
+     *     {@code 12,36,40-53}; builds that do not exist or are still running are left out
      */
     @GET
-    public synchronized HttpResponse doData(@QueryParameter String builds, @QueryParameter boolean hideConfigMethods) {
+    public synchronized HttpResponse doData(
+            @QueryParameter String builds,
+            @QueryParameter String buildNumbers,
+            @QueryParameter boolean hideConfigMethods) {
         project.checkPermission(Item.READ);
-        int noOfBuilds = getNoOfBuildRequired(builds);
-        ensureLoaded(noOfBuilds);
+        List<Integer> selection;
+        try {
+            selection = parseSelection(buildNumbers);
+        } catch (IllegalArgumentException e) {
+            return HttpResponses.errorWithoutStack(400, e.getMessage());
+        }
+        List<Integer> buildList = loadBuilds(builds, selection);
         // Writing happens after the lock is released; a reload replaces these rather than changing them
-        return new TreeResponse(getBuildList(noOfBuilds), resultInfo, hideConfigMethods);
+        return new TreeResponse(buildList, resultInfo, hideConfigMethods);
     }
 
     private static final class TreeResponse implements HttpResponse {
@@ -301,32 +389,56 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
      */
     synchronized void writeTreeResult(Writer out, String noOfBuildsNeeded, boolean hideConfigMethods)
             throws IOException {
-        int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
-        ensureLoaded(noOfBuilds);
-        new JsTreeUtil().writeJsTree(out, getBuildList(noOfBuilds), resultInfo, hideConfigMethods);
+        writeTreeResult(out, noOfBuildsNeeded, null, hideConfigMethods);
     }
 
     /**
-     * Downloads the test results of the latest builds as CSV.
+     * Writes the test history tree for the latest or the chosen builds as JSON.
+     *
+     * @throws IllegalArgumentException when the build numbers are not valid
+     */
+    synchronized void writeTreeResult(
+            Writer out, String noOfBuildsNeeded, String buildNumbers, boolean hideConfigMethods) throws IOException {
+        List<Integer> buildList = loadBuilds(noOfBuildsNeeded, parseSelection(buildNumbers));
+        new JsTreeUtil().writeJsTree(out, buildList, resultInfo, hideConfigMethods);
+    }
+
+    /**
+     * Downloads the test results of the latest or the chosen builds as CSV.
      *
      * @param builds the number of builds, or -1 for all of them
+     * @param buildNumbers build numbers and ranges to export instead of the latest builds, as for
+     *     {@link #doData(String, String, boolean)}
      * @param durations whether to export run times instead of statuses
      */
     @GET
-    public void doCsv(StaplerResponse2 rsp, @QueryParameter String builds, @QueryParameter boolean durations)
-            throws IOException {
+    public HttpResponse doCsv(
+            @QueryParameter String builds, @QueryParameter String buildNumbers, @QueryParameter boolean durations) {
         project.checkPermission(Item.READ);
-        String csv = exportCsv(durations, builds);
-        rsp.setContentType("text/csv;charset=UTF-8");
-        rsp.setHeader("Content-Disposition", "attachment; filename=\"test-results.csv\"");
-        rsp.getWriter().write(csv);
+        List<Integer> selection;
+        try {
+            selection = parseSelection(buildNumbers);
+        } catch (IllegalArgumentException e) {
+            return HttpResponses.errorWithoutStack(400, e.getMessage());
+        }
+        String csv = exportCsv(durations, builds, selection);
+        return new HttpResponse() {
+            @Override
+            public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node) throws IOException {
+                rsp.setContentType("text/csv;charset=UTF-8");
+                rsp.setHeader("Content-Disposition", "attachment; filename=\"test-results.csv\"");
+                rsp.getWriter().write(csv);
+            }
+        };
     }
 
     synchronized String exportCsv(boolean isTimeBased, String noOfBuildsNeeded) {
-        int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
-        ensureLoaded(noOfBuilds);
+        return exportCsv(isTimeBased, noOfBuildsNeeded, null);
+    }
+
+    synchronized String exportCsv(boolean isTimeBased, String noOfBuildsNeeded, List<Integer> selection) {
+        List<Integer> buildList = loadBuilds(noOfBuildsNeeded, selection);
         Map<String, PackageInfo> packageResults = resultInfo.getPackageResults();
-        List<Integer> buildList = getBuildList(noOfBuilds);
 
         StringBuilder exportBuilder = new StringBuilder("\"Package\",\"Class\",\"Test\"");
         for (Integer buildNumber : buildList) {
@@ -426,6 +538,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                 .element("labels", labels)
                 .element("runTimeLowThreshold", parseSeconds(getRunTimeLowThreshold()))
                 .element("runTimeHighThreshold", parseSeconds(getRunTimeHighThreshold()))
+                .element("maxChosenBuilds", getMaxChosenBuilds())
                 .element("defaults", defaults);
         if (isUseCustomStatusColors()) {
             bootstrap.element(
