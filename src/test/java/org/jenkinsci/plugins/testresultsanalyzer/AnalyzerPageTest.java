@@ -166,14 +166,12 @@ class AnalyzerPageTest {
 
     @Test
     void chartCountByIsPassedToThePage() throws Exception {
-        configureGlobally("chartCountBy: 'classes'");
+        TestResultsAnalyzerAction action = calculatorProject().getAction(TestResultsAnalyzerAction.class);
         try {
-            String bootstrap = calculatorProject()
-                    .getAction(TestResultsAnalyzerAction.class)
-                    .getBootstrapJson();
-            assertThat(
-                    JSONObject.fromObject(bootstrap).getJSONObject("defaults").getString("chartCountBy"),
-                    is("classes"));
+            configureGlobally("chartCountBy: 'classes'");
+            assertThat(defaults(action).getString("chartCountBy"), is("classes"));
+            configureGlobally("chartCountBy: 'bogus'");
+            assertThat(defaults(action).getString("chartCountBy"), is("tests"));
         } finally {
             configureGlobally("");
         }

@@ -186,10 +186,13 @@ export function aggregate(nodes: TreeNode[]): BuildTotals[] {
 
 /**
  * The status of a class or package made up of the given results, worked out as Jenkins does: skipped
- * when every test that ran was skipped, failed when any failed, otherwise passed.
+ * when every test that ran was skipped, failed when any failed, otherwise passed. A class or package
+ * without any tests, such as one whose only tests are hidden configuration methods, did not run.
  */
 export function combinedStatus(results: BuildResult[]): Status {
-  const ran = results.filter((result) => result.status !== "N/A");
+  const ran = results.filter(
+    (result) => result.status !== "N/A" && result.totalTests !== 0,
+  );
   if (ran.length === 0) {
     return "N/A";
   }

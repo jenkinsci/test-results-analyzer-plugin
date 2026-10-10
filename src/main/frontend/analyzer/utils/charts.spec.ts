@@ -341,14 +341,16 @@ describe("build labels", () => {
     expect(bar).toContain("#2 &lt;b&gt;a &amp; b&lt;/b&gt;");
     expect(bar).not.toContain("<b>");
     expect(bar).toContain('<span class="marker0"></span>Series &lt;0&gt;');
-    expect(bar).toContain(">3</strong>");
-    expect(bar).toContain(">1</strong>");
+    // Counts name their unit, tests unless counting by class or package
+    expect(bar).toContain(">3 tests</strong>");
+    expect(bar).toContain(">1 test</strong>");
 
     const line = format(
       lineChartOptions(theme, builds, "passfail", named),
       params(0, [4]),
     );
     expect(line).toContain("#1 nightly-2026-10-08");
+    expect(line).toContain(">4 tests</strong>");
 
     expect(
       format(
