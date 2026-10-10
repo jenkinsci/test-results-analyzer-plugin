@@ -22,6 +22,14 @@ public class ResultInfo {
         packageResults.put(packageName, packageInfo);
     }
 
+    public PackageInfo getOrCreatePackage(String packageName) {
+        return packageResults.computeIfAbsent(packageName, name -> {
+            PackageInfo packageInfo = new PackageInfo();
+            packageInfo.setName(name);
+            return packageInfo;
+        });
+    }
+
     public Map<String, PackageInfo> getPackageResults() {
         return this.packageResults;
     }

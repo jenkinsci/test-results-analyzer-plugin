@@ -5,11 +5,15 @@ import hudson.model.Actionable;
 import hudson.model.Item;
 import hudson.model.Job;
 import hudson.model.Run;
+import hudson.tasks.junit.TestResultAction;
 import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.AggregatedTestResultAction;
 import hudson.tasks.test.TabulatedResult;
 import hudson.tasks.test.TestResult;
 import hudson.util.RunList;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -23,6 +27,9 @@ import org.jenkinsci.plugins.testresultsanalyzer.result.info.ClassInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.PackageInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.TestCaseInfo;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
 public class TestResultsAnalyzerAction extends Actionable implements Action {
@@ -34,6 +41,9 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
     private static final Logger LOG = Logger.getLogger(TestResultsAnalyzerAction.class.getName());
 
     ResultInfo resultInfo;
+
+    /** How many completed builds {@link #resultInfo} was loaded for, {@code -1} meaning all of them. */
+    private int loadedBuilds;
 
     public TestResultsAnalyzerAction(@SuppressWarnings("rawtypes") Job project) {
         this.project = project;
@@ -102,9 +112,10 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
     }
 
     @JavaScriptMethod
-    public JSONArray getNoOfBuilds(String noOfbuildsNeeded) {
+    public synchronized JSONArray getNoOfBuilds(String noOfbuildsNeeded) {
         JSONArray jsonArray;
         int noOfBuilds = getNoOfBuildRequired(noOfbuildsNeeded);
+        ensureLoaded(noOfBuilds);
 
         jsonArray = getBuildsArray(getBuildList(noOfBuilds));
 
@@ -143,8 +154,8 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         return noOfBuilds;
     }
 
-    public boolean isUpdated() {
-        Run lastBuild = project.getLastBuild();
+    public synchronized boolean isUpdated() {
+        Run lastBuild = project.getLastCompletedBuild();
         if (lastBuild == null) {
             return false;
         }
@@ -153,14 +164,36 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         return !(builds.contains(latestBuildNumber));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    /**
+     * Loads results for every completed build (up to the configured number of runs to fetch).
+     *
+     * @deprecated results are now loaded on demand for the number of builds requested, see
+     *     {@link #getTreeResult(UserConfig)}
+     */
+    @Deprecated
     public void getJsonLoadData() {
-        if (!isUpdated()) {
+        ensureLoaded(-1);
+    }
+
+    /**
+     * Makes sure {@link #resultInfo} holds at least the latest {@code noOfBuilds} completed builds.
+     *
+     * @param noOfBuilds number of completed builds needed, or a non-positive number for all of them
+     */
+    synchronized void ensureLoaded(int noOfBuilds) {
+        int needed = noOfBuilds > 0 ? noOfBuilds : -1;
+        boolean enough = loadedBuilds < 0 || (needed > 0 && needed <= loadedBuilds);
+        if (resultInfo != null && enough && !isUpdated()) {
             return;
         }
+        load(needed);
+    }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void load(int noOfBuilds) {
         resultInfo = new ResultInfo();
         builds = new ArrayList<Integer>();
+        loadedBuilds = noOfBuilds;
 
         RunList<Run> runs = null;
         if (getNoOfRunsToFetch() > 0) {
@@ -168,33 +201,64 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         } else {
             runs = project.getBuilds();
         }
+        Jenkins jenkins = Jenkins.getInstanceOrNull();
+        String rootUrl = jenkins != null ? jenkins.getRootUrl() : "";
+        if (rootUrl == null) {
+            rootUrl = "";
+        }
+
+        List<Run> completed = new ArrayList<>();
         for (Run run : runs) {
             if (run.isBuilding()) {
                 continue;
             }
+            completed.add(run);
+            builds.add(run.getNumber());
+            if (noOfBuilds > 0 && completed.size() >= noOfBuilds) {
+                break;
+            }
+        }
+        if (completed.isEmpty()) {
+            return;
+        }
 
+        StorageResultLoader storageLoader =
+                StorageResultLoader.forJob(project, completed.get(0).getNumber());
+        Map<Integer, String> storageBuilds = new HashMap<>();
+        for (Run run : completed) {
             int buildNumber = run.getNumber();
-            builds.add(buildNumber);
-
             List<AbstractTestResultAction> testActions = run.getActions(AbstractTestResultAction.class);
+            if (storageLoader != null && isOnlyJUnitAction(testActions)) {
+                storageBuilds.put(buildNumber, rootUrl + run.getUrl());
+                continue;
+            }
             for (AbstractTestResultAction testAction : testActions) {
                 if (AggregatedTestResultAction.class.isInstance(testAction)) {
-                    addTestResults(buildNumber, (AggregatedTestResultAction) testAction);
+                    addTestResults(buildNumber, (AggregatedTestResultAction) testAction, rootUrl);
                 } else {
-                    addTestResult(buildNumber, run, testAction, testAction.getResult());
+                    addTestResult(buildNumber, run, testAction, testAction.getResult(), rootUrl);
                 }
             }
         }
-    }
-
-    private void addTestResults(int buildNumber, AggregatedTestResultAction testAction) {
-        List<AggregatedTestResultAction.ChildReport> childReports = testAction.getChildReports();
-        for (AggregatedTestResultAction.ChildReport childReport : childReports) {
-            addTestResult(buildNumber, childReport.run, testAction, childReport.result);
+        if (storageLoader != null) {
+            storageLoader.load(storageBuilds, resultInfo);
         }
     }
 
-    private void addTestResult(int buildNumber, Run run, AbstractTestResultAction testAction, Object result) {
+    @SuppressWarnings("rawtypes")
+    private static boolean isOnlyJUnitAction(List<AbstractTestResultAction> testActions) {
+        return testActions.size() == 1 && testActions.get(0).getClass() == TestResultAction.class;
+    }
+
+    private void addTestResults(int buildNumber, AggregatedTestResultAction testAction, String rootUrl) {
+        List<AggregatedTestResultAction.ChildReport> childReports = testAction.getChildReports();
+        for (AggregatedTestResultAction.ChildReport childReport : childReports) {
+            addTestResult(buildNumber, childReport.run, testAction, childReport.result, rootUrl);
+        }
+    }
+
+    private void addTestResult(
+            int buildNumber, Run run, AbstractTestResultAction testAction, Object result, String rootUrl) {
         if (run == null || result == null) {
             return;
         }
@@ -202,8 +266,6 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         try {
             TabulatedResult testResult = (TabulatedResult) result;
             Collection<? extends TestResult> packageResults = testResult.getChildren();
-            Jenkins jenkins = Jenkins.getInstance();
-            String rootUrl = jenkins != null ? jenkins.getRootUrl() : "";
             for (TestResult packageResult : packageResults) { // packageresult
                 resultInfo.addPackage(buildNumber, (TabulatedResult) packageResult, rootUrl + run.getUrl());
             }
@@ -213,24 +275,55 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         }
     }
 
+    /**
+     * The test history tree for the requested number of builds, as JSON.
+     *
+     * <p>Streamed rather than returned as a {@link JSONObject}: with many builds and tests the tree has
+     * millions of cells, too many to hold as {@code net.sf.json} objects.
+     */
     @JavaScriptMethod
-    public JSONObject getTreeResult(UserConfig userConfig) {
-        if (resultInfo == null) {
-            return new JSONObject();
+    public synchronized HttpResponse getTreeResult(UserConfig userConfig) {
+        int noOfBuilds = getNoOfBuildRequired(userConfig.getNoOfBuildsNeeded());
+        ensureLoaded(noOfBuilds);
+        List<Integer> buildList = getBuildList(noOfBuilds);
+        return new TreeResponse(buildList, resultInfo, userConfig.isHideConfigMethods());
+    }
+
+    private static final class TreeResponse implements HttpResponse {
+        private final List<Integer> builds;
+        private final ResultInfo resultInfo;
+        private final boolean hideConfigMethods;
+
+        TreeResponse(List<Integer> builds, ResultInfo resultInfo, boolean hideConfigMethods) {
+            this.builds = builds;
+            this.resultInfo = resultInfo;
+            this.hideConfigMethods = hideConfigMethods;
         }
 
-        int noOfBuilds = getNoOfBuildRequired(userConfig.getNoOfBuildsNeeded());
-        List<Integer> buildList = getBuildList(noOfBuilds);
+        @Override
+        public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp, Object node) throws IOException {
+            rsp.setContentType("application/json;charset=UTF-8");
+            try (Writer out = new BufferedWriter(rsp.getCompressedWriter(req), 64 * 1024)) {
+                new JsTreeUtil().writeJsTree(out, builds, resultInfo, hideConfigMethods);
+            }
+        }
+    }
 
-        JsTreeUtil jsTreeUtils = new JsTreeUtil();
-        return jsTreeUtils.getJsTree(buildList, resultInfo, userConfig.isHideConfigMethods());
+    /**
+     * Writes the test history tree for the requested number of builds as JSON.
+     */
+    synchronized void writeTreeResult(Writer out, UserConfig userConfig) throws IOException {
+        int noOfBuilds = getNoOfBuildRequired(userConfig.getNoOfBuildsNeeded());
+        ensureLoaded(noOfBuilds);
+        new JsTreeUtil().writeJsTree(out, getBuildList(noOfBuilds), resultInfo, userConfig.isHideConfigMethods());
     }
 
     @JavaScriptMethod
-    public String getExportCSV(String timeBased, String noOfBuildsNeeded) {
+    public synchronized String getExportCSV(String timeBased, String noOfBuildsNeeded) {
         boolean isTimeBased = Boolean.parseBoolean(timeBased);
-        Map<String, PackageInfo> packageResults = resultInfo.getPackageResults();
         int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
+        ensureLoaded(noOfBuilds);
+        Map<String, PackageInfo> packageResults = resultInfo.getPackageResults();
         List<Integer> buildList = getBuildList(noOfBuilds);
 
         StringBuilder exportBuilder = new StringBuilder("\"Package\",\"Class\",\"Test\"");

@@ -17,6 +17,14 @@ public class ClassInfo extends Info {
         this.buildResults.put(buildNumber, classResultData);
     }
 
+    public TestCaseInfo getOrCreateTest(String testName) {
+        return tests.computeIfAbsent(testName, name -> {
+            TestCaseInfo testCaseInfo = new TestCaseInfo();
+            testCaseInfo.setName(name);
+            return testCaseInfo;
+        });
+    }
+
     public Map<String, TestCaseInfo> getTests() {
         return tests;
     }

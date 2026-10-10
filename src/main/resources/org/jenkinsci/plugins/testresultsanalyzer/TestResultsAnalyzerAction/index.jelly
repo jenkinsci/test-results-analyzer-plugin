@@ -3,8 +3,6 @@
   <l:layout title="${it.displayName}">
     <st:include it="${it.project}" page="sidepanel.jelly" />
     <l:main-panel>
-      <!-- Collects the test results that the remote methods below serve -->
-      <j:set var="loadData" value="${it.jsonLoadData}" />
       <st:bind var="remoteAction" value="${it}" />
       <st:adjunct includes="io.jenkins.plugins.echarts" />
       <link rel="stylesheet" type="text/css" href="${resURL}/plugin/test-results-analyzer/css/analyzer.css" />
