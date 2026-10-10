@@ -105,6 +105,9 @@
                      placeholder="${%Filter by package, class or test}" autocomplete="off" spellcheck="false" />
             </div>
             <div class="tra-toolbar__actions">
+              <button type="button" id="tra-select-toggle" class="jenkins-button jenkins-button--tertiary" aria-pressed="false"
+                      title="${%Choose packages, classes or tests to chart}"
+                      data-label-select="${%Select}" data-label-done="${%Done}">${%Select}</button>
               <button type="button" id="tra-expand-all" class="jenkins-button jenkins-button--tertiary">${%Expand all}</button>
               <button type="button" id="tra-collapse-all" class="jenkins-button jenkins-button--tertiary">${%Collapse all}</button>
             </div>
@@ -118,7 +121,8 @@
           </p>
           <div id="tra-history" class="tra-history-container" />
           <p class="tra-legend jenkins-!-text-color-secondary">
-            ${%Newest build first. Select packages, classes or tests to chart only those.}
+            <span id="tra-legend-default">${%Newest build first.}</span>
+            <span id="tra-legend-selecting" hidden="hidden">${%Tick packages, classes or tests to chart only those.}</span>
           </p>
         </section>
 

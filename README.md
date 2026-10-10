@@ -21,7 +21,7 @@ side panel.
   passing and failing. A red marker flags a test that passed in the previous build and fails now.
 - **Filter**: type part of a package, class or test name to narrow the list.
 - **Charts**: line, stacked bar and pie charts of passes and failures per build, or of test run
-  times. Select rows to chart only those items. Click a build on the line chart to show it in the
+  times. Click **Select** and tick packages, classes or tests to chart only those. Click a build on the line chart to show it in the
   pie chart. Each chart can be saved as an image.
 - **Most broken tests**: the tests that failed most often, with links to the builds they failed in.
 - **Download CSV**: exports the visible history.

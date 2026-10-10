@@ -74,6 +74,12 @@ class AnalyzerPageTest {
                 "//div[@id='tra-history']//div[contains(concat(' ', @class, ' '), ' tra-row ')]");
     }
 
+    private static String checkedRows(HtmlPage page) {
+        return page.executeJavaScript("String(document.querySelectorAll('.tra-row-select:checked').length)")
+                .getJavaScriptResult()
+                .toString();
+    }
+
     private static List<String> visibleRowNames(HtmlPage page) {
         return rows(page).stream()
                 .filter(row -> !row.hasAttribute("hidden"))
@@ -150,5 +156,26 @@ class AnalyzerPageTest {
         List<DomElement> numbers = testB.getByXPath(".//span[contains(concat(' ', @class, ' '), ' tra-stat ')]");
         assertThat(numbers.get(0).getTextContent(), is("67% (67%)"));
         assertThat(numbers.get(1).getTextContent(), is("1"));
+    }
+
+    @Test
+    void selectModeShowsCheckboxesAndClearsSelectionWhenDone() throws Exception {
+        HtmlPage page = openAnalyzer();
+        DomElement history = page.getElementById("tra-history");
+        DomElement toggle = page.getElementById("tra-select-toggle");
+        assertThat(history.getAttribute("class"), not(containsString("tra-history-container--selecting")));
+
+        toggle.click();
+        assertThat(toggle.getAttribute("aria-pressed"), is("true"));
+        assertThat(history.getAttribute("class"), containsString("tra-history-container--selecting"));
+
+        HtmlInput checkbox = page.getFirstByXPath("//div[@data-name='com.example']//input[@type='checkbox']");
+        checkbox.setChecked(true);
+        assertThat(checkedRows(page), is("4"));
+
+        toggle.click();
+        assertThat(toggle.getAttribute("aria-pressed"), is("false"));
+        assertThat(history.getAttribute("class"), not(containsString("tra-history-container--selecting")));
+        assertThat(checkedRows(page), is("0"));
     }
 }

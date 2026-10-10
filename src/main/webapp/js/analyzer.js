@@ -1128,6 +1128,29 @@
     });
   }
 
+  /** Shows or hides the row checkboxes; leaving selection mode clears the selection. */
+  function setSelecting(selecting) {
+    var toggle = byId("tra-select-toggle");
+    toggle.setAttribute("aria-pressed", selecting ? "true" : "false");
+    toggle.textContent = selecting ? toggle.dataset.labelDone : toggle.dataset.labelSelect;
+    byId("tra-history").classList.toggle("tra-history-container--selecting", selecting);
+    byId("tra-legend-default").hidden = selecting;
+    byId("tra-legend-selecting").hidden = !selecting;
+    if (!selecting) {
+      var cleared = false;
+      state.rows.forEach(function (row) {
+        if (checkboxOf(row).checked) {
+          checkboxOf(row).checked = false;
+          cleared = true;
+        }
+      });
+      if (cleared) {
+        state.pieOverride = null;
+        renderCharts();
+      }
+    }
+  }
+
   function debounce(fn, wait) {
     var timer = null;
     return function () {
@@ -1173,6 +1196,9 @@
     });
     byId("tra-apply").addEventListener("click", load);
     byId("tra-download-csv").addEventListener("click", downloadCsv);
+    byId("tra-select-toggle").addEventListener("click", function (event) {
+      setSelecting(event.currentTarget.getAttribute("aria-pressed") !== "true");
+    });
     byId("tra-expand-all").addEventListener("click", expandAll);
     byId("tra-collapse-all").addEventListener("click", function () {
       byId("tra-filter").value = "";
