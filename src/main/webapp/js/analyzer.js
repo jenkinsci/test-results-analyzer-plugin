@@ -141,8 +141,18 @@
   // Test history: one card per package, a row per class / test with a build strip
   // ---------------------------------------------------------------------------
 
+  function didNotRun(node) {
+    return node.buildResults.every(function (result) {
+      return result.status === "N/A";
+    });
+  }
+
   function flatten(nodes, level, out) {
     nodes.forEach(function (node) {
+      // Tests that were renamed or removed have no results in the builds shown
+      if (!isChecked("tra-show-not-run") && didNotRun(node)) {
+        return;
+      }
       out.push({ node: node, level: level });
       if (node.children && node.children.length > 0) {
         flatten(node.children, level + 1, out);
@@ -547,7 +557,7 @@
   function renderWorstTests(data) {
     var container = byId("tra-worst-tests");
     container.textContent = "";
-    var tests = worstTests(data, 10);
+    var tests = worstTests(data, Math.max(1, parseInt(byId("tra-worst-count").value, 10) || 10));
     if (tests.length === 0) {
       container.appendChild(el("p", "jenkins-!-text-color-secondary", "There are no failing tests."));
       return;
@@ -848,7 +858,7 @@
       title = "Build #" + build.build;
       counts = { passed: build.passed, failed: build.failed, skipped: build.skipped };
     } else {
-      title = "Builds by result";
+      title = builds.length === 1 ? "Last build by result" : "Last " + builds.length + " builds by result";
       counts = passFailPieData(builds);
     }
     chart.setOption(
@@ -907,9 +917,11 @@
     if (!state.data || typeof echarts === "undefined") {
       return;
     }
-    var runtime = byId("tra-chart-data").value === "runtime";
+    var mode = byId("tra-chart-data").value;
+    var runtime = mode === "runtime";
+    var passRate = mode === "passrate";
     var showLine = isChecked("tra-chart-line");
-    var showBar = isChecked("tra-chart-bar") && !runtime;
+    var showBar = isChecked("tra-chart-bar") && mode === "passfail";
     var showPie = isChecked("tra-chart-pie");
     byId("tra-charts-section").hidden = state.rows.length === 0 || !(showLine || showBar || showPie);
 
@@ -921,10 +933,29 @@
 
     var line = chartFor("line", "tra-chart-line-container", "tra-line-chart", showLine && builds.length > 0);
     if (line) {
-      var lineOptions = baseOptions(colors, runtime ? "Build run time" : "Build status");
-      Object.assign(lineOptions, axes(colors, categories, runtime ? "Seconds" : "Tests"));
+      var lineTitle = runtime ? "Build run time" : passRate ? "Pass rate" : "Build status";
+      var yName = runtime ? "Seconds" : passRate ? "%" : "Tests";
+      var lineOptions = baseOptions(colors, lineTitle);
+      Object.assign(lineOptions, axes(colors, categories, yName));
       lineOptions.tooltip.trigger = "axis";
-      if (runtime) {
+      if (passRate) {
+        lineOptions.yAxis.max = 100;
+        lineOptions.yAxis.minInterval = null;
+        lineOptions.tooltip.valueFormatter = function (value) {
+          return value === null ? "–" : value + "%";
+        };
+        lineOptions.series = [
+          lineSeries(
+            "Pass rate",
+            builds.map(function (build) {
+              // Skipped tests neither pass nor fail, so they are left out of the rate
+              var ran = build.passed + build.failed;
+              return ran === 0 ? null : Math.round((1000 * build.passed) / ran) / 10;
+            }),
+            colors.passed,
+          ),
+        ];
+      } else if (runtime) {
         lineOptions.yAxis.minInterval = null;
         lineOptions.tooltip.valueFormatter = function (value) {
           return value + " s";
@@ -1075,20 +1106,29 @@
       data.results = data.results || [];
       state.data = data;
       byId("tra-loading").hidden = true;
-
-      var container = byId("tra-history");
-      if (data.results.length === 0) {
-        byId("tra-empty").hidden = false;
-      } else {
-        var history = renderHistory(data);
-        bindHistoryEvents(history);
-        container.appendChild(history);
-        state.rows = Array.prototype.slice.call(history.querySelectorAll(".tra-row"));
-        applyFilter();
-      }
-      renderWorstTests(data);
-      renderCharts();
+      render();
     });
+  }
+
+  /** Renders the loaded data; also used when an option that needs no new data changes. */
+  function render() {
+    var data = state.data;
+    var container = byId("tra-history");
+    container.textContent = "";
+    state.rows = [];
+    state.pieOverride = null;
+
+    var history = renderHistory(data);
+    var rows = history.querySelectorAll(".tra-row");
+    byId("tra-empty").hidden = rows.length > 0;
+    if (rows.length > 0) {
+      bindHistoryEvents(history);
+      container.appendChild(history);
+      state.rows = Array.prototype.slice.call(rows);
+      applyFilter();
+    }
+    renderWorstTests(data);
+    renderCharts();
   }
 
   function downloadCsv() {
@@ -1187,7 +1227,7 @@
       byId("tra-builds").disabled = event.target.checked;
     });
     byId("tra-chart-data").addEventListener("change", function (event) {
-      byId("tra-chart-bar").disabled = event.target.value === "runtime";
+      byId("tra-chart-bar").disabled = event.target.value !== "passfail";
       state.pieOverride = null;
       renderCharts();
     });
@@ -1195,6 +1235,16 @@
       byId(id).addEventListener("change", renderCharts);
     });
     byId("tra-apply").addEventListener("click", load);
+    byId("tra-show-not-run").addEventListener("change", function () {
+      if (state.data) {
+        render();
+      }
+    });
+    byId("tra-worst-count").addEventListener("change", function () {
+      if (state.data) {
+        renderWorstTests(state.data);
+      }
+    });
     byId("tra-download-csv").addEventListener("click", downloadCsv);
     byId("tra-select-toggle").addEventListener("click", function (event) {
       setSelecting(event.currentTarget.getAttribute("aria-pressed") !== "true");

@@ -54,7 +54,19 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
      * @return the icon file as String
      */
     public final String getIconFileName() {
-        return this.hasPermission() ? Constants.ICONFILENAME : null;
+        return this.hasPermission() && hasTestResults() ? Constants.ICONFILENAME : null;
+    }
+
+    /**
+     * Whether the job published test results recently, so jobs without tests do not get a side panel link.
+     * Only the latest builds are checked to keep rendering the job page cheap.
+     */
+    private boolean hasTestResults() {
+        return hasTestResults(project.getLastCompletedBuild()) || hasTestResults(project.getLastSuccessfulBuild());
+    }
+
+    private static boolean hasTestResults(Run<?, ?> run) {
+        return run != null && run.getAction(AbstractTestResultAction.class) != null;
     }
 
     /**
@@ -221,17 +233,11 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
         List<Integer> buildList = getBuildList(noOfBuilds);
 
-        StringBuffer builder = new StringBuffer("");
-        for (int i = 0; i < buildList.size(); i++) {
-            builder.append(",\"");
-            builder.append(Integer.toString(builds.get(i)));
-            builder.append("\"");
+        StringBuilder exportBuilder = new StringBuilder("\"Package\",\"Class\",\"Test\"");
+        for (Integer buildNumber : buildList) {
+            exportBuilder.append(',').append(csvValue(buildNumber.toString()));
         }
-        String header = "\"Package\",\"Class\",\"Test\"";
-        header += builder.toString();
-
-        StringBuilder exportBuilder = new StringBuilder();
-        exportBuilder.append(header + System.lineSeparator());
+        exportBuilder.append(System.lineSeparator());
         DecimalFormat decimalFormat = new DecimalFormat("#.###");
         decimalFormat.setRoundingMode(RoundingMode.CEILING);
         for (PackageInfo pInfo : packageResults.values()) {
@@ -242,7 +248,12 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                 // loop the tests
                 for (TestCaseInfo tInfo : cInfo.getTests().values()) {
                     String testName = tInfo.getName();
-                    exportBuilder.append("\"" + packageName + "\",\"" + className + "\",\"" + testName + "\"");
+                    exportBuilder
+                            .append(csvValue(packageName))
+                            .append(',')
+                            .append(csvValue(className))
+                            .append(',')
+                            .append(csvValue(testName));
                     Map<Integer, ResultData> buildPackageResults = tInfo.getBuildPackageResults();
                     for (int i = 0; i < buildList.size(); i++) {
                         Integer buildNumber = buildList.get(i);
@@ -255,13 +266,20 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                                 data = decimalFormat.format(buildResult.getTotalTimeTaken());
                             }
                         }
-                        exportBuilder.append(",\"" + data + "\"");
+                        exportBuilder.append(',').append(csvValue(data));
                     }
                     exportBuilder.append(System.lineSeparator());
                 }
             }
         }
         return exportBuilder.toString();
+    }
+
+    /**
+     * Quotes a CSV value, doubling any quotes inside it (RFC 4180).
+     */
+    static String csvValue(String value) {
+        return "\"" + (value == null ? "" : value.replace("\"", "\"\"")) + "\"";
     }
 
     private String getCustomStatus(String status) {

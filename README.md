@@ -20,14 +20,15 @@ side panel.
   that build. Rows also show how often the item passed and how many times it switched between
   passing and failing. A red marker flags a test that passed in the previous build and fails now.
 - **Filter**: type part of a package, class or test name to narrow the list.
-- **Charts**: line, stacked bar and pie charts of passes and failures per build, or of test run
-  times. Click **Select** and tick packages, classes or tests to chart only those. Click a build on the line chart to show it in the
+- **Charts**: line, stacked bar and pie charts of passes and failures per build, the pass rate,
+  or test run times. Click **Select** and tick packages, classes or tests to chart only those. Click a build on the line chart to show it in the
   pie chart. Each chart can be saved as an image.
 - **Most broken tests**: the tests that failed most often, with links to the builds they failed in.
 - **Download CSV**: exports the visible history.
 
-Use **Options** to change the number of builds, show run times instead of results, hide TestNG
-configuration methods, or pick which charts to draw. Defaults, run-time thresholds, custom status
+Use **Options** to change the number of builds, show run times instead of results, show tests that
+did not run in the builds shown, hide TestNG configuration methods, change how many most broken
+tests are listed, or pick which charts to draw. Defaults, run-time thresholds, custom status
 names and custom status colours are set under *Manage Jenkins › System › Test Results Analyzer*.
 
 The page follows the Jenkins theme, including dark mode, and adapts to small screens.

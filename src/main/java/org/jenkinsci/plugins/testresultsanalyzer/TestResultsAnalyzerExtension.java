@@ -61,6 +61,7 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
 
         private static final String passFailString = "passfail";
         private static final String runtimeString = "runtime";
+        private static final String passRateString = "passrate";
         private boolean useCustomStatusNames;
         private String passedRepresentation = "PASSED";
         private String failedRepresentation = "FAILED";
@@ -185,6 +186,10 @@ public class TestResultsAnalyzerExtension extends TransientActionFactory<Job>
 
         public String getRuntimeString() {
             return runtimeString;
+        }
+
+        public String getPassRateString() {
+            return passRateString;
         }
 
         public String getPassedRepresentation() {

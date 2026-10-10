@@ -30,6 +30,7 @@
 				<select name="chartDataType" class="jenkins-select__input">
 					<f:option value="${descriptor.getPassFailString()}" selected="${descriptor.getChartDataType().equals(descriptor.getPassFailString())}">${%Passes/Failures}</f:option>
 					<f:option value="${descriptor.getRuntimeString()}" selected="${descriptor.getChartDataType().equals(descriptor.getRuntimeString())}">${%Test Runtimes}</f:option>
+					<f:option value="${descriptor.getPassRateString()}" selected="${descriptor.getChartDataType().equals(descriptor.getPassRateString())}">${%Pass Rate}</f:option>
 				</select>
 			</div>
 		</f:entry>

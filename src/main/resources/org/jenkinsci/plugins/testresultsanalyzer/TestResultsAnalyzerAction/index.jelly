@@ -57,6 +57,10 @@
                   <label for="tra-show-durations">${%Show run time for each test}</label>
                 </span>
                 <span class="jenkins-checkbox">
+                  <input type="checkbox" id="tra-show-not-run" />
+                  <label for="tra-show-not-run">${%Show tests that did not run in these builds}</label>
+                </span>
+                <span class="jenkins-checkbox">
                   <input type="checkbox" id="tra-hide-config" checked="${it.hideConfigurationMethods ? 'checked' : null}" />
                   <label for="tra-hide-config">${%Hide TestNG configuration methods}</label>
                 </span>
@@ -70,7 +74,7 @@
                 </span>
                 <span class="jenkins-checkbox">
                   <input type="checkbox" id="tra-chart-bar" checked="${it.showBarGraph ? 'checked' : null}"
-                         disabled="${it.chartDataType == 'runtime' ? 'disabled' : null}" />
+                         disabled="${it.chartDataType == 'runtime' or it.chartDataType == 'passrate' ? 'disabled' : null}" />
                   <label for="tra-chart-bar">${%Bar}</label>
                 </span>
                 <span class="jenkins-checkbox">
@@ -80,10 +84,16 @@
               </div>
 
               <div class="tra-options__group">
+                <label class="jenkins-form-label" for="tra-worst-count">${%Most broken tests to show}</label>
+                <input id="tra-worst-count" class="jenkins-input tra-options__number" type="number" min="1" step="1" value="10" />
+              </div>
+
+              <div class="tra-options__group">
                 <label class="jenkins-form-label" for="tra-chart-data">${%Chart data}</label>
                 <div class="jenkins-select">
                   <select id="tra-chart-data" class="jenkins-select__input">
-                    <option value="passfail" selected="${it.chartDataType != 'runtime' ? 'selected' : null}">${%Passes and failures}</option>
+                    <option value="passfail" selected="${it.chartDataType != 'runtime' and it.chartDataType != 'passrate' ? 'selected' : null}">${%Passes and failures}</option>
+                    <option value="passrate" selected="${it.chartDataType == 'passrate' ? 'selected' : null}">${%Pass rate}</option>
                     <option value="runtime" selected="${it.chartDataType == 'runtime' ? 'selected' : null}">${%Test run times}</option>
                   </select>
                 </div>
