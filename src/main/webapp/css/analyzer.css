@@ -1,0 +1,477 @@
+/*
+ * Test Results Analyzer styles.
+ * Only Jenkins design-library tokens are used so the page follows the active theme (light, dark, system).
+ */
+#tra-root {
+  --tra-passed: var(--success-color);
+  --tra-failed: var(--error-color);
+  --tra-skipped: var(--warning-color);
+  --tra-na: var(--text-color-secondary);
+  --tra-total: var(--accent-color);
+}
+
+#tra-root [hidden] {
+  display: none !important;
+}
+
+.tra-section {
+  margin-bottom: var(--section-padding);
+}
+
+/* Options */
+.tra-options {
+  margin-bottom: var(--section-padding);
+}
+
+.tra-options__grid {
+  display: grid;
+  gap: 1.25rem 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.tra-options__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tra-options__group .jenkins-form-label {
+  margin-bottom: 0;
+}
+
+.tra-options__inline {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+
+.tra-options__number {
+  max-width: 7rem;
+}
+
+.tra-options__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+/* Toolbar */
+.tra-toolbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.tra-toolbar__search {
+  flex: 1 1 18rem;
+  max-width: 32rem;
+}
+
+.tra-toolbar__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.tra-loading,
+.tra-empty {
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.tra-legend {
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+/* Test history */
+.tra-history-container {
+  container-type: inline-size;
+}
+
+.tra-history-container:empty {
+  display: none;
+}
+
+.tra-history {
+  --tra-build-size: 1.125rem;
+  --tra-build-gap: 0.1875rem;
+  --tra-row-padding: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.tra-history__header,
+.tra-row {
+  align-items: center;
+  column-gap: 0.75rem;
+  display: grid;
+  grid-template-areas: "name stats strip";
+  grid-template-columns: minmax(12rem, 1fr) auto auto;
+}
+
+/* Checkboxes only show while selecting rows to chart */
+.tra-history-container:not(.tra-history-container--selecting) .tra-row__select {
+  display: none;
+}
+
+.tra-history-container--selecting .tra-history__header,
+.tra-history-container--selecting .tra-row {
+  grid-template-areas: "select name stats strip";
+  grid-template-columns: 2rem minmax(12rem, 1fr) auto auto;
+}
+
+.tra-history__header {
+  color: var(--text-color-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-bold-weight, 600);
+  padding: 0 calc(var(--tra-row-padding) + var(--card-border-width, 2px));
+}
+
+.tra-history__header {
+  align-items: end;
+}
+
+/* Build numbers read bottom-to-top so they fit above the narrow squares */
+.tra-history__header .tra-build--header {
+  box-shadow: none;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  height: auto;
+  line-height: var(--tra-build-size);
+  transform: rotate(180deg);
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+}
+
+.tra-history__header .tra-build--header.tra-build--value {
+  line-height: 1;
+  transform: none;
+  writing-mode: horizontal-tb;
+}
+
+.tra-package.jenkins-card {
+  gap: 0;
+  margin-bottom: 0;
+  padding: 0.375rem 0;
+}
+
+.tra-row {
+  border-radius: 0.5rem;
+  margin: 0 0.375rem;
+  min-height: 2.5rem;
+  padding: 0.375rem calc(var(--tra-row-padding) - 0.375rem);
+}
+
+.tra-row:hover {
+  background: var(--item-background--hover);
+}
+
+.tra-row__select {
+  grid-area: select;
+}
+
+.tra-row__name {
+  align-items: center;
+  display: flex;
+  gap: 0.375rem;
+  grid-area: name;
+  min-width: 0;
+  padding-inline-start: calc(var(--tra-level, 0) * 1.375rem);
+}
+
+.tra-row__text {
+  overflow-wrap: anywhere;
+}
+
+.tra-row--package .tra-row__text {
+  font-weight: var(--font-bold-weight, 600);
+}
+
+.tra-row__stats {
+  display: flex;
+  gap: 0.375rem;
+  grid-area: stats;
+  justify-content: flex-end;
+}
+
+.tra-row__stats .tra-stat:first-child {
+  min-width: 6.5rem;
+  text-align: right;
+}
+
+.tra-row__stats .tra-stat--transitions {
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+.tra-history__header .tra-stat {
+  background: none;
+  padding-inline: 0;
+}
+
+.tra-stat {
+  border-radius: 999px;
+  color: var(--text-color-secondary);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  padding: 0.2rem 0.5rem;
+  white-space: nowrap;
+}
+
+.tra-row .tra-stat--transitions {
+  background: var(--item-background--hover);
+}
+
+.tra-row .tra-stat--flaky {
+  background: color-mix(in srgb, var(--tra-skipped) 16%, transparent);
+  color: var(--tra-skipped);
+}
+
+.tra-stat--failed {
+  background: color-mix(in srgb, var(--tra-failed) 14%, transparent);
+  color: var(--tra-failed);
+  font-weight: 600;
+}
+
+.tra-toggle,
+.tra-toggle-spacer {
+  flex-shrink: 0;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.tra-toggle {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 0.375rem;
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  padding: 0;
+}
+
+.tra-toggle:hover {
+  background: var(--item-background--hover);
+  color: var(--text-color);
+}
+
+.tra-toggle:focus-visible {
+  box-shadow: 0 0 0 2px var(--focus-input-border);
+  outline: none;
+}
+
+.tra-toggle svg {
+  height: 1rem;
+  transition: transform var(--standard-transition, 0.15s ease);
+  width: 1rem;
+}
+
+.tra-toggle[aria-expanded="true"] svg {
+  transform: rotate(90deg);
+}
+
+.tra-new-failure {
+  color: var(--tra-failed);
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.tra-new-failure svg {
+  height: 1.1rem;
+  width: 1.1rem;
+}
+
+/* Build strip: one square per build, newest first */
+.tra-strip {
+  display: flex;
+  gap: var(--tra-build-gap);
+  grid-area: strip;
+  justify-content: flex-end;
+}
+
+.tra-build {
+  --tra-status-color: var(--tra-na);
+  border-radius: 0.25rem;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tra-status-color) 45%, transparent);
+  display: block;
+  flex-shrink: 0;
+  height: var(--tra-build-size);
+  transition: transform var(--standard-transition, 0.15s ease);
+  width: var(--tra-build-size);
+}
+
+.tra-build--passed,
+.tra-build--failed,
+.tra-build--skipped {
+  background: var(--tra-status-color);
+  box-shadow: none;
+}
+
+.tra-build--passed {
+  --tra-status-color: var(--tra-passed);
+}
+
+.tra-build--failed {
+  --tra-status-color: var(--tra-failed);
+}
+
+.tra-build--skipped {
+  --tra-status-color: var(--tra-skipped);
+}
+
+a.tra-build:hover,
+a.tra-build:focus-visible {
+  outline: 2px solid var(--tra-status-color);
+  outline-offset: 1px;
+  transform: scale(1.15);
+}
+
+/* Run-time mode: wider cells that show the duration */
+.tra-strip--values {
+  --tra-build-size: 3.75rem;
+}
+
+#tra-root .tra-build--value {
+  background: color-mix(in srgb, var(--tra-status-color) 16%, transparent);
+  box-shadow: none;
+  color: var(--tra-status-color);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  height: auto;
+  line-height: 1;
+  padding: 0.3rem 0;
+  text-align: center;
+  text-decoration: none;
+}
+
+#tra-root .tra-build--header.tra-build--value {
+  background: none;
+  color: var(--text-color-secondary);
+}
+
+/* Narrow containers: stack the strip under the name and let it wrap */
+@container (max-width: 48rem) {
+  .tra-history__header {
+    display: none;
+  }
+
+  .tra-row {
+    grid-template-areas:
+      "name name"
+      "stats strip";
+    grid-template-columns: auto minmax(0, 1fr);
+    row-gap: 0.375rem;
+  }
+
+  .tra-history-container--selecting .tra-row {
+    grid-template-areas:
+      "select name name"
+      ". stats strip";
+    grid-template-columns: 2rem auto minmax(0, 1fr);
+  }
+
+  .tra-row__name {
+    padding-inline-start: calc(var(--tra-level, 0) * 1rem);
+  }
+
+  .tra-row__stats {
+    justify-content: flex-start;
+  }
+
+  .tra-history {
+    --tra-build-size: 1rem;
+    --tra-build-gap: 0.125rem;
+  }
+
+  .tra-row__stats .tra-stat:first-child {
+    min-width: 5.75rem;
+    padding-inline: 0;
+    text-align: left;
+  }
+
+  .tra-strip {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+
+/* Charts */
+.tra-charts {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+}
+
+.tra-chart-card--wide {
+  grid-column: 1 / -1;
+}
+
+.tra-chart-card {
+  margin-bottom: 0;
+  padding: 1rem;
+}
+
+.tra-chart {
+  height: 22rem;
+  width: 100%;
+}
+
+/* Most broken tests */
+.tra-worst {
+  list-style: none;
+  margin: 0;
+  padding: 0.375rem;
+}
+
+.tra-worst__item {
+  align-items: center;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  justify-content: space-between;
+  padding: 0.625rem 0.5rem;
+}
+
+.tra-worst__item:hover {
+  background: var(--item-background--hover);
+}
+
+.tra-worst__heading {
+  align-items: center;
+  display: flex;
+  flex: 1 1 20rem;
+  gap: 0.75rem;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.tra-worst__builds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+#tra-root .tra-chip {
+  background: color-mix(in srgb, var(--tra-failed) 14%, transparent);
+  border-radius: 999px;
+  color: var(--tra-failed);
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  text-decoration: none;
+}
+
+#tra-root a.tra-chip:hover,
+#tra-root a.tra-chip:focus-visible {
+  background: color-mix(in srgb, var(--tra-failed) 26%, transparent);
+}
