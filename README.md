@@ -35,6 +35,16 @@ The page follows the Jenkins theme, including dark mode, and adapts to small scr
 
 ![Dark theme](docs/images/analyzer-dark.png)
 
+## Development
+
+The analyzer page is a React and TypeScript app in `src/main/frontend`, built by Vite into
+`src/main/webapp/js/bundles`. Maven installs Node and builds it, so `mvn hpi:run` and
+`mvn verify` work as usual; `mvn verify` also runs the Biome, TypeScript and Vitest checks.
+
+While working on the page, run `npm run build:dev` next to `mvn hpi:run` to rebuild on save, and
+`npm run test:dev` to run the Vitest specs on save. `npm run format` and `npm run biome:fix` fix
+formatting and lint findings.
+
 ## Change Log
 **[Changelog](./CHANGELOG.md)**
 

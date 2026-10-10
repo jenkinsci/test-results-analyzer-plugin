@@ -10,20 +10,24 @@ import hudson.tasks.test.AggregatedTestResultAction;
 import hudson.tasks.test.TabulatedResult;
 import hudson.tasks.test.TestResult;
 import hudson.util.RunList;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
-import net.sf.json.JSONArray;
+import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ClassInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.PackageInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.TestCaseInfo;
-import org.kohsuke.stapler.bind.JavaScriptMethod;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerResponse2;
+import org.kohsuke.stapler.verb.GET;
 
 public class TestResultsAnalyzerAction extends Actionable implements Action {
 
@@ -101,24 +105,6 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         return this.project;
     }
 
-    @JavaScriptMethod
-    public JSONArray getNoOfBuilds(String noOfbuildsNeeded) {
-        JSONArray jsonArray;
-        int noOfBuilds = getNoOfBuildRequired(noOfbuildsNeeded);
-
-        jsonArray = getBuildsArray(getBuildList(noOfBuilds));
-
-        return jsonArray;
-    }
-
-    private JSONArray getBuildsArray(List<Integer> buildList) {
-        JSONArray jsonArray = new JSONArray();
-        for (Integer build : buildList) {
-            jsonArray.add(build);
-        }
-        return jsonArray;
-    }
-
     private List<Integer> getBuildList(int noOfBuilds) {
         if ((noOfBuilds <= 0) || (noOfBuilds >= builds.size())) {
             return builds;
@@ -143,7 +129,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         return noOfBuilds;
     }
 
-    public boolean isUpdated() {
+    public synchronized boolean isUpdated() {
         Run lastBuild = project.getLastBuild();
         if (lastBuild == null) {
             return false;
@@ -154,7 +140,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public void getJsonLoadData() {
+    public synchronized void getJsonLoadData() {
         if (!isUpdated()) {
             return;
         }
@@ -213,22 +199,59 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         }
     }
 
-    @JavaScriptMethod
-    public JSONObject getTreeResult(UserConfig userConfig) {
+    /**
+     * The test results of the latest builds as a tree of packages, classes and tests, for the analyzer page.
+     *
+     * @param builds the number of builds, or -1 for all of them
+     */
+    @GET
+    public void doData(StaplerResponse2 rsp, @QueryParameter String builds, @QueryParameter boolean hideConfigMethods)
+            throws IOException {
+        project.checkPermission(Item.READ);
+        JSONObject tree;
+        synchronized (this) {
+            getJsonLoadData();
+            tree = getTreeResult(builds, hideConfigMethods);
+        }
+        rsp.setContentType("application/json;charset=UTF-8");
+        rsp.getWriter().write(tree.toString());
+    }
+
+    /**
+     * Downloads the test results of the latest builds as CSV.
+     *
+     * @param builds the number of builds, or -1 for all of them
+     * @param durations whether to export run times instead of statuses
+     */
+    @GET
+    public void doCsv(StaplerResponse2 rsp, @QueryParameter String builds, @QueryParameter boolean durations)
+            throws IOException {
+        project.checkPermission(Item.READ);
+        String csv;
+        synchronized (this) {
+            getJsonLoadData();
+            csv = exportCsv(durations, builds);
+        }
+        rsp.setContentType("text/csv;charset=UTF-8");
+        rsp.setHeader("Content-Disposition", "attachment; filename=\"test-results.csv\"");
+        rsp.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        PrintWriter writer = rsp.getWriter();
+        writer.write(csv);
+    }
+
+    synchronized JSONObject getTreeResult(String noOfBuildsNeeded, boolean hideConfigMethods) {
         if (resultInfo == null) {
             return new JSONObject();
         }
 
-        int noOfBuilds = getNoOfBuildRequired(userConfig.getNoOfBuildsNeeded());
-        List<Integer> buildList = getBuildList(noOfBuilds);
-
-        JsTreeUtil jsTreeUtils = new JsTreeUtil();
-        return jsTreeUtils.getJsTree(buildList, resultInfo, userConfig.isHideConfigMethods());
+        List<Integer> buildList = getBuildList(getNoOfBuildRequired(noOfBuildsNeeded));
+        return new JsTreeUtil().getJsTree(buildList, resultInfo, hideConfigMethods);
     }
 
-    @JavaScriptMethod
-    public String getExportCSV(String timeBased, String noOfBuildsNeeded) {
-        boolean isTimeBased = Boolean.parseBoolean(timeBased);
+    synchronized String exportCsv(boolean isTimeBased, String noOfBuildsNeeded) {
+        if (resultInfo == null) {
+            return "";
+        }
         Map<String, PackageInfo> packageResults = resultInfo.getPackageResults();
         int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
         List<Integer> buildList = getBuildList(noOfBuilds);
@@ -306,6 +329,56 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                 return getNaRepresentation();
         }
         return status;
+    }
+
+    /**
+     * The configuration of the analyzer page, read by its script.
+     * Used by {@code index.jelly}.
+     */
+    public String getBootstrapJson() {
+        JSONObject labels = new JSONObject()
+                .element("passed", getPassedRepresentation())
+                .element("failed", getFailedRepresentation())
+                .element("skipped", getSkippedRepresentation())
+                .element("na", getNaRepresentation());
+        JSONObject defaults = new JSONObject()
+                .element("noOfBuilds", getNoOfBuilds())
+                .element("showAllBuilds", getShowAllBuilds())
+                .element("showBuildTime", getShowBuildTime())
+                .element("hideConfigurationMethods", getHideConfigurationMethods())
+                .element("showLineGraph", getShowLineGraph())
+                .element("showBarGraph", getShowBarGraph())
+                .element("showPieGraph", getShowPieGraph())
+                .element("chartDataType", getChartDataType());
+        JSONObject bootstrap = new JSONObject()
+                .element("labels", labels)
+                .element("runTimeLowThreshold", parseSeconds(getRunTimeLowThreshold()))
+                .element("runTimeHighThreshold", parseSeconds(getRunTimeHighThreshold()))
+                .element("defaults", defaults);
+        if (isUseCustomStatusColors()) {
+            bootstrap.element(
+                    "customColors",
+                    new JSONObject()
+                            .element("passed", getPassedColor())
+                            .element("failed", getFailedColor())
+                            .element("skipped", getSkippedColor())
+                            .element("na", getNaColor()));
+        } else {
+            // element() would drop a null value, so the key would be missing rather than null
+            bootstrap.put("customColors", JSONNull.getInstance());
+        }
+        return bootstrap.toString();
+    }
+
+    private static double parseSeconds(String value) {
+        if (value == null) {
+            return 0;
+        }
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     public String getNoOfBuilds() {

@@ -3,167 +3,24 @@
   <l:layout title="${it.displayName}">
     <st:include it="${it.project}" page="sidepanel.jelly" />
     <l:main-panel>
-      <!-- Collects the test results that the remote methods below serve -->
-      <j:set var="loadData" value="${it.jsonLoadData}" />
-      <st:bind var="remoteAction" value="${it}" />
       <st:adjunct includes="io.jenkins.plugins.echarts" />
-      <link rel="stylesheet" type="text/css" href="${resURL}/plugin/test-results-analyzer/css/analyzer.css" />
-      <script type="text/javascript" src="${resURL}/plugin/test-results-analyzer/js/analyzer.js" />
 
+      <l:app-bar title="${%Test Results Analyzer}">
+        <button type="button" id="tra-options-toggle" class="jenkins-button" aria-expanded="false">
+          <l:icon src="symbol-options-outline plugin-ionicons-api" />
+          ${%Options}
+        </button>
+        <button type="button" id="tra-download-csv" class="jenkins-button">
+          <l:icon src="symbol-download-outline plugin-ionicons-api" />
+          ${%Download CSV}
+        </button>
+      </l:app-bar>
+
+      <!-- Rendered by src/main/frontend/analyzer -->
       <div id="tra-root"
-           data-passed-label="${it.passedRepresentation}"
-           data-failed-label="${it.failedRepresentation}"
-           data-skipped-label="${it.skippedRepresentation}"
-           data-na-label="${it.naRepresentation}"
-           data-new-failure-label="${%New failure: failed in the latest build after passing in the build before}"
-           data-runtime-low-threshold="${it.runTimeLowThreshold}"
-           data-runtime-high-threshold="${it.runTimeHighThreshold}"
-           data-use-custom-colors="${it.useCustomStatusColors}"
-           data-passed-color="${it.passedColor}"
-           data-failed-color="${it.failedColor}"
-           data-skipped-color="${it.skippedColor}"
-           data-na-color="${it.naColor}">
-
-        <l:app-bar title="${%Test Results Analyzer}">
-          <button type="button" id="tra-options-toggle" class="jenkins-button" aria-expanded="false" aria-controls="tra-options">
-            <l:icon src="symbol-options-outline plugin-ionicons-api" />
-            ${%Options}
-          </button>
-          <button type="button" id="tra-download-csv" class="jenkins-button">
-            <l:icon src="symbol-download-outline plugin-ionicons-api" />
-            ${%Download CSV}
-          </button>
-        </l:app-bar>
-
-        <div id="tra-options" class="jenkins-card tra-options" hidden="hidden">
-          <div class="jenkins-card__title">${%Options}</div>
-          <div class="jenkins-card__content">
-            <div class="tra-options__grid">
-              <div class="tra-options__group">
-                <label class="jenkins-form-label" for="tra-builds">${%Number of builds}</label>
-                <div class="tra-options__inline">
-                  <input id="tra-builds" class="jenkins-input tra-options__number" type="number" min="1" step="1"
-                         value="${it.noOfBuilds}" disabled="${it.showAllBuilds ? 'disabled' : null}" />
-                  <span class="jenkins-checkbox">
-                    <input type="checkbox" id="tra-all-builds" checked="${it.showAllBuilds ? 'checked' : null}" />
-                    <label for="tra-all-builds">${%All builds}</label>
-                  </span>
-                </div>
-              </div>
-
-              <div class="tra-options__group">
-                <span class="jenkins-form-label">${%Table}</span>
-                <span class="jenkins-checkbox">
-                  <input type="checkbox" id="tra-show-durations" checked="${it.showBuildTime ? 'checked' : null}" />
-                  <label for="tra-show-durations">${%Show run time for each test}</label>
-                </span>
-                <span class="jenkins-checkbox">
-                  <input type="checkbox" id="tra-show-not-run" />
-                  <label for="tra-show-not-run">${%Show tests that did not run in these builds}</label>
-                </span>
-                <span class="jenkins-checkbox">
-                  <input type="checkbox" id="tra-hide-config" checked="${it.hideConfigurationMethods ? 'checked' : null}" />
-                  <label for="tra-hide-config">${%Hide TestNG configuration methods}</label>
-                </span>
-              </div>
-
-              <div class="tra-options__group">
-                <span class="jenkins-form-label">${%Charts}</span>
-                <span class="jenkins-checkbox">
-                  <input type="checkbox" id="tra-chart-line" checked="${it.showLineGraph ? 'checked' : null}" />
-                  <label for="tra-chart-line">${%Line}</label>
-                </span>
-                <span class="jenkins-checkbox">
-                  <input type="checkbox" id="tra-chart-bar" checked="${it.showBarGraph ? 'checked' : null}"
-                         disabled="${it.chartDataType == 'runtime' or it.chartDataType == 'passrate' ? 'disabled' : null}" />
-                  <label for="tra-chart-bar">${%Bar}</label>
-                </span>
-                <span class="jenkins-checkbox">
-                  <input type="checkbox" id="tra-chart-pie" checked="${it.showPieGraph ? 'checked' : null}" />
-                  <label for="tra-chart-pie">${%Pie}</label>
-                </span>
-              </div>
-
-              <div class="tra-options__group">
-                <label class="jenkins-form-label" for="tra-worst-count">${%Most broken tests to show}</label>
-                <input id="tra-worst-count" class="jenkins-input tra-options__number" type="number" min="1" step="1" value="10" />
-              </div>
-
-              <div class="tra-options__group">
-                <label class="jenkins-form-label" for="tra-chart-data">${%Chart data}</label>
-                <div class="jenkins-select">
-                  <select id="tra-chart-data" class="jenkins-select__input">
-                    <option value="passfail" selected="${it.chartDataType != 'runtime' and it.chartDataType != 'passrate' ? 'selected' : null}">${%Passes and failures}</option>
-                    <option value="passrate" selected="${it.chartDataType == 'passrate' ? 'selected' : null}">${%Pass rate}</option>
-                    <option value="runtime" selected="${it.chartDataType == 'runtime' ? 'selected' : null}">${%Test run times}</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="tra-options__actions">
-              <button type="button" id="tra-apply" class="jenkins-button jenkins-button--primary">${%Update}</button>
-            </div>
-          </div>
-        </div>
-
-        <section class="tra-section">
-          <div class="tra-toolbar">
-            <div class="jenkins-search tra-toolbar__search">
-              <div class="jenkins-search__icon">
-                <l:icon src="symbol-search" />
-              </div>
-              <input id="tra-filter" class="jenkins-input jenkins-search__input" type="search"
-                     placeholder="${%Filter by package, class or test}" autocomplete="off" spellcheck="false" />
-            </div>
-            <div class="tra-toolbar__actions">
-              <button type="button" id="tra-select-toggle" class="jenkins-button jenkins-button--tertiary" aria-pressed="false"
-                      title="${%Choose packages, classes or tests to chart}"
-                      data-label-select="${%Select}" data-label-done="${%Done}">${%Select}</button>
-              <button type="button" id="tra-expand-all" class="jenkins-button jenkins-button--tertiary">${%Expand all}</button>
-              <button type="button" id="tra-collapse-all" class="jenkins-button jenkins-button--tertiary">${%Collapse all}</button>
-            </div>
-          </div>
-
-          <div id="tra-loading" class="tra-loading" hidden="hidden">
-            <l:spinner text="${%Loading test results}" />
-          </div>
-          <p id="tra-empty" class="jenkins-!-text-color-secondary tra-empty" hidden="hidden">
-            ${%No test results were found for the selected builds.}
-          </p>
-          <div id="tra-history" class="tra-history-container" />
-          <p class="tra-legend jenkins-!-text-color-secondary">
-            <span id="tra-legend-default">${%Newest build first.}</span>
-            <span id="tra-legend-selecting" hidden="hidden">${%Tick packages, classes or tests to chart only those.}</span>
-          </p>
-        </section>
-
-        <section id="tra-charts-section" class="tra-section">
-          <h2 class="jenkins-section__title">${%Charts}</h2>
-          <div class="tra-charts">
-            <div id="tra-chart-line-container" class="jenkins-card tra-chart-card tra-chart-card--wide" hidden="hidden">
-              <div class="tra-chart" id="tra-line-chart" />
-            </div>
-            <div id="tra-chart-bar-container" class="jenkins-card tra-chart-card" hidden="hidden">
-              <div class="tra-chart" id="tra-bar-chart" />
-            </div>
-            <div id="tra-chart-pie-container" class="jenkins-card tra-chart-card" hidden="hidden">
-              <div class="tra-chart" id="tra-pie-chart" />
-            </div>
-          </div>
-        </section>
-
-        <section class="tra-section">
-          <h2 class="jenkins-section__title">${%Most broken tests}</h2>
-          <div id="tra-worst-tests" />
-        </section>
-
-        <template id="tra-icon-toggle">
-          <l:icon src="symbol-chevron-forward-outline plugin-ionicons-api" />
-        </template>
-        <template id="tra-icon-new-failure">
-          <l:icon src="symbol-alert-circle plugin-ionicons-api" />
-        </template>
-      </div>
+           data-action-url="${rootURL}/${it.project.url}${it.urlName}/"
+           data-bootstrap="${it.bootstrapJson}" />
+      <script type="module" src="${resURL}/plugin/test-results-analyzer/js/bundles/analyzer-bundle.js" />
     </l:main-panel>
   </l:layout>
 </j:jelly>
