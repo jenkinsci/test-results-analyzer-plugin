@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestBuilder;
@@ -109,7 +108,7 @@ class StorageResultLoaderTest {
 
     private static String tree(FreeStyleProject project, String noOfBuilds) throws IOException {
         StringWriter out = new StringWriter();
-        new TestResultsAnalyzerAction(project).writeTreeResult(out, new UserConfig(noOfBuilds, false));
+        new TestResultsAnalyzerAction(project).writeTreeResult(out, noOfBuilds, false);
         return JSONObject.fromObject(out.toString()).toString(2);
     }
 

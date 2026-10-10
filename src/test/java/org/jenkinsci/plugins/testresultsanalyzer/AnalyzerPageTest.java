@@ -3,30 +3,39 @@ package org.jenkinsci.plugins.testresultsanalyzer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.startsWith;
 
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.model.FreeStyleProject;
+import hudson.model.Item;
 import hudson.tasks.junit.JUnitResultArchiver;
 import java.io.IOException;
-import java.util.List;
 import java.util.function.IntFunction;
-import java.util.stream.Collectors;
+import jenkins.model.Jenkins;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.htmlunit.FailingHttpStatusCodeException;
+import org.htmlunit.Page;
 import org.htmlunit.html.DomElement;
-import org.htmlunit.html.HtmlInput;
 import org.htmlunit.html.HtmlPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.MockAuthorizationStrategy;
 import org.jvnet.hudson.test.TestBuilder;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+import org.kohsuke.stapler.StaplerRequest2;
 
+/**
+ * Covers the page shell and the endpoints the page reads. How the page behaves is covered by the
+ * Vitest specs in src/main/frontend.
+ */
 @WithJenkins
 class AnalyzerPageTest {
 
@@ -37,9 +46,9 @@ class AnalyzerPageTest {
         this.j = j;
     }
 
-    /** Builds 1 and 2 pass; build 3 fails {@code testB}, which makes it a new failure. */
-    private HtmlPage openAnalyzer() throws Exception {
-        return openAnalyzer(createProject(
+    /** Builds 1 and 2 pass; build 3 fails {@code testB}. */
+    private FreeStyleProject calculatorProject() throws Exception {
+        return createProject(
                 3,
                 build -> suite(
                         "com.example.CalculatorTest",
@@ -47,14 +56,7 @@ class AnalyzerPageTest {
                         testCase(
                                 "com.example.CalculatorTest",
                                 "testB",
-                                build >= 3 ? "<failure message=\"boom\">boom</failure>" : ""))));
-    }
-
-    private HtmlPage openAnalyzer(FreeStyleProject project) throws Exception {
-        JenkinsRule.WebClient wc = j.createWebClient();
-        HtmlPage page = wc.getPage(project, Constants.URL);
-        wc.waitForBackgroundJavaScript(5_000);
-        return page;
+                                build >= 3 ? "<failure message=\"boom\">boom</failure>" : "")));
     }
 
     /** A job whose build N publishes the JUnit XML returned for N. */
@@ -86,115 +88,175 @@ class AnalyzerPageTest {
         return "<testcase classname=\"" + className + "\" name=\"" + name + "\" time=\"0.1\">" + body + "</testcase>";
     }
 
-    private static List<DomElement> rows(HtmlPage page) {
-        return page.<DomElement>getByXPath(
-                "//div[@id='tra-history']//div[contains(concat(' ', @class, ' '), ' tra-row ')]");
+    private JSONObject data(FreeStyleProject project, String query) throws Exception {
+        Page page = j.createWebClient().goTo(project.getUrl() + Constants.URL + "/data?" + query, "application/json");
+        return JSONObject.fromObject(page.getWebResponse().getContentAsString());
     }
 
-    private static String checkedRows(HtmlPage page) {
-        return page.executeJavaScript("String(document.querySelectorAll('.tra-row-select:checked').length)")
-                .getJavaScriptResult()
-                .toString();
-    }
-
-    private static List<String> visibleRowNames(HtmlPage page) {
-        return rows(page).stream()
-                .filter(row -> !row.hasAttribute("hidden"))
-                .map(row -> row.getAttribute("data-name"))
-                .collect(Collectors.toList());
+    private static JSONObject child(JSONObject node, int index) {
+        return node.getJSONArray("children").getJSONObject(index);
     }
 
     @Test
-    void rendersCollapsedTreeWithNewFailureMarker() throws Exception {
-        HtmlPage page = openAnalyzer();
+    void pageMountsTheAnalyzerWithItsConfiguration() throws Exception {
+        FreeStyleProject project = calculatorProject();
+        HtmlPage page = j.createWebClient().withJavaScriptEnabled(false).getPage(project, Constants.URL);
 
-        assertThat(rows(page), hasSize(4)); // package, class, two tests
-        assertThat(visibleRowNames(page), is(List.of("com.example")));
+        DomElement root = page.getElementById("tra-root");
+        assertThat(root.getAttribute("data-action-url"), endsWith(project.getUrl() + Constants.URL + "/"));
+        JSONObject bootstrap = JSONObject.fromObject(root.getAttribute("data-bootstrap"));
+        assertThat(bootstrap.getJSONObject("labels").getString("passed"), is("PASSED"));
+        assertThat(bootstrap.getJSONObject("defaults").getString("chartDataType"), is("passfail"));
+        assertThat(
+                "theme colours are used by default",
+                bootstrap.get("customColors").toString(),
+                is("null"));
 
-        List<DomElement> markers = page.getByXPath("//div[@data-name='testB']//*[contains(@class, 'tra-new-failure')]");
-        assertThat(markers, hasSize(1));
-        assertThat(markers.get(0).getAttribute("aria-label"), startsWith("New failure: failed in the latest build"));
-        assertThat(page.getByXPath("//div[@data-name='testA']//*[contains(@class, 'tra-new-failure')]"), is(empty()));
-
-        DomElement testB = page.getFirstByXPath("//div[@data-name='testB']");
-        assertThat(testB.getByXPath(".//*[contains(@class, 'tra-build--failed')]"), hasSize(1));
-        assertThat(testB.getByXPath(".//*[contains(@class, 'tra-build--passed')]"), hasSize(2));
+        assertThat(page.getByXPath("//script[contains(@src, 'js/bundles/analyzer-bundle.js')]"), hasSize(1));
+        assertThat(page.getElementById("tra-options-toggle"), not(is((Object) null)));
+        assertThat(page.getElementById("tra-download-csv"), not(is((Object) null)));
     }
 
     @Test
-    void expandAndCollapseAll() throws Exception {
-        HtmlPage page = openAnalyzer();
+    void customStatusColoursArePassedToThePage() throws Exception {
+        configureGlobally("useCustomStatusColors: {passedColor: '#00ff00', failedColor: '#ff0000',"
+                + " skippedColor: '#ffff00', naColor: '#cccccc'}");
+        try {
+            FreeStyleProject project = calculatorProject();
+            String bootstrap =
+                    project.getAction(TestResultsAnalyzerAction.class).getBootstrapJson();
+            assertThat(
+                    JSONObject.fromObject(bootstrap)
+                            .getJSONObject("customColors")
+                            .getString("passed"),
+                    is("#00ff00"));
+        } finally {
+            // The descriptor outlives the Jenkins instance of a test
+            configureGlobally("");
+        }
+    }
 
-        page.<DomElement>getElementById("tra-expand-all").click();
-        assertThat(visibleRowNames(page), is(List.of("com.example", "CalculatorTest", "testA", "testB")));
-
-        page.<DomElement>getElementById("tra-collapse-all").click();
-        assertThat(visibleRowNames(page), is(List.of("com.example")));
+    /** Saves the global configuration with the given settings over the defaults. */
+    private static void configureGlobally(String overrides) {
+        JSONObject form = JSONObject.fromObject("{noOfBuilds: '10', noOfRunsToFetch: 0, showAllBuilds: false,"
+                + " showBuildTime: false, hideConfigurationMethods: false, showLineGraph: true,"
+                + " showBarGraph: true, showPieGraph: true, runTimeLowThreshold: '0.5',"
+                + " runTimeHighThreshold: '1.5', chartDataType: 'passfail'}");
+        form.putAll(JSONObject.fromObject("{" + overrides + "}"));
+        TestResultsAnalyzerExtension.DESCRIPTOR.configure((StaplerRequest2) null, form);
     }
 
     @Test
-    void toggleShowsDirectChildren() throws Exception {
-        HtmlPage page = openAnalyzer();
+    void runTimeThresholdsThatAreNotNumbersAreIgnored() throws Exception {
+        assertThat(TestResultsAnalyzerAction.parseSeconds(" 1.5 "), is(1.5));
+        for (String value : new String[] {null, "", "fast", "NaN", "Infinity", "-Infinity"}) {
+            assertThat(value, TestResultsAnalyzerAction.parseSeconds(value), is(0.0));
+        }
 
-        DomElement toggle =
-                page.getFirstByXPath("//div[@data-name='com.example']//button[contains(@class, 'tra-toggle')]");
-        toggle.click();
-        assertThat(toggle.getAttribute("aria-expanded"), is("true"));
-        assertThat(visibleRowNames(page), is(List.of("com.example", "CalculatorTest")));
+        configureGlobally("runTimeLowThreshold: 'NaN', runTimeHighThreshold: 'Infinity'");
+        try {
+            String bootstrap = calculatorProject()
+                    .getAction(TestResultsAnalyzerAction.class)
+                    .getBootstrapJson();
+            JSONObject json = JSONObject.fromObject(bootstrap);
+            assertThat(json.getDouble("runTimeLowThreshold"), is(0.0));
+            assertThat(json.getDouble("runTimeHighThreshold"), is(0.0));
+        } finally {
+            configureGlobally("");
+        }
     }
 
     @Test
-    void filterShowsMatchingRows() throws Exception {
-        HtmlPage page = openAnalyzer();
+    void dataServesTheTreeNewestBuildFirst() throws Exception {
+        JSONObject data = data(calculatorProject(), "builds=-1&hideConfigMethods=false");
 
-        HtmlInput filter = page.getHtmlElementById("tra-filter");
-        filter.setValue("testb");
-        page.executeJavaScript("window.testResultsAnalyzer.applyFilter();");
-        assertThat(visibleRowNames(page), is(List.of("testB")));
-
-        filter.setValue("");
-        page.executeJavaScript("window.testResultsAnalyzer.applyFilter();");
-        assertThat(visibleRowNames(page), is(List.of("com.example")));
+        assertThat(data.getJSONArray("builds"), is(JSONArray.fromObject("[\"3\",\"2\",\"1\"]")));
+        JSONObject pkg = data.getJSONArray("results").getJSONObject(0);
+        assertThat(pkg.getString("text"), is("com.example"));
+        JSONObject testB = child(child(pkg, 0), 1);
+        assertThat(testB.getString("text"), is("testB"));
+        JSONArray results = testB.getJSONArray("buildResults");
+        assertThat(results.getJSONObject(0).getString("status"), is("FAILED"));
+        assertThat(results.getJSONObject(1).getString("status"), is("PASSED"));
+        assertThat(results.getJSONObject(0).getString("url"), containsString("/job/"));
     }
 
     @Test
-    void listsMostBrokenTests() throws Exception {
-        HtmlPage page = openAnalyzer();
+    void dataIsLimitedToTheRequestedBuilds() throws Exception {
+        // "removed" only ran in build 1
+        FreeStyleProject project = createProject(
+                3,
+                build -> suite("p.T", testCase("p.T", "kept", ""), build == 1 ? testCase("p.T", "removed", "") : ""));
 
-        DomElement worst = page.getElementById("tra-worst-tests");
-        assertThat(worst.getTextContent(), containsString("com.example.CalculatorTest.testB"));
-        assertThat(worst.getTextContent(), not(containsString("testA")));
+        JSONObject all = data(project, "builds=-1&hideConfigMethods=false");
+        assertThat(all.getJSONArray("builds"), hasSize(3));
+        assertThat(child(all.getJSONArray("results").getJSONObject(0), 0).getJSONArray("children"), hasSize(2));
+
+        // Only the requested builds are read, so "removed" is not listed at all
+        JSONObject latest = data(project, "builds=2&hideConfigMethods=false");
+        assertThat(latest.getJSONArray("builds"), is(JSONArray.fromObject("[\"3\",\"2\"]")));
+        JSONArray tests =
+                child(latest.getJSONArray("results").getJSONObject(0), 0).getJSONArray("children");
+        assertThat(tests, hasSize(1));
+        assertThat(tests.getJSONObject(0).getString("text"), is("kept"));
     }
 
     @Test
-    void computesRowStatistics() throws Exception {
-        HtmlPage page = openAnalyzer();
+    void errorsCountAsFailures() throws Exception {
+        FreeStyleProject project = createProject(
+                1, build -> suite("p.T", testCase("p.T", "errors", "<error message=\"npe\">npe</error>")));
 
-        DomElement testB = page.getFirstByXPath("//div[@data-name='testB']");
-        List<DomElement> numbers = testB.getByXPath(".//span[contains(concat(' ', @class, ' '), ' tra-stat ')]");
-        assertThat(numbers.get(0).getTextContent(), is("67% (67%)"));
-        assertThat(numbers.get(1).getTextContent(), is("1"));
+        JSONObject data = data(project, "builds=-1&hideConfigMethods=false");
+        JSONObject test = child(child(data.getJSONArray("results").getJSONObject(0), 0), 0);
+        assertThat(test.getJSONArray("buildResults").getJSONObject(0).getString("status"), is("FAILED"));
     }
 
     @Test
-    void selectModeShowsCheckboxesAndClearsSelectionWhenDone() throws Exception {
-        HtmlPage page = openAnalyzer();
-        DomElement history = page.getElementById("tra-history");
-        DomElement toggle = page.getElementById("tra-select-toggle");
-        assertThat(history.getAttribute("class"), not(containsString("tra-history-container--selecting")));
+    void csvDownloadEscapesValues() throws Exception {
+        FreeStyleProject project =
+                createProject(1, build -> suite("p.T", testCase("p.T", "takes(&quot;a, b&quot;)", "")));
 
-        toggle.click();
-        assertThat(toggle.getAttribute("aria-pressed"), is("true"));
-        assertThat(history.getAttribute("class"), containsString("tra-history-container--selecting"));
+        Page page = j.createWebClient().goTo(project.getUrl() + Constants.URL + "/csv?builds=-1", "text/csv");
+        assertThat(page.getWebResponse().getResponseHeaderValue("Content-Disposition"), containsString("attachment"));
+        String[] lines = page.getWebResponse().getContentAsString().split(System.lineSeparator());
+        assertThat(lines[0], is("\"Package\",\"Class\",\"Test\",\"1\""));
+        assertThat(lines[1], is("\"p\",\"T\",\"takes(\"\"a, b\"\")\",\"PASSED\""));
+    }
 
-        HtmlInput checkbox = page.getFirstByXPath("//div[@data-name='com.example']//input[@type='checkbox']");
-        checkbox.setChecked(true);
-        assertThat(checkedRows(page), is("4"));
+    @Test
+    void csvValuesCannotRunAsSpreadsheetFormulas() {
+        assertThat(TestResultsAnalyzerAction.csvValue("=HYPERLINK(\"x\")"), is("\"'=HYPERLINK(\"\"x\"\")\""));
+        assertThat(TestResultsAnalyzerAction.csvValue("+1"), is("\"'+1\""));
+        assertThat(TestResultsAnalyzerAction.csvValue("-1"), is("\"'-1\""));
+        assertThat(TestResultsAnalyzerAction.csvValue("@SUM(A1)"), is("\"'@SUM(A1)\""));
+        assertThat(TestResultsAnalyzerAction.csvValue("a=b"), is("\"a=b\""));
+        assertThat(TestResultsAnalyzerAction.csvValue(null), is("\"\""));
+    }
 
-        toggle.click();
-        assertThat(toggle.getAttribute("aria-pressed"), is("false"));
-        assertThat(history.getAttribute("class"), not(containsString("tra-history-container--selecting")));
-        assertThat(checkedRows(page), is("0"));
+    @Test
+    void endpointsNeedReadPermissionOnTheJob() throws Exception {
+        FreeStyleProject project = calculatorProject();
+        j.jenkins.setSecurityRealm(j.createDummySecurityRealm());
+        j.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+                .grant(Jenkins.READ)
+                .everywhere()
+                .to("reader", "outsider")
+                .grant(Item.READ)
+                .onItems(project)
+                .to("reader"));
+
+        JenkinsRule.WebClient reader = j.createWebClient().login("reader");
+        reader.goTo(project.getUrl() + Constants.URL + "/data?builds=-1", "application/json");
+
+        JenkinsRule.WebClient outsider = j.createWebClient().login("outsider");
+        for (String endpoint : new String[] {"/data?builds=-1", "/csv?builds=-1"}) {
+            try {
+                outsider.goTo(project.getUrl() + Constants.URL + endpoint, null);
+                throw new AssertionError(endpoint + " should not be reachable");
+            } catch (FailingHttpStatusCodeException e) {
+                assertThat(e.getStatusCode(), is(404));
+            }
+        }
     }
 
     @Test
@@ -209,78 +271,5 @@ class AnalyzerPageTest {
         assertThat(wc.getPage(withoutTests).getByXPath(link), is(empty()));
         // The page itself still works, for existing links
         assertThat(wc.getPage(withoutTests, Constants.URL).getWebResponse().getStatusCode(), is(200));
-    }
-
-    @Test
-    void errorsCountAsFailures() throws Exception {
-        HtmlPage page = openAnalyzer(createProject(
-                1, build -> suite("p.T", testCase("p.T", "errors", "<error message=\"npe\">npe</error>"))));
-        DomElement test = page.getFirstByXPath("//div[@data-name='errors']");
-        assertThat(test.getByXPath(".//*[contains(@class, 'tra-build--failed')]"), hasSize(1));
-        assertThat(page.getElementById("tra-worst-tests").getTextContent(), containsString("p.T.errors"));
-    }
-
-    @Test
-    void numberOfMostBrokenTestsCanBeChanged() throws Exception {
-        HtmlPage page = openAnalyzer(createProject(
-                1,
-                build -> suite(
-                        "p.T",
-                        testCase("p.T", "one", "<failure>x</failure>"),
-                        testCase("p.T", "two", "<failure>x</failure>"))));
-        assertThat(page.getByXPath("//li[contains(@class, 'tra-worst__item')]"), hasSize(2));
-
-        HtmlInput count = page.getHtmlElementById("tra-worst-count");
-        count.setValue("1");
-        count.fireEvent("change");
-        assertThat(page.getByXPath("//li[contains(@class, 'tra-worst__item')]"), hasSize(1));
-    }
-
-    @Test
-    void testsThatDidNotRunInTheShownBuildsAreHidden() throws Exception {
-        // "removed" only ran in build 1; only the last 2 builds are shown
-        FreeStyleProject project = createProject(
-                3,
-                build -> suite("p.T", testCase("p.T", "kept", ""), build == 1 ? testCase("p.T", "removed", "") : ""));
-        HtmlPage page = openAnalyzer(project);
-        page.<DomElement>getElementById("tra-options-toggle").click();
-        HtmlInput allBuilds = page.getHtmlElementById("tra-all-builds");
-        if (allBuilds.isChecked()) {
-            allBuilds.click();
-        }
-        page.<HtmlInput>getHtmlElementById("tra-builds").setValue("2");
-        page.<DomElement>getElementById("tra-apply").click();
-        page.getWebClient().waitForBackgroundJavaScript(5_000);
-        assertThat(
-                page.getByXPath("//div[contains(@class, 'tra-history__header')]//span[contains(@class, 'tra-build')]"),
-                hasSize(2));
-        page.<DomElement>getElementById("tra-expand-all").click();
-        assertThat(visibleRowNames(page), is(List.of("p", "T", "kept")));
-
-        page.<HtmlInput>getHtmlElementById("tra-show-not-run").click();
-        page.<DomElement>getElementById("tra-expand-all").click();
-        assertThat(visibleRowNames(page), is(List.of("p", "T", "kept", "removed")));
-    }
-
-    @Test
-    void csvExportEscapesQuotes() throws Exception {
-        FreeStyleProject project =
-                createProject(1, build -> suite("p.T", testCase("p.T", "takes(&quot;a, b&quot;)", "")));
-        TestResultsAnalyzerAction action = project.getAction(TestResultsAnalyzerAction.class);
-        action.getJsonLoadData();
-
-        String[] lines = action.getExportCSV("false", "-1").split(System.lineSeparator());
-        assertThat(lines[0], is("\"Package\",\"Class\",\"Test\",\"1\""));
-        assertThat(lines[1], is("\"p\",\"T\",\"takes(\"\"a, b\"\")\",\"PASSED\""));
-    }
-
-    @Test
-    void csvValuesCannotRunAsSpreadsheetFormulas() {
-        assertThat(TestResultsAnalyzerAction.csvValue("=HYPERLINK(\"x\")"), is("\"'=HYPERLINK(\"\"x\"\")\""));
-        assertThat(TestResultsAnalyzerAction.csvValue("+1"), is("\"'+1\""));
-        assertThat(TestResultsAnalyzerAction.csvValue("-1"), is("\"'-1\""));
-        assertThat(TestResultsAnalyzerAction.csvValue("@SUM(A1)"), is("\"'@SUM(A1)\""));
-        assertThat(TestResultsAnalyzerAction.csvValue("a=b"), is("\"a=b\""));
-        assertThat(TestResultsAnalyzerAction.csvValue(null), is("\"\""));
     }
 }

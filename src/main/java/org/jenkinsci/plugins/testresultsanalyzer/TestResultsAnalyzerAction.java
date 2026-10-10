@@ -19,18 +19,18 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
-import net.sf.json.JSONArray;
+import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
-import org.jenkinsci.plugins.testresultsanalyzer.config.UserConfig;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ClassInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.PackageInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.ResultInfo;
 import org.jenkinsci.plugins.testresultsanalyzer.result.info.TestCaseInfo;
 import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
-import org.kohsuke.stapler.bind.JavaScriptMethod;
+import org.kohsuke.stapler.verb.GET;
 
 public class TestResultsAnalyzerAction extends Actionable implements Action {
 
@@ -111,25 +111,6 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
         return this.project;
     }
 
-    @JavaScriptMethod
-    public synchronized JSONArray getNoOfBuilds(String noOfbuildsNeeded) {
-        JSONArray jsonArray;
-        int noOfBuilds = getNoOfBuildRequired(noOfbuildsNeeded);
-        ensureLoaded(noOfBuilds);
-
-        jsonArray = getBuildsArray(getBuildList(noOfBuilds));
-
-        return jsonArray;
-    }
-
-    private JSONArray getBuildsArray(List<Integer> buildList) {
-        JSONArray jsonArray = new JSONArray();
-        for (Integer build : buildList) {
-            jsonArray.add(build);
-        }
-        return jsonArray;
-    }
-
     private List<Integer> getBuildList(int noOfBuilds) {
         if ((noOfBuilds <= 0) || (noOfBuilds >= builds.size())) {
             return builds;
@@ -168,7 +149,7 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
      * Loads results for every completed build (up to the configured number of runs to fetch).
      *
      * @deprecated results are now loaded on demand for the number of builds requested, see
-     *     {@link #getTreeResult(UserConfig)}
+     *     {@link #doData(String, boolean)}
      */
     @Deprecated
     public void getJsonLoadData() {
@@ -276,17 +257,20 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
     }
 
     /**
-     * The test history tree for the requested number of builds, as JSON.
+     * The test history tree of the latest builds as JSON, for the analyzer page.
      *
      * <p>Streamed rather than returned as a {@link JSONObject}: with many builds and tests the tree has
      * millions of cells, too many to hold as {@code net.sf.json} objects.
+     *
+     * @param builds the number of builds, or -1 for all of them
      */
-    @JavaScriptMethod
-    public synchronized HttpResponse getTreeResult(UserConfig userConfig) {
-        int noOfBuilds = getNoOfBuildRequired(userConfig.getNoOfBuildsNeeded());
+    @GET
+    public synchronized HttpResponse doData(@QueryParameter String builds, @QueryParameter boolean hideConfigMethods) {
+        project.checkPermission(Item.READ);
+        int noOfBuilds = getNoOfBuildRequired(builds);
         ensureLoaded(noOfBuilds);
-        List<Integer> buildList = getBuildList(noOfBuilds);
-        return new TreeResponse(buildList, resultInfo, userConfig.isHideConfigMethods());
+        // Writing happens after the lock is released; a reload replaces these rather than changing them
+        return new TreeResponse(getBuildList(noOfBuilds), resultInfo, hideConfigMethods);
     }
 
     private static final class TreeResponse implements HttpResponse {
@@ -312,15 +296,30 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
     /**
      * Writes the test history tree for the requested number of builds as JSON.
      */
-    synchronized void writeTreeResult(Writer out, UserConfig userConfig) throws IOException {
-        int noOfBuilds = getNoOfBuildRequired(userConfig.getNoOfBuildsNeeded());
+    synchronized void writeTreeResult(Writer out, String noOfBuildsNeeded, boolean hideConfigMethods)
+            throws IOException {
+        int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
         ensureLoaded(noOfBuilds);
-        new JsTreeUtil().writeJsTree(out, getBuildList(noOfBuilds), resultInfo, userConfig.isHideConfigMethods());
+        new JsTreeUtil().writeJsTree(out, getBuildList(noOfBuilds), resultInfo, hideConfigMethods);
     }
 
-    @JavaScriptMethod
-    public synchronized String getExportCSV(String timeBased, String noOfBuildsNeeded) {
-        boolean isTimeBased = Boolean.parseBoolean(timeBased);
+    /**
+     * Downloads the test results of the latest builds as CSV.
+     *
+     * @param builds the number of builds, or -1 for all of them
+     * @param durations whether to export run times instead of statuses
+     */
+    @GET
+    public void doCsv(StaplerResponse2 rsp, @QueryParameter String builds, @QueryParameter boolean durations)
+            throws IOException {
+        project.checkPermission(Item.READ);
+        String csv = exportCsv(durations, builds);
+        rsp.setContentType("text/csv;charset=UTF-8");
+        rsp.setHeader("Content-Disposition", "attachment; filename=\"test-results.csv\"");
+        rsp.getWriter().write(csv);
+    }
+
+    synchronized String exportCsv(boolean isTimeBased, String noOfBuildsNeeded) {
         int noOfBuilds = getNoOfBuildRequired(noOfBuildsNeeded);
         ensureLoaded(noOfBuilds);
         Map<String, PackageInfo> packageResults = resultInfo.getPackageResults();
@@ -399,6 +398,58 @@ public class TestResultsAnalyzerAction extends Actionable implements Action {
                 return getNaRepresentation();
         }
         return status;
+    }
+
+    /**
+     * The configuration of the analyzer page, read by its script.
+     * Used by {@code index.jelly}.
+     */
+    public String getBootstrapJson() {
+        JSONObject labels = new JSONObject()
+                .element("passed", getPassedRepresentation())
+                .element("failed", getFailedRepresentation())
+                .element("skipped", getSkippedRepresentation())
+                .element("na", getNaRepresentation());
+        JSONObject defaults = new JSONObject()
+                .element("noOfBuilds", getNoOfBuilds())
+                .element("showAllBuilds", getShowAllBuilds())
+                .element("showBuildTime", getShowBuildTime())
+                .element("hideConfigurationMethods", getHideConfigurationMethods())
+                .element("showLineGraph", getShowLineGraph())
+                .element("showBarGraph", getShowBarGraph())
+                .element("showPieGraph", getShowPieGraph())
+                .element("chartDataType", getChartDataType());
+        JSONObject bootstrap = new JSONObject()
+                .element("labels", labels)
+                .element("runTimeLowThreshold", parseSeconds(getRunTimeLowThreshold()))
+                .element("runTimeHighThreshold", parseSeconds(getRunTimeHighThreshold()))
+                .element("defaults", defaults);
+        if (isUseCustomStatusColors()) {
+            bootstrap.element(
+                    "customColors",
+                    new JSONObject()
+                            .element("passed", getPassedColor())
+                            .element("failed", getFailedColor())
+                            .element("skipped", getSkippedColor())
+                            .element("na", getNaColor()));
+        } else {
+            // element() would drop a null value, so the key would be missing rather than null
+            bootstrap.put("customColors", JSONNull.getInstance());
+        }
+        return bootstrap.toString();
+    }
+
+    /** A run time threshold in seconds; 0 when it is not a number, since NaN and infinity are not valid JSON. */
+    static double parseSeconds(String value) {
+        if (value == null) {
+            return 0;
+        }
+        try {
+            double seconds = Double.parseDouble(value.trim());
+            return Double.isFinite(seconds) ? seconds : 0;
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     public String getNoOfBuilds() {

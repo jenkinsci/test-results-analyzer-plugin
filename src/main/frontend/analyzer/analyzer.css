@@ -91,10 +91,6 @@
   container-type: inline-size;
 }
 
-.tra-history-container:empty {
-  display: none;
-}
-
 .tra-history {
   --tra-build-size: 1.125rem;
   --tra-build-gap: 0.1875rem;
@@ -299,7 +295,8 @@
 .tra-build {
   --tra-status-color: var(--tra-na);
   border-radius: 0.25rem;
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tra-status-color) 45%, transparent);
+  box-shadow: inset 0 0 0 1.5px
+    color-mix(in srgb, var(--tra-status-color) 45%, transparent);
   display: block;
   flex-shrink: 0;
   height: var(--tra-build-size);
