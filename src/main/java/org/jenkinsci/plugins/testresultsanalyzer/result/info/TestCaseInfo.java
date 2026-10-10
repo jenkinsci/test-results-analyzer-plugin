@@ -7,7 +7,10 @@ import org.jenkinsci.plugins.testresultsanalyzer.result.data.TestCaseResultData;
 public class TestCaseInfo extends Info {
 
     public void putTestCaseResult(Integer buildNumber, TestResult testCaseResult, String url) {
-        TestCaseResultData testCaseResultData = new TestCaseResultData(testCaseResult, url);
+        putTestCaseResult(buildNumber, new TestCaseResultData(testCaseResult, url));
+    }
+
+    public void putTestCaseResult(Integer buildNumber, TestCaseResultData testCaseResultData) {
         setConfig(testCaseResultData.isConfig());
         this.buildResults.put(buildNumber, testCaseResultData);
     }
