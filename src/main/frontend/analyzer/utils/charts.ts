@@ -99,6 +99,54 @@ function baseOptions(theme: ChartTheme, title: string): EChartsOption {
   };
 }
 
+const HTML_ESCAPES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
+
+/** Escapes text for the HTML that ECharts renders tooltips with. */
+export function escapeHtml(text: string): string {
+  return text.replace(/[&<>"']/g, (character) => HTML_ESCAPES[character]);
+}
+
+interface AxisTooltipParam {
+  dataIndex: number;
+  marker?: string;
+  seriesName?: string;
+  value: unknown;
+}
+
+/**
+ * Formats an axis tooltip with the whole title of the hovered build (number, name and date) as its
+ * heading, rather than the category value on the axis, followed by a line per series.
+ */
+export function axisTooltipFormatter(
+  builds: BuildTotals[],
+  label: BuildLabeler,
+  valueFormatter: (value: unknown) => string = (value) =>
+    value === null || value === undefined ? "–" : String(value),
+): (params: unknown) => string {
+  return (params) => {
+    const items = (
+      Array.isArray(params) ? params : [params]
+    ) as AxisTooltipParam[];
+    if (items.length === 0) {
+      return "";
+    }
+    const build = builds[items[0].dataIndex];
+    const heading = build ? escapeHtml(label(build.build).title) : "";
+    const lines = items.map(
+      (item) =>
+        `<div>${item.marker ?? ""}${escapeHtml(item.seriesName ?? "")}` +
+        `<strong style="float:right;margin-left:1.5em">${escapeHtml(valueFormatter(item.value))}</strong></div>`,
+    );
+    return `<div style="font-weight:600;margin-bottom:0.25em">${heading}</div>${lines.join("")}`;
+  };
+}
+
 function axes(
   theme: ChartTheme,
   builds: BuildTotals[],
@@ -113,7 +161,7 @@ function axes(
       nameLocation: "middle",
       nameGap: 28,
       nameTextStyle: { color: theme.textSecondary },
-      // The whole label shows in the tooltip, a shortened one on the axis
+      // The whole title shows in the tooltip, a shortened label on the axis
       data: builds.map((build) => label(build.build).text),
       axisLine: { lineStyle: { color: theme.border } },
       axisTick: { show: false },
@@ -177,12 +225,13 @@ export function lineChartOptions(
     axisPointer: { type: "shadow" as const },
   } as Record<string, unknown>;
 
+  let valueFormatter: ((value: unknown) => string) | undefined;
   let series: LineSeriesOption[];
   if (mode === "passrate") {
     yAxis.max = 100;
     yAxis.minInterval = undefined;
-    tooltip.valueFormatter = (value: unknown) =>
-      value === null ? "–" : `${value}%`;
+    valueFormatter = (value: unknown) =>
+      value === null || value === undefined ? "–" : `${value}%`;
     series = [
       lineSeries(
         "Pass rate",
@@ -198,7 +247,7 @@ export function lineChartOptions(
     ];
   } else if (mode === "runtime") {
     yAxis.minInterval = undefined;
-    tooltip.valueFormatter = (value: unknown) => `${value} s`;
+    valueFormatter = (value: unknown) => `${value} s`;
     series = [
       lineSeries(
         "Run time",
@@ -230,6 +279,7 @@ export function lineChartOptions(
       ),
     ];
   }
+  tooltip.formatter = axisTooltipFormatter(builds, label, valueFormatter);
   return {
     ...baseOptions(theme, title),
     ...axisOptions,
@@ -264,6 +314,7 @@ export function barChartOptions(
       ...(base.tooltip as object),
       trigger: "axis",
       axisPointer: { type: "shadow" },
+      formatter: axisTooltipFormatter(builds, label),
     },
     series: [
       bar("Passed", "passed", theme.passed),
