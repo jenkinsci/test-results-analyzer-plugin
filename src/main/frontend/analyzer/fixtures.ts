@@ -96,6 +96,7 @@ export function bootstrap(overrides: Partial<Bootstrap> = {}): Bootstrap {
     runTimeLowThreshold: 0.5,
     runTimeHighThreshold: 1.5,
     customColors: null,
+    maxChosenBuilds: 10_000,
     defaults: {
       noOfBuilds: "10",
       showAllBuilds: false,

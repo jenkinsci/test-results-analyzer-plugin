@@ -8,10 +8,13 @@ import io.jenkins.plugins.junit.storage.CaseResultSummary;
 import io.jenkins.plugins.junit.storage.FileJunitTestResultStorage;
 import io.jenkins.plugins.junit.storage.JunitTestResultStorage;
 import io.jenkins.plugins.junit.storage.TestResultImpl;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ClassResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.PackageResultData;
 import org.jenkinsci.plugins.testresultsanalyzer.result.data.ResultData;
@@ -29,6 +32,9 @@ import org.jenkinsci.plugins.testresultsanalyzer.result.info.TestCaseInfo;
  * {@code TestResult -> PackageResult -> ClassResult -> CaseResult} tree.
  */
 final class StorageResultLoader {
+
+    /** Most builds that are not wanted that may be read rather than starting another range. */
+    static final int MAX_GAP = 10;
 
     private final TestResultImpl storage;
 
@@ -62,27 +68,45 @@ final class StorageResultLoader {
         if (buildUrls.isEmpty()) {
             return;
         }
-        int from = Collections.min(buildUrls.keySet());
-        int to = Collections.max(buildUrls.keySet());
         Map<String, String> names = new HashMap<>();
         BuildAccumulator[] current = {null};
-        storage.forEachCaseResultSummary(from, to, summary -> {
-            String buildUrl = buildUrls.get(summary.getBuild());
-            if (buildUrl == null) {
-                return;
-            }
-            BuildAccumulator acc = current[0];
-            if (acc == null || acc.build != summary.getBuild()) {
-                if (acc != null) {
-                    acc.flush(resultInfo);
+        for (int[] range : ranges(buildUrls.keySet())) {
+            storage.forEachCaseResultSummary(range[0], range[1], summary -> {
+                String buildUrl = buildUrls.get(summary.getBuild());
+                if (buildUrl == null) {
+                    return;
                 }
-                acc = current[0] = new BuildAccumulator(summary.getBuild(), buildUrl, names);
-            }
-            acc.add(summary, resultInfo);
-        });
+                BuildAccumulator acc = current[0];
+                if (acc == null || acc.build != summary.getBuild()) {
+                    if (acc != null) {
+                        acc.flush(resultInfo);
+                    }
+                    acc = current[0] = new BuildAccumulator(summary.getBuild(), buildUrl, names);
+                }
+                acc.add(summary, resultInfo);
+            });
+        }
         if (current[0] != null) {
             current[0].flush(resultInfo);
         }
+    }
+
+    /**
+     * Groups build numbers into inclusive ranges to read, so a few chosen builds far apart do not read every
+     * build between them. Small gaps, such as deleted or running builds, are read through rather than split on.
+     */
+    static List<int[]> ranges(Collection<Integer> buildNumbers) {
+        List<int[]> ranges = new ArrayList<>();
+        int[] range = null;
+        for (int number : new TreeSet<>(buildNumbers)) {
+            if (range != null && number - range[1] <= MAX_GAP + 1) {
+                range[1] = number;
+            } else {
+                range = new int[] {number, number};
+                ranges.add(range);
+            }
+        }
+        return ranges;
     }
 
     /** Tallies the package and class rows of one build while its cases stream past. */

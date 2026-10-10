@@ -16,6 +16,8 @@ import hudson.model.FreeStyleProject;
 import hudson.model.Item;
 import hudson.tasks.junit.JUnitResultArchiver;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.function.IntFunction;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
@@ -118,6 +120,31 @@ class AnalyzerPageTest {
     }
 
     @Test
+    void administratorRunLimitCapsHowManyBuildsCanBeChosen() throws Exception {
+        configureGlobally("noOfRunsToFetch: 2");
+        try {
+            FreeStyleProject project = calculatorProject();
+            TestResultsAnalyzerAction action = project.getAction(TestResultsAnalyzerAction.class);
+            assertThat(action.getMaxChosenBuilds(), is(2));
+            assertThat(JSONObject.fromObject(action.getBootstrapJson()).getInt("maxChosenBuilds"), is(2));
+            // Older builds than the latest two can still be chosen, just not more than two of them
+            assertThat(data(project, "buildNumbers=" + encode("1,3")).getJSONArray("builds"), hasSize(2));
+            JenkinsRule.WebClient wc = j.createWebClient();
+            for (String endpoint : new String[] {"/data", "/csv"}) {
+                try {
+                    wc.goTo(project.getUrl() + Constants.URL + endpoint + "?buildNumbers=1-3", null);
+                    throw new AssertionError(endpoint + " should reject more builds than the limit");
+                } catch (FailingHttpStatusCodeException e) {
+                    assertThat(e.getStatusCode(), is(400));
+                }
+            }
+        } finally {
+            // The descriptor outlives the Jenkins instance of a test
+            configureGlobally("");
+        }
+    }
+
+    @Test
     void customStatusColoursArePassedToThePage() throws Exception {
         configureGlobally("useCustomStatusColors: {passedColor: '#00ff00', failedColor: '#ff0000',"
                 + " skippedColor: '#ffff00', naColor: '#cccccc'}");
@@ -205,6 +232,67 @@ class AnalyzerPageTest {
     }
 
     @Test
+    void dataServesTheChosenBuilds() throws Exception {
+        // "flaky" fails in even builds
+        FreeStyleProject project = createProject(
+                6, build -> suite("p.T", testCase("p.T", "flaky", build % 2 == 0 ? "<failure message=\"x\"/>" : "")));
+
+        // Builds that do not exist are left out
+        JSONObject chosen = data(project, "buildNumbers=" + encode("1, 3-4,99") + "&hideConfigMethods=false");
+        assertThat(chosen.getJSONArray("builds"), is(JSONArray.fromObject("[\"4\",\"3\",\"1\"]")));
+        JSONArray results = child(child(chosen.getJSONArray("results").getJSONObject(0), 0), 0)
+                .getJSONArray("buildResults");
+        assertThat(results.getJSONObject(0).getString("status"), is("FAILED"));
+        assertThat(results.getJSONObject(1).getString("status"), is("PASSED"));
+        assertThat(results.getJSONObject(2).getString("buildNumber"), is("1"));
+
+        // The cache follows the request rather than serving the previous one
+        assertThat(
+                data(project, "builds=2&hideConfigMethods=false").getJSONArray("builds"),
+                is(JSONArray.fromObject("[\"6\",\"5\"]")));
+        assertThat(
+                data(project, "buildNumbers=2&builds=2").getJSONArray("builds"), is(JSONArray.fromObject("[\"2\"]")));
+        assertThat(data(project, "buildNumbers=2-3").getJSONArray("builds"), is(JSONArray.fromObject("[\"3\",\"2\"]")));
+        assertThat(data(project, "buildNumbers=50-60").getJSONArray("builds"), hasSize(0));
+        // A blank selection means the latest builds
+        assertThat(data(project, "builds=1&buildNumbers=").getJSONArray("builds"), is(JSONArray.fromObject("[\"6\"]")));
+
+        // A deleted build is noticed
+        project.getBuildByNumber(3).delete();
+        assertThat(data(project, "buildNumbers=2-3").getJSONArray("builds"), is(JSONArray.fromObject("[\"2\"]")));
+    }
+
+    @Test
+    void invalidBuildNumbersAreABadRequest() throws Exception {
+        FreeStyleProject project = calculatorProject();
+        JenkinsRule.WebClient wc = j.createWebClient();
+        for (String endpoint : new String[] {"/data", "/csv"}) {
+            for (String spec : new String[] {"abc", "1-2-3", "0", "-1", "1-99999999", ",,"}) {
+                try {
+                    wc.goTo(project.getUrl() + Constants.URL + endpoint + "?buildNumbers=" + encode(spec), null);
+                    throw new AssertionError(endpoint + " should reject " + spec);
+                } catch (FailingHttpStatusCodeException e) {
+                    assertThat(spec, e.getStatusCode(), is(400));
+                }
+            }
+        }
+    }
+
+    @Test
+    void csvDownloadOfTheChosenBuilds() throws Exception {
+        FreeStyleProject project = calculatorProject();
+        Page page = j.createWebClient()
+                .goTo(project.getUrl() + Constants.URL + "/csv?buildNumbers=" + encode("1,3"), "text/csv");
+        String[] lines = page.getWebResponse().getContentAsString().split(System.lineSeparator());
+        assertThat(lines[0], is("\"Package\",\"Class\",\"Test\",\"3\",\"1\""));
+        assertThat(lines[2], is("\"com.example\",\"CalculatorTest\",\"testB\",\"FAILED\",\"PASSED\""));
+    }
+
+    private static String encode(String value) {
+        return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
+    @Test
     void errorsCountAsFailures() throws Exception {
         FreeStyleProject project = createProject(
                 1, build -> suite("p.T", testCase("p.T", "errors", "<error message=\"npe\">npe</error>")));
@@ -252,7 +340,8 @@ class AnalyzerPageTest {
         reader.goTo(project.getUrl() + Constants.URL + "/data?builds=-1", "application/json");
 
         JenkinsRule.WebClient outsider = j.createWebClient().login("outsider");
-        for (String endpoint : new String[] {"/data?builds=-1", "/csv?builds=-1"}) {
+        for (String endpoint :
+                new String[] {"/data?builds=-1", "/csv?builds=-1", "/data?buildNumbers=1", "/csv?buildNumbers=1"}) {
             try {
                 outsider.goTo(project.getUrl() + Constants.URL + endpoint, null);
                 throw new AssertionError(endpoint + " should not be reachable");

@@ -45,8 +45,17 @@
   gap: 1rem;
 }
 
+/* Core spaces stacked radios apart, which would push the first of a row out of line */
+.tra-options__inline > .jenkins-radio:not(:last-of-type) {
+  margin-bottom: 0;
+}
+
 .tra-options__number {
   max-width: 7rem;
+}
+
+.tra-options__help {
+  font-size: var(--font-size-xs, 0.8125rem);
 }
 
 .tra-options__actions {

@@ -20,6 +20,12 @@ import type {
   Options,
   Row,
 } from "./model.ts";
+import {
+  type BuildRequest,
+  buildNumbersError,
+  buildRequest,
+  differingTests,
+} from "./utils/builds.ts";
 import { flattenTree, worstTests } from "./utils/stats.ts";
 import {
   chartNodes,
@@ -49,8 +55,11 @@ function chartData(value: string): ChartData {
 
 function initialOptions({ defaults }: Bootstrap): Options {
   return {
+    buildMode: "latest",
     builds: defaults.noOfBuilds,
     allBuilds: defaults.showAllBuilds,
+    buildNumbers: "",
+    onlyDiffering: false,
     showDurations: defaults.showBuildTime,
     showNotRun: false,
     hideConfig: defaults.hideConfigurationMethods,
@@ -83,8 +92,14 @@ export function AnalyzerPage({
   const [checked, setChecked] = useState<ReadonlySet<number>>(new Set());
 
   const rows = useMemo(
-    () => (data ? flattenTree(data.results, options.showNotRun) : NO_ROWS),
-    [data, options.showNotRun],
+    () =>
+      data
+        ? flattenTree(
+            options.onlyDiffering ? differingTests(data.results) : data.results,
+            options.showNotRun,
+          )
+        : NO_ROWS,
+    [data, options.showNotRun, options.onlyDiffering],
   );
   // Row ids change with the rows, so start again with everything collapsed and unticked
   const [rowsShown, setRowsShown] = useState(rows);
@@ -97,16 +112,29 @@ export function AnalyzerPage({
   const request = useRef(0);
   const optionsRef = useRef(options);
   optionsRef.current = options;
-  const builds = options.allBuilds ? "-1" : options.builds;
+  // The builds shown, which the CSV download exports
+  const [shown, setShown] = useState<BuildRequest>(() => buildRequest(options));
 
   const load = useCallback(() => {
-    const { allBuilds, builds, hideConfig } = optionsRef.current;
+    const current = optionsRef.current;
+    if (
+      current.buildMode === "specific" &&
+      buildNumbersError(current.buildNumbers, bootstrap.maxChosenBuilds) !==
+        null
+    ) {
+      return;
+    }
+    const requested = buildRequest(current);
     const id = ++request.current;
+    setShown(requested);
     setLoading(true);
     setError(false);
     setData(null);
-    client
-      .load(allBuilds ? "-1" : builds, hideConfig)
+    const { builds, buildNumbers } = requested;
+    (buildNumbers === undefined
+      ? client.load(builds, current.hideConfig)
+      : client.load(builds, current.hideConfig, buildNumbers)
+    )
       .then((loaded) => {
         if (id === request.current) {
           setData(loaded);
@@ -122,7 +150,7 @@ export function AnalyzerPage({
           setLoading(false);
         }
       });
-  }, [client]);
+  }, [client, bootstrap.maxChosenBuilds]);
 
   useEffect(() => {
     load();
@@ -146,10 +174,18 @@ export function AnalyzerPage({
       return;
     }
     const onClick = () =>
-      download(client.csvUrl(builds, options.showDurations));
+      download(
+        shown.buildNumbers === undefined
+          ? client.csvUrl(shown.builds, options.showDurations)
+          : client.csvUrl(
+              shown.builds,
+              options.showDurations,
+              shown.buildNumbers,
+            ),
+      );
     csvButton.addEventListener("click", onClick);
     return () => csvButton.removeEventListener("click", onClick);
-  }, [csvButton, client, download, builds, options.showDurations]);
+  }, [csvButton, client, download, shown, options.showDurations]);
 
   const updateOptions = useCallback((changes: Partial<Options>) => {
     setOptions((current) => ({ ...current, ...changes }));
@@ -202,6 +238,7 @@ export function AnalyzerPage({
           options={options}
           onChange={updateOptions}
           onApply={load}
+          maxBuilds={bootstrap.maxChosenBuilds}
         />
       )}
 
@@ -267,7 +304,9 @@ export function AnalyzerPage({
         )}
         {data && rows.length === 0 && (
           <p className="jenkins-!-text-color-secondary tra-empty">
-            No test results were found for the selected builds.
+            {options.onlyDiffering && data.results.length > 0
+              ? "No test results differ between the selected builds."
+              : "No test results were found for the selected builds."}
           </p>
         )}
         {data && rows.length > 0 && (

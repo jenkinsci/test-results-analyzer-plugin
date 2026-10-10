@@ -110,11 +110,14 @@ class StorageResultLoaderTest {
 
         String allFromFiles = tree(project, "-1");
         String twoFromFiles = tree(project, "2");
+        String chosenFromFiles = tree(project, "1,3");
+        assertTrue(chosenFromFiles.contains("onlyHere") && !chosenFromFiles.contains("\"buildNumber\": \"2\""));
 
         switchToStubStorage(runs);
 
         assertEquals(allFromFiles, tree(project, "-1"));
         assertEquals(twoFromFiles, tree(project, "2"));
+        assertEquals(chosenFromFiles, tree(project, "1,3"));
         assertTrue(StubStorage.streamed > 0, "storage fast path should have been used");
     }
 
@@ -247,9 +250,27 @@ class StorageResultLoaderTest {
         }
     }
 
-    private static String tree(FreeStyleProject project, String noOfBuilds) throws IOException {
+    @Test
+    void sparseBuildsAreReadInRanges() {
+        assertEquals("[]", describe(StorageResultLoader.ranges(List.of())));
+        assertEquals("[1-5]", describe(StorageResultLoader.ranges(List.of(5, 3, 1, 4, 2))));
+        // deleted or running builds in between are read through
+        int near = 5 + StorageResultLoader.MAX_GAP + 1;
+        assertEquals("[1-" + near + "]", describe(StorageResultLoader.ranges(List.of(1, 5, near))));
+        assertEquals(
+                "[12-12, 36-53, 80-80]", describe(StorageResultLoader.ranges(List.of(53, 40, 41, 36, 12, 45, 80))));
+    }
+
+    private static String describe(List<int[]> ranges) {
+        return ranges.stream().map(r -> r[0] + "-" + r[1]).toList().toString();
+    }
+
+    /** The tree for the latest builds, or for the chosen builds when given a list such as {@code 1,3}. */
+    private static String tree(FreeStyleProject project, String builds) throws IOException {
         StringWriter out = new StringWriter();
-        new TestResultsAnalyzerAction(project).writeTreeResult(out, noOfBuilds, false);
+        boolean chosen = builds.contains(",");
+        new TestResultsAnalyzerAction(project)
+                .writeTreeResult(out, chosen ? null : builds, chosen ? builds : null, false);
         return JSONObject.fromObject(out.toString()).toString(2);
     }
 

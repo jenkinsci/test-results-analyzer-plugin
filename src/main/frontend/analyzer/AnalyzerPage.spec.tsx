@@ -10,8 +10,10 @@ import type { AnalyzerData } from "./model.ts";
 function client(data: AnalyzerData = calculatorData()): AnalyzerClient {
   return {
     load: vi.fn().mockResolvedValue(data),
-    csvUrl: (builds, durations) =>
-      `csv?builds=${builds}&durations=${durations}`,
+    csvUrl: (builds, durations, buildNumbers) =>
+      `csv?builds=${builds}&durations=${durations}${
+        buildNumbers === undefined ? "" : `&buildNumbers=${buildNumbers}`
+      }`,
   };
 }
 
@@ -220,6 +222,96 @@ describe("AnalyzerPage", () => {
 
     await act(async () => optionsButton.click());
     await waitFor(() => expect(screen.queryByText("Options")).toBeNull());
+  });
+
+  it("loads and downloads the chosen builds", async () => {
+    const optionsButton = document.createElement("button");
+    const csvButton = document.createElement("button");
+    const download = vi.fn();
+    const { api, user } = await renderPage(undefined, {
+      optionsButton,
+      csvButton,
+      download,
+    });
+    await act(async () => optionsButton.click());
+    expect(
+      await screen.findByRole("radiogroup", { name: "Builds" }),
+    ).toBeInTheDocument();
+    await user.click(await screen.findByLabelText("Specific builds"));
+    expect(screen.queryByLabelText("Number of builds")).toBeNull();
+    const update = screen.getByRole("button", { name: "Update" });
+    expect(update).toBeDisabled();
+
+    const numbers = screen.getByLabelText("Build numbers");
+    await user.type(numbers, "3, x");
+    expect(numbers).toHaveAttribute("aria-invalid", "true");
+    expect(
+      screen.getByText('"x" is not a build number or a range such as 40-53.'),
+    ).toBeInTheDocument();
+    expect(update).toBeDisabled();
+
+    // Not applied yet, so the CSV is still of the builds shown
+    await act(async () => csvButton.click());
+    expect(download).toHaveBeenLastCalledWith("csv?builds=10&durations=false");
+
+    await user.clear(numbers);
+    await user.type(numbers, " 1, 3 ");
+    expect(numbers).toHaveAttribute("aria-invalid", "false");
+    await user.click(update);
+    expect(api.load).toHaveBeenLastCalledWith("10", false, "1, 3");
+
+    await act(async () => csvButton.click());
+    expect(download).toHaveBeenLastCalledWith(
+      "csv?builds=10&durations=false&buildNumbers=1, 3",
+    );
+
+    await user.click(screen.getByLabelText("Latest"));
+    await user.click(screen.getByRole("button", { name: "Update" }));
+    expect(api.load).toHaveBeenLastCalledWith("10", false);
+  });
+
+  it("shows only the tests whose status differs when asked", async () => {
+    const data = {
+      builds: ["2", "1"],
+      results: [
+        group("p", [
+          group("T", [
+            test("same", ["PASSED", "PASSED"]),
+            test("broke", ["FAILED", "PASSED"]),
+          ]),
+        ]),
+      ],
+    };
+    const optionsButton = document.createElement("button");
+    const { container, user } = await renderPage(data, { optionsButton });
+    await act(async () => optionsButton.click());
+    await user.click(
+      await screen.findByLabelText(
+        "Only show tests whose status differs between the builds",
+      ),
+    );
+    await user.click(screen.getByRole("button", { name: "Expand all" }));
+    expect(rowNames(container)).toEqual(["p", "T", "broke"]);
+  });
+
+  it("says when no test differs between the builds", async () => {
+    const optionsButton = document.createElement("button");
+    const { user } = await renderPage(
+      {
+        builds: ["2", "1"],
+        results: [group("p", [test("same", ["PASSED", "PASSED"])])],
+      },
+      { optionsButton },
+    );
+    await act(async () => optionsButton.click());
+    await user.click(
+      await screen.findByLabelText(
+        "Only show tests whose status differs between the builds",
+      ),
+    );
+    expect(
+      screen.getByText("No test results differ between the selected builds."),
+    ).toBeInTheDocument();
   });
 
   it("only offers the bar chart for passes and failures", async () => {

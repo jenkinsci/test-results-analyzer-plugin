@@ -24,11 +24,13 @@ side panel.
   or test run times. Click **Select** and tick packages, classes or tests to chart only those. Click a build on the line chart to show it in the
   pie chart. Each chart can be saved as an image.
 - **Most broken tests**: the tests that failed most often, with links to the builds they failed in.
-- **Download CSV**: exports every test for the selected number of builds, ignoring the filter and display options.
+- **Download CSV**: exports every test for the builds shown, ignoring the filter and display options.
 
-Use **Options** to change the number of builds, show run times instead of results, show tests that
-did not run in the builds shown, hide TestNG configuration methods, change how many most broken
-tests are listed, or pick which charts to draw. Defaults, run-time thresholds, custom status
+Use **Options** to change the number of builds, or choose **Specific builds** and list build numbers
+and ranges such as `12, 36, 40-53` to compare those builds. Options can also show run times instead
+of results, show tests that did not run in the builds shown, show only the tests whose status differs
+between the builds, hide TestNG configuration methods, change how many most broken tests are listed,
+or pick which charts to draw. Defaults, run-time thresholds, custom status
 names and custom status colours are set under *Manage Jenkins › System › Test Results Analyzer*.
 
 The page follows the Jenkins theme, including dark mode, and adapts to small screens.
@@ -52,12 +54,19 @@ Parameters:
 
 - `builds`: how many of the latest completed builds to include. Leave it out, or pass `-1`, for all
   of them (limited by *No. of Runs To Fetch Reports* in the global configuration).
+- `buildNumbers`: build numbers and ranges to include instead of the latest builds, such as
+  `12,36,40-53`. When it is given and not blank, `builds` is ignored; a blank value falls back to
+  `builds`. The list may be at most 1,000 characters long and cover at most 10,000 builds, or fewer
+  when *No. of Runs To Fetch Reports* is set: it then caps how many builds can be chosen, but not
+  how old they are. Overlapping ranges count each time. Builds that do not exist or are still
+  running are left out; an invalid list, or one over the limit, is answered with a `400`.
 - `hideConfigMethods` (`data` only): `true` leaves out TestNG configuration methods.
 - `durations` (`csv` only): `true` exports run times in seconds instead of results.
 
 ```sh
 curl -u "$USER:$API_TOKEN" "$JENKINS_URL/job/my-job/test_results_analyzer/data?builds=10"
 curl -u "$USER:$API_TOKEN" -o test-results.csv "$JENKINS_URL/job/my-job/test_results_analyzer/csv?builds=10"
+curl -u "$USER:$API_TOKEN" "$JENKINS_URL/job/my-job/test_results_analyzer/data?buildNumbers=12,36,40-53"
 ```
 
 The JSON has the build numbers, newest first, and a tree of packages, classes and tests. Every
