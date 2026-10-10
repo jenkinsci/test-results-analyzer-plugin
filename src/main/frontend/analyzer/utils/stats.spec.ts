@@ -169,6 +169,16 @@ describe("combinedStatus", () => {
     expect(combinedStatus(results("N/A", "N/A"))).toBe("N/A");
     expect(combinedStatus([])).toBe("N/A");
   });
+
+  it("has no result for a class or package without any tests", () => {
+    const empty = {
+      buildNumber: "1",
+      status: "SKIPPED" as const,
+      totalTests: 0,
+    };
+    expect(combinedStatus([empty])).toBe("N/A");
+    expect(combinedStatus([empty, result("1", "PASSED")])).toBe("PASSED");
+  });
 });
 
 describe("aggregateGroups", () => {
@@ -219,6 +229,33 @@ describe("aggregateGroups", () => {
       0.2, 0.1,
     ]);
     expect(latest.runtime).toBeCloseTo(0.3);
+  });
+
+  it("does not count a class without any tests", () => {
+    // Every test of the class is a hidden configuration method, so the server reports it skipped
+    const empty = {
+      text: "Empty",
+      buildResults: [
+        {
+          buildNumber: "1",
+          status: "SKIPPED" as const,
+          totalTests: 0,
+          totalPassed: 0,
+          totalFailed: 0,
+          totalSkipped: 0,
+        },
+      ],
+      children: [],
+    };
+    expect(
+      aggregateGroups([[empty]]).map((t) => [
+        t.build,
+        t.passed,
+        t.failed,
+        t.skipped,
+        t.total,
+      ]),
+    ).toEqual([["1", 0, 0, 0, 0]]);
   });
 
   it("matches counting tests when every group has one test", () => {
