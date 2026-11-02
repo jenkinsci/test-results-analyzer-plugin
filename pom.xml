@@ -71,7 +71,7 @@
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>junit</artifactId>
       <!-- TODO remove once the BOM manages a version with TestResultImpl#forEachCaseResultSummary -->
-      <version>1437.v12280a_c49b_50</version>
+      <version>1456.vdb_4425ca_0d4d</version>
     </dependency>
   </dependencies>
 
